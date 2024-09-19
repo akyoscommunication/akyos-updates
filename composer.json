@@ -19,7 +19,7 @@
   ],
   "keywords": ["wordpress", "plugin", "akyos", "updates"],
   "require": {
-    "php": ">=7.4",
+    "php": ">=8.3",
     "symfony/http-foundation": "^7.1",
     "twig/twig": "^3.14",
     "symfony/dependency-injection": "^7.1",
