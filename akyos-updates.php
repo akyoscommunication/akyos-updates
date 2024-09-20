@@ -27,6 +27,9 @@ use AkyosUpdates\AkyosUpdates;
 
 require_once __DIR__.'/vendor/autoload.php';
 
+const AKYOS_UPDATES_VERSION = '0.0.1';
+const AKYOS_UPDATES_NAME = 'akyos-updates';
+
 $container = require __DIR__ . '/services.php';
 
 $akyosUpdates = $container->get(AkyosUpdates::class);

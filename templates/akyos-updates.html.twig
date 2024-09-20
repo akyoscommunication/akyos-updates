@@ -1,1 +1,33 @@
-<h1>Test</h1>
+<section class="container">
+    <h1 class="text-center">Mise à jour</h1>
+    <div>
+        <p class="text-center">Version de PHP</p>
+        <div class="text-center">
+           {{ php_version }}
+        </div>
+    </div>
+    <div>
+        <p class="text-center">Commentaires</p>
+        <div class="text-center">
+            {{ comments_disabled.message }}
+        </div>
+        {% if comments_disabled.action_required %}
+            <form method="POST" action="{{ admin_url }}">
+                <input type="hidden" name="action" value="akyos_updates_disable_comments">
+                <button type="submit" class="btn btn-primary">Désactiver les commentaires</button>
+            </form>
+        {% endif %}
+    </div>
+    <div>
+        <p class="text-center">Publication par mail</p>
+        <div class="text-center">
+            {{ mail_publisher.message }}
+        </div>
+        {% if mail_publisher.action_required %}
+            <form method="POST" action="{{ admin_url }}">
+                <input type="hidden" name="action" value="akyos_updates_disable_mail_publisher">
+                <button type="submit" class="btn btn-primary">Désactiver la publication par email</button>
+            </form>
+        {% endif %}
+    </div>
+</section>

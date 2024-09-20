@@ -2,22 +2,14 @@
 
 namespace AkyosUpdates;
 
-use AkyosUpdates\Class\Hook;
-use AkyosUpdates\Service\AdminService;
-use AkyosUpdates\Service\I18nService;
-use AkyosUpdates\Service\LoaderService;
+use AkyosUpdates\Attribute\Hook;
 
 readonly class AkyosUpdates
 {
-    public function __construct(
-        private AdminService  $adminService,
-        private I18nService   $i18nService,
-        private LoaderService $loaderService,
-    )
+    public function __construct()
     {
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
-        $this->loaderService->add(new Hook(LoaderService::TYPE_ACTION, 'init', $this,'init'));
     }
 
     public function activate()
@@ -30,37 +22,47 @@ readonly class AkyosUpdates
         // Add any deactivation code here
     }
 
+    #[Hook(hook: 'init')]
     public function init(): void
     {
         // If this file is called directly, abort.
         if ( ! defined( 'WPINC' ) ) {
             die;
         }
-
-        define( 'AKYOS_UPDATES_VERSION', '0.0.1' );
-        define( 'AKYOS_UPDATES_NAME', 'akyos-updates' );
-
-        $this->setLocaleHook();
-        $this->defineAdminHooks();
     }
 
-    private function setLocaleHook(): void
+    #[Hook(hook: 'plugins_loaded')]
+    public function loadPluginTextdomain(): void
     {
-        $this->loaderService->add(new Hook(LoaderService::TYPE_ACTION, 'plugins_loaded', $this->i18nService, 'loadPluginTextdomain'));
+        load_plugin_textdomain(
+            'akyos-updates',
+            false,
+            dirname(plugin_basename(__FILE__), 2) . '/languages/'
+        );
     }
 
-    private function defineAdminHooks(): void
+    #[Hook(hook: 'plugin_action_links_akyos-updates/src/akyos-updates.php')]
+    public function addActionLinks($links): array
     {
-        $plugin_basename = plugin_basename(plugin_dir_path(__DIR__) . AKYOS_UPDATES_NAME . '.php');
-        
-        $hooks = [
-            new Hook(LoaderService::TYPE_ACTION, 'admin_enqueue_scripts', $this->adminService, 'enqueueStyles'),
-            new Hook(LoaderService::TYPE_ACTION, 'admin_enqueue_scripts', $this->adminService, 'enqueueScripts'),
-            new Hook(LoaderService::TYPE_ACTION, 'admin_menu', $this->adminService, 'addPluginAdminMenu'),
-            new Hook(LoaderService::TYPE_FILTER, 'plugin_action_links_' . $plugin_basename, $this->adminService, 'addActionLinks'),
-            new Hook(LoaderService::TYPE_ACTION, 'admin_init', $this->adminService, 'optionsUpdate'),
-        ];
-        
-        $this->loaderService->bulkAdd($hooks);
+        /*
+        *  Documentation : https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
+        */
+        $settings_link = array(
+            '<a href="' . admin_url('options-general.php?page=' . AKYOS_UPDATES_NAME) . '">' . __('Settings', AKYOS_UPDATES_NAME) . '</a>',
+        );
+
+        return array_merge($settings_link, $links);
+    }
+
+    #[Hook(hook: 'admin_enqueue_styles')]
+    public function enqueueStyles(): void
+    {
+        wp_enqueue_style(AKYOS_UPDATES_NAME, plugin_dir_path(__DIR__) . 'assets/css/akyos-updates.css', [], AKYOS_UPDATES_VERSION, 'all');
+    }
+
+    #[Hook(hook: 'admin_enqueue_scripts')]
+    public function enqueueScripts(): void
+    {
+        wp_enqueue_script(AKYOS_UPDATES_NAME, plugin_dir_path(__DIR__) . 'assets/js/akyos-updates.js', [], AKYOS_UPDATES_VERSION, false);
     }
 }

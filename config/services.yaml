@@ -9,4 +9,4 @@ services:
     AkyosUpdates\:
         resource: '../src/*'
         public: true
-
+        exclude: '../src/{DependencyInjection}'
