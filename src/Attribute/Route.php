@@ -16,6 +16,7 @@ class Route
         public ?string $menuTitle = 'Menu Title',
         public ?string $capability = 'manage_options',
         public ?string $slug = AKYOS_UPDATES_NAME,
+        public ?string $parentSlug = 'subpage_parent_slug',
         public ?string $iconUrl = 'dashicons-superhero',
         public ?int $position = 99
     ) {

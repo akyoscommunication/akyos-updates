@@ -4,21 +4,8 @@ namespace AkyosUpdates\Service;
 
 use AkyosUpdates\Attribute\Hook;
 
-class GeneralConfigsService
+class GenericWPOptionsService
 {
-    public function getPhpVersion(): string
-    {
-        $phpVersion = phpversion();
-
-        if (version_compare($phpVersion, '8.3.0', '<=')) {
-            $phpVersionMessage = "⭕ La version de PHP n'est pas à jour : $phpVersion";
-        } else {
-            $phpVersionMessage = "✅ La version de PHP est à jour : $phpVersion";
-        }
-
-        return $phpVersionMessage;
-    }
-
     public function getCommentsStatus(): array
     {
         $commentsDisabled = get_option('default_comment_status');
@@ -43,7 +30,7 @@ class GeneralConfigsService
         update_option('comment_moderation', 1);
         update_option('comment_previously_approved', 0);
         update_option('show_avatars', 0);
-        return wp_redirect(admin_url('admin.php?page=akyos-updates'));
+        return wp_redirect(admin_url('admin.php?page=akyos_updates_generic_wp_options'));
     }
 
     public function getMailPublisherStatus(): array
@@ -72,6 +59,6 @@ class GeneralConfigsService
         update_option('mailserver_port', '');
         update_option('mailserver_login', '');
         update_option('mailserver_pass', '');
-        return wp_redirect(admin_url('admin.php?page=akyos-updates'));
+        return wp_redirect(admin_url('admin.php?page=akyos_updates_generic_wp_options'));
     }
 }

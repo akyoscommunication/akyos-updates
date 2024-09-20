@@ -44,7 +44,7 @@ class RouteCompilerPass implements CompilerPassInterface
                         if($routeAttr->type === Route::TYPE_MENU_PAGE) {
                             add_menu_page($routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->iconUrl, $routeAttr->position);
                         } else {
-                            add_submenu_page(AKYOS_UPDATES_NAME, $routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->position);
+                            add_submenu_page($routeAttr->parentSlug, $routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->position);
                         }
                     });
                 }

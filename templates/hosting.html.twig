@@ -1,0 +1,15 @@
+<section class="container">
+    <h1 class="text-center">Configuration de l'hébergement</h1>
+
+    {% include 'components/action_block.html.twig' with {
+        'title': 'Version de PHP',
+        'data': php_version,
+    } %}
+
+    {% include 'components/action_block.html.twig' with {
+        'title': 'Composer',
+        'data': composer_configuration,
+        'action_name': 'akyos_updates_add_composer_and_auth',
+        'action_label': 'Ajouter les fichiers'
+    } %}
+</section>
