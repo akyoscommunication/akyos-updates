@@ -1,8 +1,12 @@
 <div>
-    <p class="text-center">{{ title }}</p>
+    {% if title %}
+        <p class="text-center">{{ title }}</p>
+    {% endif %}
+
     <div class="text-center">
         {{ (data.message is defined ? data.message : data)|raw }}
     </div>
+
     {% if data.action_required is defined and data.action_required %}
         {% include 'components/admin_action_button.html.twig' with {'action': action_name, 'label': action_label} %}
     {% endif %}

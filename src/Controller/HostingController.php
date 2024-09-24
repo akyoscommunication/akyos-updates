@@ -21,6 +21,7 @@ class HostingController extends AbstractController
         $this->render('hosting.html.twig', [
             'php_version' => $this->hostingService->getPhpVersion(),
             'composer_configuration' => $this->hostingService->getComposerConfiguration(),
+            'composer_plugins' => $this->hostingService->getComposerPlugins(),
         ]);
     }
 }
