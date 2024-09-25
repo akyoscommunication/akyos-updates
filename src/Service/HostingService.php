@@ -177,10 +177,6 @@ class HostingService
                 $pluginsInComposer = array_keys($composerData['require']);
             }
 
-            $pluginsInComposer = array_filter($pluginsInComposer, function($plugin) {
-                return !in_array($plugin, ['php', 'composer/installers']);
-            });
-
             $pluginsInComposer = array_map(function($plugin) {
                 $exploded = explode('/', $plugin);
                 return end($exploded);
@@ -216,10 +212,14 @@ class HostingService
             }
 
             foreach ($composerPlugins as $plugin) {
-                $composerData['require'][$plugin] = '*';
+                if($plugin === 'akyoscommunication/aky-gdpr') {
+                    $composerData['require'][$plugin] = 'dev-master';
+                } else {
+                    $composerData['require'][$plugin] = '*';
+                }
             }
 
-            file_put_contents(ABSPATH . 'composer.json', json_encode($composerData, JSON_PRETTY_PRINT));
+            file_put_contents(ABSPATH . 'composer.json', json_encode($composerData, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT));
         }
 
         return wp_redirect(admin_url('admin.php?page=akyos_updates_hosting'));
