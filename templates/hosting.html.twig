@@ -34,4 +34,11 @@
         'action_name': 'akyos_updates_add_packages_in_composer',
         'action_label': 'Ajouter les packages au composer.json'
     } %}
+
+    {% include 'components/action_block.html.twig' with {
+        'title': null,
+        'data': composer_udapte,
+        'action_name': 'akyos_updates_run_composer_update',
+        'action_label': 'Run composer update'
+    } %}
 </section>

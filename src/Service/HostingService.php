@@ -126,7 +126,7 @@ class HostingService
                 }
 
                 if(!$pluginPackage) {
-                    $pluginPackage = $this->packageExistsOnWPPackagist($plugin) ? 'wp-packagist/' . $plugin : null;
+                    $pluginPackage = $this->packageExistsOnWPPackagist($plugin) ? 'wpackagist-plugin/' . $plugin : null;
                 }
 
                 if(!$pluginPackage) {
@@ -199,7 +199,7 @@ class HostingService
                 }
 
                 if(!$pluginPackage) {
-                    $pluginPackage = $this->packageExistsOnWPPackagist($plugin) ? 'wp-packagist/' . $plugin : null;
+                    $pluginPackage = $this->packageExistsOnWPPackagist($plugin) ? 'wpackagist-plugin/' . $plugin : null;
                 }
 
                 if(!$pluginPackage) {
@@ -240,5 +240,23 @@ class HostingService
             return end($exploded);
         }, $pluginsInWPMUComposer);
         return in_array($package, $pluginsInWPMUComposer);
+    }
+
+    public function shouldRunComposerUpdate(): array
+    {
+        $composerMessage = 'Mettre les plugins à jour';
+
+        return [
+            'message' => $composerMessage,
+            'action_required' => true
+        ];
+    }
+
+    #[Hook(hook: 'admin_post_akyos_updates_run_composer_update')]
+    public function runComposerUpdate(): bool
+    {
+        shell_exec('cd .. && composer update');
+
+        return wp_redirect(admin_url('admin.php?page=akyos_updates_hosting'));
     }
 }

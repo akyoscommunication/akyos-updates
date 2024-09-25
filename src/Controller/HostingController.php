@@ -22,6 +22,7 @@ class HostingController extends AbstractController
             'php_version' => $this->hostingService->getPhpVersion(),
             'composer_configuration' => $this->hostingService->getComposerConfiguration(),
             'composer_plugins' => $this->hostingService->getComposerPlugins(),
+            'composer_udapte' => $this->hostingService->shouldRunComposerUpdate(),
         ]);
     }
 }
