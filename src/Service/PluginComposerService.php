@@ -4,7 +4,7 @@ namespace AkyosUpdates\Service;
 
 use AkyosUpdates\Attribute\Hook;
 
-class HostingComposerService
+class PluginComposerService
 {
     private array $wpmuPluginsComposer;
     public function __construct()

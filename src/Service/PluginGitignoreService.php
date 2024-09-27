@@ -4,10 +4,10 @@ namespace AkyosUpdates\Service;
 
 use AkyosUpdates\Attribute\Hook;
 
-readonly class HostingGitignoreService
+readonly class PluginGitignoreService
 {
     public function __construct(
-        private HostingComposerService $hostingComposerService,
+        private PluginComposerService $hostingComposerService,
     )
     {
     }

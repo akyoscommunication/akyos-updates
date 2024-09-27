@@ -5,16 +5,12 @@ namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
-use AkyosUpdates\Service\HostingComposerService;
-use AkyosUpdates\Service\HostingGitignoreService;
 use AkyosUpdates\Service\HostingService;
 
 class HostingController extends AbstractController
 {
     public function __construct(
-        private readonly HostingService $hostingService,
-        private readonly HostingComposerService $hostingComposerService,
-        private readonly HostingGitignoreService $hostingGitignoreService,
+        private readonly HostingService         $hostingService,
     ) {
         parent::__construct();
     }
@@ -24,11 +20,6 @@ class HostingController extends AbstractController
     {
         $this->render('hosting.html.twig', [
             'php_version' => $this->hostingService->getPhpVersion(),
-            'composer_configuration' => $this->hostingComposerService->getComposerConfiguration(),
-            'composer_plugins' => $this->hostingComposerService->getComposerPlugins(),
-            'composer_udapte' => $this->hostingComposerService->shouldRunComposerUpdate(),
-            'gitignore_file' => $this->hostingGitignoreService->getGitignoreFile(),
-            'gitignore_configurations' => $this->hostingGitignoreService->getGitIgnoreConfigurations(),
         ]);
     }
 }

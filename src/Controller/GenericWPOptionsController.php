@@ -14,7 +14,7 @@ class GenericWPOptionsController extends AbstractController
         parent::__construct();
     }
 
-    #[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Options générales Wordpress', menuTitle: 'Options WordPress', capability: 'manage_options', slug: 'akyos_updates_generic_wp_options', parentSlug: 'akyos_updates', position: 2)]
+    #[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Options générales Wordpress', menuTitle: 'Options WordPress', capability: 'manage_options', slug: 'akyos_updates_generic_wp_options', parentSlug: 'akyos_updates', position: 3)]
     public function genericWPOptions(): void
     {
         $this->render('generic_wp_options.html.twig', [
