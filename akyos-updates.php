@@ -24,12 +24,16 @@
  */
 
 use AkyosUpdates\AkyosUpdates;
+use AkyosUpdates\Attribute\AdminRoute;
+use AkyosUpdates\Kernel;
 
 require_once __DIR__.'/vendor/autoload.php';
 
 const AKYOS_UPDATES_VERSION = '0.0.1';
 const AKYOS_UPDATES_NAME = 'akyos-updates';
 
-$container = require __DIR__ . '/services.php';
 
+$kernel = new Kernel('dev', true);
+$container = $kernel->boot();
 $akyosUpdates = $container->get(AkyosUpdates::class);
+

@@ -10,7 +10,8 @@ abstract class AbstractController
 {
     private Environment $twig;
 
-    public function __construct() {
+    public function __construct(
+    ) {
         $loader = new FilesystemLoader(plugin_dir_path(__DIR__) . '../templates');
         $this->twig = new Environment($loader);
         $this->twig->addExtension(new PluginExtension());
