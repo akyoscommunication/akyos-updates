@@ -4,17 +4,19 @@ namespace AkyosUpdates\Service\WPMU;
 
 
 use AkyosUpdates\Attribute\Hook;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class BrandaOptionsService
 {
+
 	public function getBrandaAdminMessage()
 	{
 		$isMessageAdmin = get_option('ub_admin_message');
 
 		if (!$isMessageAdmin || !$isMessageAdmin['admin']['message']) {
-			$isMessageAdminMessage = '⭕ Le message d\'administration pour les mails est désactivé';
+			$isMessageAdminMessage = '<p>⭕ Le message d\'administration pour les mails est désactivé</p>';
 		} else {
-			$isMessageAdminMessage = '✅ Le message d\'administration pour les mails est activé';
+			$isMessageAdminMessage = '<p>✅ Le message d\'administration pour les mails est activé</p>';
 		}
 
 		return [
@@ -88,15 +90,77 @@ class BrandaOptionsService
 	}
 
 
+	/**
+	 * @throws TransportExceptionInterface
+	 */
 	public function getBrandaWidgets()
 	{
+		$widgets = get_option('ub_rwp_all_active_dashboard_widgets');
+		$widgetsToHide = get_option('ub_dashboard_widgets');
 
-		//get all dashboard widgets
+		$activated_modules = get_option('ultimatebranding_activated_modules');
+		$message[0] = '<p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
+		$message[1] = '<p>⭕ Les Widgets ne sont pas chargés, <a href="'.admin_url('index.php').'">Charger les widgets ici</a></p>';
+		$message[2] = '<p>⭕ Les Widgets ne sont pas masqués</p>';
 
+		if (array_key_exists('widgets/dashboard-widgets.php', $activated_modules)) {
+			$message[0] = '<p>✅ La fonctionnalité pour masquer les Widgets est activée</p>';
+		}
+		if ($widgets) {
+			$message[1] = '<p>✅ Les Widgets sont chargé</p>';
+		}
+		if ($widgetsToHide) {
+			$message[2] = '<p>✅ Les Widgets sont masqués</p>';
+		}
 
 		return [
-			'message' => 'Oui',
-			'action_required' => true,
+			'message' => implode('<br>', $message),
+			'action_required' => !$widgetsToHide,
 		];
+	}
+
+	/**
+	 * @throws TransportExceptionInterface
+	 */
+	#[Hook(hook: 'admin_post_akyos_updates_hide_branda_widgets')]
+	public function hideWidgets()
+	{
+		$activated_modules = get_option('ultimatebranding_activated_modules');
+
+		if (!array_key_exists('widgets/dashboard-widgets.php', $activated_modules)) {
+			$activated_modules['widgets/dashboard-widgets.php'] = 'yes';
+		}
+
+		update_option('ultimatebranding_activated_modules', $activated_modules);
+
+		$widgets = get_option('ub_rwp_all_active_dashboard_widgets');
+
+		if ($widgets) {
+
+			foreach ($widgets as $key => $widget) {
+				$widgets[$key] = 'on';
+			}
+
+			unset($widgets['custom_help_widget']);
+
+			$widgetsToHide = [
+				'visibility' => [
+					'wp_widgets' => $widgets
+				],
+				'welcome' => [
+					'shortcode' => 'off',
+					'text' => "",
+					'text_meta' => "",
+				],
+				'text' => [],
+				'plugin_version' => get_option('ub_version')
+			];
+
+			add_option('ub_dashboard_widgets', $widgetsToHide);
+		} else {
+			delete_option('ub_dashboard_widgets');
+		}
+
+		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
 	}
 }

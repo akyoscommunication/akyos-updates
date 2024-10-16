@@ -7,9 +7,13 @@ use AkyosUpdates\Attribute\Hook;
 class PluginComposerService
 {
     private array $wpmuPluginsComposer;
-    public function __construct()
+
+	/**
+	 * @throws \JsonException
+	 */
+	public function __construct()
     {
-        $this->wpmuPluginsComposer = json_decode(file_get_contents('https://raw.githubusercontent.com/josephfusco/wpmudev-plugins/refs/heads/master/composer.json'), true);
+        $this->wpmuPluginsComposer = json_decode(file_get_contents('https://raw.githubusercontent.com/josephfusco/wpmudev-plugins/refs/heads/master/composer.json'), true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function getComposerConfiguration(): array
@@ -20,15 +24,15 @@ class PluginComposerService
         $composerMessage = '';
 
         if ($composerJson) {
-            $composerMessage = "✅ Le fichier composer.json est présent à la racine du site <br>";
+            $composerMessage = "<p>✅ Le fichier composer.json est présent à la racine du site <br></p>";
         } else {
-            $composerMessage = "⭕ Le fichier composer.json n'est pas présent à la racine du site <br>";
+            $composerMessage = "<p>⭕ Le fichier composer.json n'est pas présent à la racine du site <br></p>";
         }
 
         if ($authJson) {
-            $composerMessage .= "✅ Le fichier auth.json est présent à la racine du site";
+            $composerMessage .= "<p>✅ Le fichier auth.json est présent à la racine du site</p>";
         } else {
-            $composerMessage .= "⭕ Le fichier auth.json n'est pas présent à la racine du site";
+            $composerMessage .= "<p>⭕ Le fichier auth.json n'est pas présent à la racine du site</p>";
         }
 
         return [
@@ -66,21 +70,21 @@ class PluginComposerService
 
             $composerPluginMessage = 'Plugins dans le fichier composer.json : <br>';
             foreach ($pluginsInComposer as $plugin) {
-                $composerPluginMessage .= '✅ '.$plugin.' <br>';
+                $composerPluginMessage .= '<p>✅ '.$plugin.' </p><br>';
             }
             $composerPluginMessage .= '<br>';
 
-            $composerPluginMessage .= 'Plugins installés sur le site qui ne sont pas dans le fichier composer.json : <br>';
+            $composerPluginMessage .= '<p>Plugins installés sur le site qui ne sont pas dans le fichier composer.json : </p><br>';
             foreach ($pluginsNotInComposer as $plugin) {
                 $pluginPackage = $this->getPackage($plugin);
 
                 if(!$pluginPackage) {
                     $composerPlugins[] = [
-                        'message' => '🔴 '.$plugin.' - Impossible de trouver un repository public pour le plugin. <br>',
+                        'message' => '<p>🔴 '.$plugin.' - Impossible de trouver un repository public pour le plugin. </p><br>',
                     ];
                 } else {
                     $composerPlugins[] = [
-                        'message' => '🟠 '.$pluginPackage.' <br>',
+                        'message' => '<p>🟠 '.$pluginPackage.' </p><br>',
                     ];
                 }
             }

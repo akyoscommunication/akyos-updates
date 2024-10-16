@@ -11,9 +11,9 @@ class GenericWPOptionsService
         $commentsDisabled = get_option('default_comment_status');
 
         if($commentsDisabled !== 'closed') {
-            $commentsDisabledMessage = "⭕ Les commentaires sont activés";
+            $commentsDisabledMessage = "<p>⭕ Les commentaires sont activés</p>";
         } else {
-            $commentsDisabledMessage = "✅ Les commentaires sont désactivés";
+            $commentsDisabledMessage = "<p>✅ Les commentaires sont désactivés</p>";
         }
 
         return [
@@ -40,15 +40,15 @@ class GenericWPOptionsService
         $mailServerLogin = get_option('mailserver_login');
         $mailServerPass = get_option('mailserver_pass');
 
-        if($mailServerUrl != '' && $mailServerPort != '' && $mailServerLogin != '' && $mailServerPass != '') {
-            $mailServerMessage = "⭕ La publication par mail est activée (url: $mailServerUrl, port: $mailServerPort, login: $mailServerLogin, pass: $mailServerPass)";
+        if($mailServerUrl !== '' && $mailServerPort !== '' && $mailServerLogin !== '' && $mailServerPass !== '') {
+            $mailServerMessage = "<p>⭕ La publication par mail est activée (url: $mailServerUrl, port: $mailServerPort, login: $mailServerLogin, pass: $mailServerPass)</p>";
         } else {
-            $mailServerMessage = "✅ La publication par mail est désactivée";
+            $mailServerMessage = "<p>✅ La publication par mail est désactivée</p>";
         }
 
         return [
             'message' => $mailServerMessage,
-            'action_required' => $mailServerUrl != '' && $mailServerPort != '' && $mailServerLogin != '' && $mailServerPass != ''
+            'action_required' => $mailServerUrl !== '' && $mailServerPort !== '' && $mailServerLogin !== '' && $mailServerPass !== ''
         ];
     }
 

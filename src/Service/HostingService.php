@@ -2,7 +2,6 @@
 
 namespace AkyosUpdates\Service;
 
-use AkyosUpdates\Attribute\Hook;
 
 class HostingService
 {
@@ -11,9 +10,9 @@ class HostingService
         $phpVersion = phpversion();
 
         if (version_compare($phpVersion, '8.3.0', '<=')) {
-            $phpVersionMessage = "⭕ La version de PHP n'est pas à jour : $phpVersion";
+            $phpVersionMessage = "<p>⭕ La version de PHP n'est pas à jour : $phpVersion</p>";
         } else {
-            $phpVersionMessage = "✅ La version de PHP est à jour : $phpVersion";
+            $phpVersionMessage = "<p>✅ La version de PHP est à jour : $phpVersion</p>";
         }
 
         return $phpVersionMessage;

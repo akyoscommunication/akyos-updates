@@ -4,8 +4,8 @@ namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
-use AkyosUpdates\Service\GenericWPOptionsService;
 use AkyosUpdates\Service\WPMU\BrandaOptionsService;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class WPMUOptionsController extends AbstractController
 {
@@ -16,6 +16,9 @@ class WPMUOptionsController extends AbstractController
 		parent::__construct();
 	}
 
+	/**
+	 * @throws TransportExceptionInterface
+	 */
 	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Options WPMU', menuTitle: 'Options WPMU', capability: 'manage_options', slug: 'akyos_updates_wpmu_options', parentSlug: 'akyos_updates', position: 4)]
 	public function wpmuOptions(): void
 	{

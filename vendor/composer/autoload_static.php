@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
+class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -29,15 +29,18 @@ class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Service\\' => 26,
+            'Symfony\\Contracts\\HttpClient\\' => 29,
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\VarExporter\\' => 30,
             'Symfony\\Component\\VarDumper\\' => 28,
+            'Symfony\\Component\\HttpClient\\' => 29,
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\DependencyInjection\\' => 38,
             'Symfony\\Component\\Config\\' => 25,
         ),
         'P' => 
         array (
+            'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
         ),
         'A' => 
@@ -67,6 +70,10 @@ class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
         array (
             0 => __DIR__ . '/..' . '/symfony/service-contracts',
         ),
+        'Symfony\\Contracts\\HttpClient\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/http-client-contracts',
+        ),
         'Symfony\\Component\\Yaml\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
@@ -79,6 +86,10 @@ class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
         array (
             0 => __DIR__ . '/..' . '/symfony/var-dumper',
         ),
+        'Symfony\\Component\\HttpClient\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/http-client',
+        ),
         'Symfony\\Component\\Filesystem\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/filesystem',
@@ -90,6 +101,10 @@ class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
         'Symfony\\Component\\Config\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/config',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/src',
         ),
         'Psr\\Container\\' => 
         array (
@@ -110,9 +125,9 @@ class ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit78a609a8403f71dd680d6d958c4deb9d::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$classMap;
 
         }, null, ClassLoader::class);
     }
