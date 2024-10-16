@@ -19,16 +19,24 @@
 	border-bottom: rem(1) solid color(grey-400);
 
 	&__message {
-	  grid-column: 1 / span 3;
+	  grid-column: 1 / span 2;
 	  font-size: rem(15);
 	  color: color(dark);
 	  margin: 0;
 	}
 
 	form {
-	  @include flex(row, nowrap, end, start);
+	  @include flex(row, wrap, end, start);
+	  gap: rem(16);
 
-	  grid-column: 4 / span 2;
+	  grid-column: 3 / 6;
+
+	  .form-group {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: rem(16);
+		width: 100%;
+	  }
 	}
   }
 }

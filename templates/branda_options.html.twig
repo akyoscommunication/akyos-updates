@@ -4,6 +4,22 @@
 
 {% block page_content %}
 	<section class="aky_card">
+
+
+		{% include 'components/branda_smtp_action_block.html.twig' with {
+			'title': 'Branda SMTP',
+			'data': branda_smtp,
+			'action_name': 'akyos_updates_configure_branda_email',
+			'action_label': 'Enregistrer les paramètres SMTP',
+		} %}
+
+		{% include 'components/branda_smtp_action_block.html.twig' with {
+			'title': null,
+			'data': branda_test_email,
+			'action_name': 'akyos_updates_test_branda_mail',
+			'action_label': 'Envoyer un email de test',
+		} %}
+
 		{% include 'components/action_block.html.twig' with {
 			'title': 'Branda message Admin',
 			'data': branda_admin_message,

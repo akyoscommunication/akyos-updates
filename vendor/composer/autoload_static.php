@@ -4,13 +4,14 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
+class ComposerStaticInit6cbf18b97bb70051e5b2b6f9f219d477
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
+        '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '89efb1254ef2d1c5d80096acd12c4098' => __DIR__ . '/..' . '/twig/twig/src/Resources/core.php',
         'ffecb95d45175fd40f75be8a23b34f90' => __DIR__ . '/..' . '/twig/twig/src/Resources/debug.php',
@@ -25,6 +26,7 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
         ),
         'S' => 
         array (
+            'Symfony\\Polyfill\\Php83\\' => 23,
             'Symfony\\Polyfill\\Php81\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
@@ -33,6 +35,7 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\VarExporter\\' => 30,
             'Symfony\\Component\\VarDumper\\' => 28,
+            'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\HttpClient\\' => 29,
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\DependencyInjection\\' => 38,
@@ -42,6 +45,7 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'A' => 
         array (
@@ -53,6 +57,10 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
+        ),
+        'Symfony\\Polyfill\\Php83\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php83',
         ),
         'Symfony\\Polyfill\\Php81\\' => 
         array (
@@ -86,6 +94,10 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
         array (
             0 => __DIR__ . '/..' . '/symfony/var-dumper',
         ),
+        'Symfony\\Component\\HttpFoundation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/http-foundation',
+        ),
         'Symfony\\Component\\HttpClient\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/http-client',
@@ -110,6 +122,10 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'AkyosUpdates\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
@@ -119,15 +135,26 @@ class ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7
     public static $classMap = array (
         'CURLStringFile' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
+        'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
+        'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
+        'DateInvalidTimeZoneException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidTimeZoneException.php',
+        'DateMalformedIntervalStringException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateMalformedIntervalStringException.php',
+        'DateMalformedPeriodStringException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateMalformedPeriodStringException.php',
+        'DateMalformedStringException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateMalformedStringException.php',
+        'DateObjectError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateObjectError.php',
+        'DateRangeError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateRangeError.php',
+        'Override' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/Override.php',
         'ReturnTypeWillChange' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
+        'SQLite3Exception' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/SQLite3Exception.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit628b54bf6fa158d5b3fa7878bdbe91b7::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6cbf18b97bb70051e5b2b6f9f219d477::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6cbf18b97bb70051e5b2b6f9f219d477::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6cbf18b97bb70051e5b2b6f9f219d477::$classMap;
 
         }, null, ClassLoader::class);
     }

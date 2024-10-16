@@ -1,0 +1,21 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Options WPMU{% endblock %}
+
+{% block page_content %}
+	<section class="aky_card">
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Smush configuration',
+			'data': smush_config,
+			'action_name': 'akyos_updates_set_smush_options',
+			'action_label': 'Mettre à jour la configuration',
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': null,
+			'data': smush_bulk,
+			'action_name': 'akyos_updates_exec_bulk_smush',
+			'action_label': 'BULK SMUSH',
+		} %}
+	</section>
+{% endblock %}

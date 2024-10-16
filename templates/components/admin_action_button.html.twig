@@ -1,4 +1,14 @@
 <form method="POST" action="{{ admin_url }}">
-    <input type="hidden" name="action" value="{{ action }}">
-    <button type="submit" class="btn btn-primary">{{ label }}</button>
+	<input type="hidden" name="action" value="{{ action }}">
+	{% if fields is defined and fields %}
+		{% for field in fields %}
+			<div class="form-group">
+				<label for="{{ field.name }}">
+					{{ field.label }}
+				</label>
+				<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" value="{{ field.value }}" required>
+			</div>
+		{% endfor %}
+	{% endif %}
+	<button type="submit" class="btn btn-primary">{{ label }}</button>
 </form>

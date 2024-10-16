@@ -4,7 +4,8 @@ namespace AkyosUpdates\Service\WPMU;
 
 
 use AkyosUpdates\Attribute\Hook;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use PHPMailer\PHPMailer\PHPMailer;
+use Symfony\Component\HttpFoundation\Request;
 
 class BrandaOptionsService
 {
@@ -160,6 +161,143 @@ class BrandaOptionsService
 		} else {
 			delete_option('ub_dashboard_widgets');
 		}
+
+		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+	}
+
+	public function getBandraEmail()
+	{
+		$ub_smtp = get_option('ub_smtp');
+
+		if (!$ub_smtp) {
+			$message = '<p>⭕ Le SMTP n\'est pas configuré</p>';
+		} else {
+			$message = '<p>✅ Le SMTP est configuré, vous pouvez le modifier ici</p>';
+		}
+
+		return [
+			'message' => $message,
+			'action_required' => true,
+			'fields' => [
+				[
+					'label' => 'Sender email address',
+					'name' => 'from_email',
+					'type' => 'text',
+					'value' => $ub_smtp ? $ub_smtp['header']['from_email'] : ''
+				],
+				[
+					'label' => 'SMTP Host',
+					'name' => 'smtp_host',
+					'type' => 'text',
+					'value' => $ub_smtp ? $ub_smtp['server']['smtp_host'] : ''
+				],
+				[
+					'label' => 'SMTP Port',
+					'name' => 'smtp_port',
+					'type' => 'text',
+					'value' => $ub_smtp ? $ub_smtp['server']['smtp_port'] : ''
+				],
+				[
+					'label' => 'SMTP Username',
+					'name' => 'smtp_username',
+					'type' => 'text',
+					'value' => $ub_smtp ? $ub_smtp['smtp_authentication']['smtp_username'] : ''
+				],
+				[
+					'label' => 'SMTP Password',
+					'name' => 'smtp_password',
+					'type' => 'password',
+					'value' => $ub_smtp ? $ub_smtp['smtp_authentication']['smtp_password'] : ''
+				]
+			]
+		];
+	}
+
+	#[Hook(hook: 'admin_post_akyos_updates_configure_branda_email')]
+	public function configureBrandaEmail()
+	{
+		$request = Request::createFromGlobals();
+		$activated_modules = get_option('ultimatebranding_activated_modules');
+
+		if (!array_key_exists('emails/smtp.php', $activated_modules)) {
+			$activated_modules['emails/smtp.php'] = 'yes';
+		}
+
+		$smtp = [
+			'header' => [
+				'from_email' => $request->request->get('from_email'),
+				'from_name_force' => 'on',
+				'from_name' => ""
+			],
+			"server" => [
+				"smtp_host" => $request->request->get('smtp_host'),
+				"smtp_type_encryption" => "ssl",
+				"smtp_port" => $request->request->get('smtp_port'),
+				"smtp_insecure_ssl" => "off"
+			],
+			"smtp_authentication" => [
+				"smtp_authentication" => "on",
+				"smtp_username" => $request->request->get('smtp_username'),
+				"smtp_password" => $request->request->get('smtp_password')
+			],
+			'plugin_version' => get_option('ub_version')
+		];
+
+		delete_option('ub_smtp');
+		add_option('ub_smtp', $smtp);
+
+		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+	}
+
+	public function getBrandaTestMail()
+	{
+
+		$message = '<p>Vous pouvez tester l\'envoi d\'un mail en cliquant sur le bouton ci-dessous.</p>';
+
+		return [
+			'message' => $message,
+			'action_required' => true,
+			'fields' => [
+				[
+					'label' => 'Email',
+					'name' => 'email',
+					'type' => 'email'
+				]
+			]
+		];
+	}
+
+	#[Hook(hook: 'admin_post_akyos_updates_test_branda_mail')]
+	public function testBrandaMail()
+	{
+		$ub_smtp = get_option('ub_smtp');
+		$request = Request::createFromGlobals();
+		$email = $request->request->get('email');
+
+		$mail = new PHPMailer(true);
+
+		try {
+			$mail->isSMTP();
+			$mail->Host = $ub_smtp['server']['smtp_host'];
+			$mail->SMTPAuth = true;
+			$mail->Username = $ub_smtp['smtp_authentication']['smtp_username'];
+			$mail->Password = $ub_smtp['smtp_authentication']['smtp_password'];
+			$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+			$mail->Port = $ub_smtp['server']['smtp_port'];
+
+			$mail->setFrom($ub_smtp['header']['from_email'], 'Akyos');
+			$mail->addAddress($email);
+
+			$mail->isHTML();
+			$mail->Subject = 'Exemple d\'email avec SMTP Gmail';
+			$mail->Body = '<p>Ceci est un test d\'email envoyé via SMTP avec Gmail et PHPMailer.</p>';
+			$mail->AltBody = 'Ceci est le texte en brut, pour les clients qui ne supportent pas le HTML.';
+
+			$mail->send();
+		} catch (\PHPMailer\PHPMailer\Exception $e) {
+			dd($e);
+		}
+
 
 		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
 	}

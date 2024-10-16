@@ -1,0 +1,17 @@
+<div class="c-action_block">
+	{% if data.message is defined and data.message %}
+		{% if title %}
+			<h2 class="c-action_block__title">{{ title }}</h2>
+		{% endif %}
+
+		<div class="c-action_block-item">
+			<div class="c-action_block-item__message">
+				{{ data.message|raw }}
+			</div>
+
+			{% if data.action_required is defined and data.action_required %}
+				{% include 'components/admin_action_button.html.twig' with {'action': action_name, 'label': action_label, 'fields': data.fields} %}
+			{% endif %}
+		</div>
+	{% endif %}
+</div>

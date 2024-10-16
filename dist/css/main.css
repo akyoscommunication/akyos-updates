@@ -459,17 +459,24 @@
   border-bottom: 0.0625rem solid rgba(var(--aky-color-grey-400--rgb), 1);
 }
 .c-action_block-item__message {
-  grid-column: 1/span 3;
+  grid-column: 1/span 2;
   font-size: 0.9375rem;
   color: rgba(var(--aky-color-dark--rgb), 1);
   margin: 0;
 }
 .c-action_block-item form {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: end;
   align-items: start;
-  grid-column: 4/span 2;
+  gap: 1rem;
+  grid-column: 3/6;
+}
+.c-action_block-item form .form-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 1rem;
+  width: 100%;
 }
 
 .btn {
