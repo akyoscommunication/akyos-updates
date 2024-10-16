@@ -1,0 +1,12 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Configuration de l'hébergement{% endblock %}
+
+{% block page_content %}
+<section class="aky_card">
+    {% include 'components/action_block.html.twig' with {
+        'title': 'Version de PHP',
+        'data': php_version,
+    } %}
+</section>
+{% endblock %}

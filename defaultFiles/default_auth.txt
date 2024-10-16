@@ -1,0 +1,12 @@
+{
+  "http-basic": {
+    "wpmudev.com": {
+      "username": "d8fc51b3faa5985ebff402e6585c35593a055848",
+      "password": ""
+    },
+    "connect.advancedcustomfields.com": {
+      "username": "b3JkZXJfaWQ9MTQwNjI0fHR5cGU9ZGV2ZWxvcGVyfGRhdGU9MjAxOC0wOS0yNCAxNTowNzoyOQ==",
+      "password": "https://akyos.com"
+    }
+  }
+}

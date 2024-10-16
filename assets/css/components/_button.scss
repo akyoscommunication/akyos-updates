@@ -1,0 +1,16 @@
+.btn {
+  background: color(grey-400);
+  border: none;
+  padding: rem(8) rem(16);
+  cursor: pointer;
+  border-radius: rem(4);
+
+  &-primary {
+	background: color(primary);
+	color: color(light);
+
+	&:hover {
+	  background: color(primary, 0.8);
+	}
+  }
+}

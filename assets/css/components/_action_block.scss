@@ -1,0 +1,34 @@
+.c-action_block {
+  &__title {
+	font-size: rem(15);
+	font-weight: 500;
+	color: color(dark);
+	border-bottom: rem(1) solid color(grey-400);
+	margin-top: 0;
+	padding: rem(15) 0;
+	margin-bottom: rem(15);
+  }
+
+  &-item {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	grid-gap: rem(30);
+
+	margin-bottom: rem(30);
+	padding-bottom: rem(30);
+	border-bottom: rem(1) solid color(grey-400);
+
+	&__message {
+	  grid-column: 1 / span 3;
+	  font-size: rem(15);
+	  color: color(dark);
+	  margin: 0;
+	}
+
+	form {
+	  @include flex(row, nowrap, end, start);
+
+	  grid-column: 4 / span 2;
+	}
+  }
+}

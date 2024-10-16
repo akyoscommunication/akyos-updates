@@ -1,0 +1,21 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Options générales Wordpress{% endblock %}
+
+{% block page_content %}
+	<section class="aky_card">
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Commentaires',
+			'data': comments_disabled,
+			'action_name': 'akyos_updates_disable_comments',
+			'action_label': 'Désactiver les commentaires'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Publication par mail',
+			'data': mail_publisher,
+			'action_name': 'akyos_updates_disable_mail_publisher',
+			'action_label': 'Désactiver la publication par email'
+		} %}
+	</section>
+{% endblock %}

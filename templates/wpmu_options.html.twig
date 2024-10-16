@@ -1,0 +1,23 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Options WPMU{% endblock %}
+
+{% block page_content %}
+	<section class="aky_card">
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Branda message Admin',
+			'data': branda_admin_message,
+			'action_name': 'akyos_updates_enable_branda_admin_message',
+			'action_label': 'Activer le message',
+			'reverse_action_label': 'Désactiver le message',
+			'reverse_action_name': 'akyos_updates_disable_branda_admin_message'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Branda Widgets',
+			'data': branda_widgets,
+			'action_name': null,
+			'action_label': 'Mettre à jour les widgets',
+		} %}
+	</section>
+{% endblock %}

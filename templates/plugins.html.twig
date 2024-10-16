@@ -1,0 +1,58 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Plugins{% endblock %}
+
+{% block page_content %}
+	<section class="aky_card">
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Composer',
+			'data': composer_configuration,
+			'action_name': 'akyos_updates_add_composer_and_auth',
+			'action_label': 'Ajouter les fichiers'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Plugins',
+			'data': composer_plugins,
+		} %}
+
+		{% for plugin in composer_plugins.plugins %}
+			{% include 'components/action_block.html.twig' with {
+				'title': null,
+				'data': plugin,
+			} %}
+		{% endfor %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': null,
+			'data': {
+				'message': '',
+				'action_required': composer_plugins.plugins|length
+			},
+			'action_name': 'akyos_updates_add_packages_in_composer',
+			'action_label': 'Ajouter les packages au composer.json'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Composer',
+			'data': composer_udapte,
+			'action_name': 'akyos_updates_run_composer_update',
+			'action_label': 'Run composer update'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Gitignore',
+			'data': gitignore_file,
+			'action_name': 'akyos_updates_add_gitignore',
+			'action_label': 'Ajouter le fichier .gitignore'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Gitignore configs',
+			'data': gitignore_configurations,
+			'action_name': 'akyos_updates_add_gitignore_configurations',
+			'action_label': 'Ajouter au fichier .gitignore'
+		} %}
+	</section>
+{% endblock %}

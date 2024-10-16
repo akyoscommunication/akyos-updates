@@ -1,0 +1,73 @@
+{
+  "name": "akyos/wp-composer",
+  "type": "project",
+  "license": "MIT",
+  "homepage": "https://akyos.com",
+  "authors": [
+    {
+      "name": "Lilian Carneau",
+      "email": "lilian.akyos@gmail.com",
+      "homepage": "https://akyos.com"
+    },
+    {
+      "name": "Thomas Sebert",
+      "email": "thomas@akyos.com",
+      "homepage": "https://akyos.com"
+    }
+  ],
+  "keywords": [
+    "akyos", "composer", "wordpress", "wp", "wp-config"
+  ],
+  "support": {
+    "issues": "https://akyos.com",
+    "forum": "https://akyos.com"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org",
+      "only": ["wpackagist-plugin/*", "wpackagist-theme/*"]
+    },
+    {
+      "type" : "composer",
+      "url" : "https://premium.wpmudev.org/"
+    },
+    {
+      "type":"composer",
+      "url":"https://connect.advancedcustomfields.com"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/akyoscommunication/aky-gdpr.git"
+    }
+  ],
+  "require": {
+    "php": ">=8.3",
+    "composer/installers": "^1.11",
+    "wpengine/advanced-custom-fields-pro": "*",
+    "akyos/akyos-updates": "dev-master"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "allow-plugins": {
+      "composer/installers": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "extra": {
+    "installer-paths": {
+      "wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+      "wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+    }
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "php -r \"copy('.env.example', '.env');\""
+    ],
+    "test": [
+      "phpcs"
+    ]
+  }
+}
