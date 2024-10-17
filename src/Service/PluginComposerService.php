@@ -3,9 +3,13 @@
 namespace AkyosUpdates\Service;
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Traits\ServiceTrait;
 
 class PluginComposerService
 {
+	use ServiceTrait;
+
+
     private array $wpmuPluginsComposer;
 
 	/**
@@ -14,6 +18,8 @@ class PluginComposerService
 	public function __construct()
     {
         $this->wpmuPluginsComposer = json_decode(file_get_contents('https://raw.githubusercontent.com/josephfusco/wpmudev-plugins/refs/heads/master/composer.json'), true, 512, JSON_THROW_ON_ERROR);
+
+		$this->redirectRoute = 'akyos_updates_plugins';
     }
 
     public function getComposerConfiguration(): array

@@ -3,9 +3,17 @@
 namespace AkyosUpdates\Service\WPMU;
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Traits\ServiceTrait;
 
 class SmushOptionsService
 {
+	use ServiceTrait;
+
+	public function __construct()
+	{
+		$this->redirectRoute = 'akyos_updates_smush_options';
+
+	}
 
 	public function getConfigSmush()
 	{
@@ -112,7 +120,7 @@ class SmushOptionsService
 			"height" => 1920
 		]);
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_smush_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	public function getBulkSmush()
@@ -132,6 +140,6 @@ class SmushOptionsService
 			dd($e->getMessage());
 		}
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_smush_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 }

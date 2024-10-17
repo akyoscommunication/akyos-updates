@@ -10,7 +10,7 @@
 			</div>
 
 			{% if data.action_required is defined and data.action_required %}
-				{% include 'components/admin_action_button.html.twig' with {'action': action_name, 'label': action_label} %}
+				{% include 'components/admin_action_button.html.twig' with {'action': action_name, 'label': action_label, 'fields': data.fields is defined ? data.fields : null} %}
 			{% endif %}
 			{% if data.reverse_action is defined and data.reverse_action %}
 				{% include 'components/admin_action_button.html.twig' with {'action': reverse_action_name, 'label': reverse_action_label} %}

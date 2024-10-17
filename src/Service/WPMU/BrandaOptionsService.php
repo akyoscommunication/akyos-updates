@@ -4,11 +4,18 @@ namespace AkyosUpdates\Service\WPMU;
 
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Traits\ServiceTrait;
 use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\HttpFoundation\Request;
 
 class BrandaOptionsService
 {
+	use ServiceTrait;
+
+	public function __construct()
+	{
+		$this->redirectRoute = 'akyos_updates_branda_options';
+	}
 
 	public function getBrandaAdminMessage()
 	{
@@ -58,7 +65,7 @@ class BrandaOptionsService
 		add_option('ub_admin_message', $message);
 		add_option('ub_admin_css', '#branda-message {border-left-color: red;background: red;color: white;font-weight: bold;}#branda-message a {color: white;text-decoration: underline;}');
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	#[Hook(hook: 'admin_post_akyos_updates_disable_branda_admin_message')]
@@ -66,12 +73,12 @@ class BrandaOptionsService
 	{
 		$activated_modules = get_option('ultimatebranding_activated_modules');
 
-		if (array_key_exists('admin/custom-css.php', $activated_modules)) {
-			unset($activated_modules['admin/custom-css.php']);
+		if (array_key_exists('admin / custom - css.php', $activated_modules)) {
+			unset($activated_modules['admin / custom - css.php']);
 		}
 
-		if (array_key_exists('admin/message.php', $activated_modules)) {
-			unset($activated_modules['admin/message.php']);
+		if (array_key_exists('admin / message.php', $activated_modules)) {
+			unset($activated_modules['admin / message.php']);
 		}
 
 		update_option('ultimatebranding_activated_modules', $activated_modules);
@@ -87,7 +94,7 @@ class BrandaOptionsService
 			delete_option('ub_admin_css');
 		}
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 
@@ -100,7 +107,7 @@ class BrandaOptionsService
 		$widgetsToHide = get_option('ub_dashboard_widgets');
 
 		$activated_modules = get_option('ultimatebranding_activated_modules');
-		$message[0] = '<p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
+		$message[0] = ' < p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
 		$message[1] = '<p>⭕ Les Widgets ne sont pas chargés, <a href="'.admin_url('index.php').'">Charger les widgets ici</a></p>';
 		$message[2] = '<p>⭕ Les Widgets ne sont pas masqués</p>';
 
@@ -162,7 +169,7 @@ class BrandaOptionsService
 			delete_option('ub_dashboard_widgets');
 		}
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	public function getBandraEmail()
@@ -246,7 +253,7 @@ class BrandaOptionsService
 		delete_option('ub_smtp');
 		add_option('ub_smtp', $smtp);
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	public function getBrandaTestMail()
@@ -299,6 +306,6 @@ class BrandaOptionsService
 		}
 
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_wpmu_options'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 }

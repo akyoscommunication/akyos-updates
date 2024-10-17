@@ -17,10 +17,10 @@ class AdminRouteCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         // Parcourir tous les services définis dans le conteneur qui étendent de AbstractController
-        $controllerDefinitions = array_filter($container->getDefinitions(), function ($definition) {
+        $controllerDefinitions = array_filter($container->getDefinitions(), static function ($definition) {
             return str_starts_with($definition->getClass(), 'AkyosUpdates\\Controller');
         });
-        $controllerDefinitions = array_filter($controllerDefinitions, function ($key) {
+        $controllerDefinitions = array_filter($controllerDefinitions, static function ($key) {
             return str_starts_with($key, 'AkyosUpdates\\Controller');
         }, ARRAY_FILTER_USE_KEY);
 

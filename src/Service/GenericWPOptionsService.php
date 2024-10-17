@@ -3,10 +3,18 @@
 namespace AkyosUpdates\Service;
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Traits\ServiceTrait;
 
 class GenericWPOptionsService
 {
-    public function getCommentsStatus(): array
+	use ServiceTrait;
+
+	public function __construct()
+	{
+		$this->redirectRoute = 'akyos_updates_generic_wp_options';
+	}
+
+	public function getCommentsStatus(): array
     {
         $commentsDisabled = get_option('default_comment_status');
 
@@ -30,7 +38,8 @@ class GenericWPOptionsService
         update_option('comment_moderation', 1);
         update_option('comment_previously_approved', 0);
         update_option('show_avatars', 0);
-        return wp_redirect(admin_url('admin.php?page=akyos_updates_generic_wp_options'));
+
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
     }
 
     public function getMailPublisherStatus(): array
@@ -59,6 +68,7 @@ class GenericWPOptionsService
         update_option('mailserver_port', '');
         update_option('mailserver_login', '');
         update_option('mailserver_pass', '');
-        return wp_redirect(admin_url('admin.php?page=akyos_updates_generic_wp_options'));
+
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
     }
 }
