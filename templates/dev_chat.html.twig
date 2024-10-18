@@ -1,0 +1,14 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Options générales Wordpress{% endblock %}
+
+{% block page_content %}
+	<section class="aky_card">
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Commentaires',
+			'data': comments,
+			'action_name': 'admin_post_akyos_updates_add_comment',
+			'action_label': 'Ajouter un commentaire',
+		} %}
+	</section>
+{% endblock %}

@@ -15,21 +15,6 @@
 		{% include 'components/action_block.html.twig' with {
 			'title': 'Plugins',
 			'data': composer_plugins,
-		} %}
-
-		{% for plugin in composer_plugins.plugins %}
-			{% include 'components/action_block.html.twig' with {
-				'title': null,
-				'data': plugin,
-			} %}
-		{% endfor %}
-
-		{% include 'components/action_block.html.twig' with {
-			'title': null,
-			'data': {
-				'message': '',
-				'action_required': composer_plugins.plugins|length
-			},
 			'action_name': 'akyos_updates_add_packages_in_composer',
 			'action_label': 'Ajouter les packages au composer.json'
 		} %}

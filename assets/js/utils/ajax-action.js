@@ -115,7 +115,7 @@ export class AjaxAction {
 		notyf.open({
 			type: type,
 			message: message,
-			duration: 10000,
+			duration: 5000,
 			position: {x: 'center', y: 'top'},
 			dismissible: true,
 			ripple: false,

@@ -140,7 +140,7 @@ var AjaxAction = /*#__PURE__*/function () {
       notyf.open({
         type: type,
         message: message,
-        duration: 10000,
+        duration: 5000,
         position: {
           x: 'center',
           y: 'top'
