@@ -4,17 +4,21 @@ namespace AkyosUpdates\Service\WPMU;
 
 
 use AkyosUpdates\Attribute\Hook;
-use AkyosUpdates\Traits\ServiceTrait;
+use AkyosUpdates\Class\AbstractController;
+use AkyosUpdates\Trait\ServiceTrait;
 use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\HttpFoundation\Request;
 
-class BrandaOptionsService
+class BrandaOptionsService extends AbstractController
 {
 	use ServiceTrait;
 
 	public function __construct()
 	{
 		$this->redirectRoute = 'akyos_updates_branda_options';
+
+		parent::__construct();
+
 	}
 
 	public function getBrandaAdminMessage()
@@ -30,12 +34,17 @@ class BrandaOptionsService
 		return [
 			'message' => $isMessageAdminMessage,
 			'action_required' => !$isMessageAdmin || !$isMessageAdmin['admin']['message'],
-			'reverse_action' => isset($isMessageAdmin['admin'])
+			'reverse_action' => isset($isMessageAdmin['admin']),
+			'ajax' => [
+				'hook' => !$isMessageAdmin || !$isMessageAdmin['admin']['message'] ? 'admin_post_akyos_updates_enable_branda_admin_message' : 'admin_post_akyos_updates_disable_branda_admin_message',
+				'success_message' => !$isMessageAdmin || !$isMessageAdmin['admin']['message'] ? 'Le message de Branda a bien été désactivé.' : 'Le message de Branda a bien été activé.',
+				'error_message' => 'Une erreur est survenue lors de l\'activation du message de Branda.'
+			]
 		];
 	}
 
 	#[Hook(hook: 'admin_post_akyos_updates_enable_branda_admin_message')]
-	public function enableBrandaAdminMessage(): bool
+	public function enableBrandaAdminMessage()
 	{
 		$activated_modules = get_option('ultimatebranding_activated_modules');
 
@@ -73,12 +82,12 @@ class BrandaOptionsService
 	{
 		$activated_modules = get_option('ultimatebranding_activated_modules');
 
-		if (array_key_exists('admin / custom - css.php', $activated_modules)) {
-			unset($activated_modules['admin / custom - css.php']);
+		if (array_key_exists('admin/custom-css.php', $activated_modules)) {
+			unset($activated_modules['admin/custom-css.php']);
 		}
 
-		if (array_key_exists('admin / message.php', $activated_modules)) {
-			unset($activated_modules['admin / message.php']);
+		if (array_key_exists('admin/message.php', $activated_modules)) {
+			unset($activated_modules['admin/message.php']);
 		}
 
 		update_option('ultimatebranding_activated_modules', $activated_modules);
@@ -107,7 +116,7 @@ class BrandaOptionsService
 		$widgetsToHide = get_option('ub_dashboard_widgets');
 
 		$activated_modules = get_option('ultimatebranding_activated_modules');
-		$message[0] = ' < p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
+		$message[0] = ' <p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
 		$message[1] = '<p>⭕ Les Widgets ne sont pas chargés, <a href="'.admin_url('index.php').'">Charger les widgets ici</a></p>';
 		$message[2] = '<p>⭕ Les Widgets ne sont pas masqués</p>';
 
@@ -216,6 +225,9 @@ class BrandaOptionsService
 					'type' => 'password',
 					'value' => $ub_smtp ? $ub_smtp['smtp_authentication']['smtp_password'] : ''
 				]
+			],
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_configure_branda_email'
 			]
 		];
 	}
@@ -270,6 +282,11 @@ class BrandaOptionsService
 					'name' => 'email',
 					'type' => 'email'
 				]
+			],
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_test_branda_mail',
+				'success_message' => 'Le mail a bien été envoyé. Vous devriez le recevoir dans quelques instants.',
+				'error_message' => 'Problème de connexion au serveur SMTP. Veuillez vérifier les informations saisies.'
 			]
 		];
 	}

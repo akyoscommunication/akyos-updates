@@ -1,5 +1,11 @@
-<form method="POST" action="{{ admin_url }}">
-	<input type="hidden" name="action" value="{{ action }}">
+<form method="POST" action="{{ ajax ? admin_ajax : admin_url }}" data-wp-ajax="{{ ajax ? 'true' : 'false' }}"
+		data-message-success="{{ ajax.success_message ?: "L'action a été réalisée avec succès !" }}"
+		data-message-error="{{ ajax.error_message ?: "Une erreur est survenue lors de l'action." }}"
+>
+	<input type="hidden" name="action" value="{{ ajax ? 'akyos_updates_custom_ajax' : action }}">
+	{% if ajax %}
+		<input type="hidden" name="hook" value="{{ ajax.hook }}">
+	{% endif %}
 	{% if fields is defined and fields %}
 		{% for field in fields %}
 			<div class="form-group">

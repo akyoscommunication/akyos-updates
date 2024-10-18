@@ -1,0 +1,12 @@
+.notyf {
+  top: rem(24) !important;
+
+  &__message {
+	white-space: nowrap !important;
+  }
+
+  &__toast {
+	border-radius: rem(6) !important;
+	max-width: initial !important;
+  }
+}

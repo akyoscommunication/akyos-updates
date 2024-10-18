@@ -3,7 +3,7 @@
 namespace AkyosUpdates\Service;
 
 
-use AkyosUpdates\Traits\ServiceTrait;
+use AkyosUpdates\Trait\ServiceTrait;
 
 class HostingService
 {

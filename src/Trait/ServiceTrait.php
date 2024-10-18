@@ -1,6 +1,6 @@
 <?php
 
-namespace AkyosUpdates\Traits;
+namespace AkyosUpdates\Trait;
 
 trait ServiceTrait
 {

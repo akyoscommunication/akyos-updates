@@ -12,6 +12,7 @@ class PluginExtension extends AbstractExtension implements GlobalsInterface
 	{
 		return [
 			'admin_url' => admin_url('admin-post.php'),
+			'admin_ajax' => admin_url('admin-ajax.php'),
 		];
 	}
 
