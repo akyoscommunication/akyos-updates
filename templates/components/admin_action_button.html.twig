@@ -8,12 +8,16 @@
 	{% endif %}
 	{% if fields is defined and fields %}
 		{% for field in fields %}
-			<div class="form-group">
-				<label for="{{ field.name }}">
-					{{ field.label }}
-				</label>
+			{% if field.type == 'hidden' %}
 				<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" value="{{ field.value }}" required>
-			</div>
+				{% else %}
+					<div class="form-group">
+						<label for="{{ field.name }}">
+							{{ field.label }}
+						</label>
+						<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" value="{{ field.value }}" required>
+					</div>
+			{% endif %}
 		{% endfor %}
 	{% endif %}
 	<button type="submit" class="btn btn-primary">{{ label }}</button>

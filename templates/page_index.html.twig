@@ -1,0 +1,18 @@
+{% extends 'sections/layout.html.twig' %}
+
+{% block title %}Configuration de l'indexation des pages{% endblock %}
+
+{% block page_content %}
+	<div class="aky_card">
+		{% for page in pages %}
+			{% include 'components/action_block.html.twig' with {
+				'title': null,
+				'data': page,
+				'action_name': 'akyos_updates_index_page',
+				'action_label': 'Indexer la page',
+				'reverse_action_label': 'Déindexer la page',
+				'reverse_action_name': 'akyos_updates_noindex_page'
+			} %}
+		{% endfor %}
+	</div>
+{% endblock %}
