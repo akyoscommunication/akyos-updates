@@ -1,4 +1,4 @@
-<div class="c-action_block" data-action="{{ action_name }}">
+<div class="c-action_block" data-action="{{ action_name }}{{ key is defined ? '-' ~ key : null }}">
 	{% if data.message is defined and data.message %}
 		{% if title %}
 			<h2 class="c-action_block__title">{{ title }}</h2>

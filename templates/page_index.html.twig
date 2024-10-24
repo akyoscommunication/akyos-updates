@@ -4,14 +4,15 @@
 
 {% block page_content %}
 	<div class="aky_card">
-		{% for page in pages %}
+		{% for key, page in pages %}
 			{% include 'components/action_block.html.twig' with {
 				'title': null,
 				'data': page,
 				'action_name': 'akyos_updates_index_page',
 				'action_label': 'Indexer la page',
 				'reverse_action_label': 'Déindexer la page',
-				'reverse_action_name': 'akyos_updates_noindex_page'
+				'reverse_action_name': 'akyos_updates_noindex_page',
+				'key': key
 			} %}
 		{% endfor %}
 	</div>
