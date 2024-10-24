@@ -5,9 +5,8 @@ namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
-use AkyosUpdates\Service\HostingService;
-use AkyosUpdates\Service\PluginComposerService;
-use AkyosUpdates\Service\PluginGitignoreService;
+use AkyosUpdates\Service\Plugins\PluginComposerService;
+use AkyosUpdates\Service\Plugins\PluginGitignoreService;
 
 class PluginsController extends AbstractController
 {

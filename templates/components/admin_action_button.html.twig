@@ -1,4 +1,4 @@
-<form method="POST" action="{{ ajax ? admin_ajax : admin_url }}" data-wp-ajax="{{ ajax ? 'true' : 'false' }}"
+<form method="POST" enctype="multipart/form-data" action="{{ ajax ? admin_ajax : admin_url }}" data-wp-ajax="{{ ajax ? 'true' : 'false' }}"
 		data-message-success="{{ ajax.success_message ?: "L'action a été réalisée avec succès !" }}"
 		data-message-error="{{ ajax.error_message ?: "Une erreur est survenue lors de l'action." }}"
 >
@@ -15,7 +15,7 @@
 						<label for="{{ field.name }}">
 							{{ field.label }}
 						</label>
-						<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" value="{{ field.value }}" required>
+						<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" accept="{{ field.acceptc }}" value="{{ field.value }}" required>
 					</div>
 			{% endif %}
 		{% endfor %}

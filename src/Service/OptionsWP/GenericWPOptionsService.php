@@ -1,6 +1,6 @@
 <?php
 
-namespace AkyosUpdates\Service;
+namespace AkyosUpdates\Service\OptionsWP;
 
 use AkyosUpdates\Attribute\Hook;
 use AkyosUpdates\Trait\ServiceTrait;

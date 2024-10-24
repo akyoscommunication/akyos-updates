@@ -5,6 +5,13 @@
 {% block page_content %}
 	<section class="aky_card">
 		{% include 'components/action_block.html.twig' with {
+			'title': 'Favicon',
+			'data': favicon,
+			'action_name': 'akyos_updates_change_favicon',
+			'action_label': 'Modifier/Ajouter un favicon'
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
 			'title': 'Commentaires',
 			'data': comments_disabled,
 			'action_name': 'akyos_updates_disable_comments',

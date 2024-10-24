@@ -5,9 +5,17 @@
 {% block page_content %}
 	<section class="aky_card">
 		{% include 'components/action_block.html.twig' with {
+			'title': 'API Page Speed',
+			'data': page_speed,
+			'action_name': 'akyos_updates_page_speed',
+			'action_label': 'Faire un test de vitesse',
+		} %}
+	</section>
+	<section class="aky_card">
+		{% include 'components/action_block.html.twig' with {
 			'title': 'Commentaires',
 			'data': comments,
-			'action_name': 'admin_post_akyos_updates_add_comment',
+			'action_name': 'akyos_updates_add_comment',
 			'action_label': 'Ajouter un commentaire',
 		} %}
 	</section>

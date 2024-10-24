@@ -440,6 +440,7 @@
   padding: 0.9375rem 1.875rem;
   box-shadow: 0 0.125rem 0 rgba(var(--aky-color-grey-400--rgb), 1);
   border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .c-action_block__title {
@@ -454,16 +455,20 @@
 .c-action_block-item {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-gap: 1.875rem;
-  margin-bottom: 1.875rem;
-  padding-bottom: 1.875rem;
+  grid-gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 0.0625rem solid rgba(var(--aky-color-grey-400--rgb), 1);
 }
 .c-action_block-item__message {
-  grid-column: 1/span 2;
+  grid-column: 1/span 3;
   font-size: 0.9375rem;
   color: rgba(var(--aky-color-dark--rgb), 1);
   margin: 0;
+}
+.c-action_block-item__message em {
+  opacity: 0.7;
+  font-size: 0.75rem;
 }
 .c-action_block-item form {
   display: flex;
@@ -471,7 +476,7 @@
   justify-content: end;
   align-items: start;
   gap: 1rem;
-  grid-column: 3/6;
+  grid-column: 4/6;
 }
 .c-action_block-item form .form-group {
   display: grid;

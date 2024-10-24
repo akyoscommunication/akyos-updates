@@ -3,11 +3,9 @@
 namespace ContainerUmgQ1Iw;
 
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -41,7 +39,7 @@ class AkyosUpdates_KernelDevDebugContainer extends Container
             'AkyosUpdates\\Controller\\AkyosUpdatesController' => 'getAkyosUpdatesControllerService',
             'AkyosUpdates\\Controller\\GenericWPOptionsController' => 'getGenericWPOptionsControllerService',
             'AkyosUpdates\\Controller\\HostingController' => 'getHostingControllerService',
-            'AkyosUpdates\\Service\\GenericWPOptionsService' => 'getGenericWPOptionsServiceService',
+            'AkyosUpdates\\Service\\OptionsWP\\GenericWPOptionsService' => 'getGenericWPOptionsServiceService',
             'AkyosUpdates\\Service\\HostingService' => 'getHostingServiceService',
             'AkyosUpdates\\Twig\\PluginExtension' => 'getPluginExtensionService',
             'cache.app' => 'getCache_AppService',

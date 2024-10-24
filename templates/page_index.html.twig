@@ -4,6 +4,11 @@
 
 {% block page_content %}
 	<div class="aky_card">
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Plugin SEO installé',
+			'data': seo_plugins,
+		} %}
+
 		{% for key, page in pages %}
 			{% include 'components/action_block.html.twig' with {
 				'title': null,

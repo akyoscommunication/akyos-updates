@@ -1,8 +1,9 @@
 <?php
 
-namespace AkyosUpdates\Service;
+namespace AkyosUpdates\Service\SEO;
 
 use AkyosUpdates\Attribute\Hook;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 
 class PageIndexService
@@ -14,8 +15,9 @@ class PageIndexService
 		$datas = [];
 
 		foreach ($pages as $key => $page) {
-			$pluginList = get_plugins();
 			$noindex = get_post_meta($page->ID, $this->getMetaKeys()['noindex'], true);
+			$meta_title = get_post_meta($page->ID, $this->getMetaKeys()['title'], true) ?: $page->post_title.' | '.get_bloginfo('name');
+			$meta_description = get_post_meta($page->ID, $this->getMetaKeys()['description'], true);
 
 			if ($noindex) {
 				$action = true;
@@ -23,6 +25,10 @@ class PageIndexService
 			} else {
 				$action = false;
 				$message = '<p>✅ '.$page->post_title.'</p>';
+				$message .= '<ul>';
+				$message .= '<li><em>Meta title: <strong>'.$meta_title.'</strong></em></li>';
+				$message .= '<li><em>Meta description: <strong>'.$meta_description.'</strong></em></li>';
+				$message .= '</ul>';
 			}
 
 			$datas[] = [
@@ -68,21 +74,54 @@ class PageIndexService
 		}
 	}
 
-	public function getMetaKeys()
+	public function getSEOPluginsInstalled()
 	{
 		$pluginList = get_plugins();
-		$metaKeys = [];
+		$seoPlugins = [];
+
+		if (array_key_exists('wpmu-dev-seo/wpmu-dev-seo.php', $pluginList)) {
+			$seoPlugins[] = 'SmartCrawl';
+		}
+
+		if (array_key_exists('wordpress-seo/wp-seo.php', $pluginList)) {
+			$seoPlugins[] = 'Yoast SEO';
+		}
+
+		$message = '<ul>';
+		foreach ($seoPlugins as $seoPlugin) {
+			$message .= '<li><p>'.$seoPlugin.'</p></li>';
+		}
+		$message .= '</ul>';
+
+		return [
+			'message' => $message,
+			'action_required' => false,
+		];
+
+	}
+
+	public function getMetaKeys(): array
+	{
+		$pluginList = get_plugins();
+		$metaKeys = [
+			'noindex' => '',
+			'nofollow' => ''
+		];
 
 		if (array_key_exists('wpmu-dev-seo/wpmu-dev-seo.php', $pluginList)) {
 			$metaKeys = [
 				'noindex' => '_wds_meta-robots-noindex',
-				'nofollow' => '_wds_meta-robots-nofollow'
+				'nofollow' => '_wds_meta-robots-nofollow',
+				'title' => '_wds_title',
+				'description' => '_wds_metadesc'
 			];
 
 		} elseif (array_key_exists('wordpress-seo/wp-seo.php', $pluginList)) {
 			$metaKeys = [
 				'noindex' => '_yoast_wpseo_meta-robots-noindex',
-				'nofollow' => '_yoast_wpseo_meta-robots-nofollow'
+				'nofollow' => '_yoast_wpseo_meta-robots-nofollow',
+				'title' => '_yoast_wpseo_title',
+				'description' => '_yoast_wpseo_metadesc'
 			];
 		}
 

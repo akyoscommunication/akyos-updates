@@ -12,24 +12,29 @@
   &-item {
 	display: grid;
 	grid-template-columns: repeat(5, 1fr);
-	grid-gap: rem(30);
+	grid-gap: rem(16);
 
-	margin-bottom: rem(30);
-	padding-bottom: rem(30);
+	margin-bottom: rem(16);
+	padding-bottom: rem(16);
 	border-bottom: rem(1) solid color(grey-400);
 
 	&__message {
-	  grid-column: 1 / span 2;
+	  grid-column: 1 / span 3;
 	  font-size: rem(15);
 	  color: color(dark);
 	  margin: 0;
+
+	  em {
+		opacity: 0.7;
+		font-size: rem(12);
+	  }
 	}
 
 	form {
 	  @include flex(row, wrap, end, start);
 	  gap: rem(16);
 
-	  grid-column: 3 / 6;
+	  grid-column: 4 / 6;
 
 	  .form-group {
 		display: grid;

@@ -1,6 +1,6 @@
 <?php
 
-namespace AkyosUpdates\Service;
+namespace AkyosUpdates\Service\Plugins;
 
 use AkyosUpdates\Attribute\Hook;
 use AkyosUpdates\Trait\ServiceTrait;
@@ -76,9 +76,11 @@ class PluginComposerService
 			[$plugins, $pluginsInComposer, $pluginsNotInComposer] = $this->getPlugins();
 
 			$composerPluginMessage = 'Plugins dans le fichier composer.json : <br>';
+			$composerPluginMessage .= '<ul>';
 			foreach ($pluginsInComposer as $plugin) {
-				$composerPluginMessage .= '<p>✅ '.$plugin.' </p><br>';
+				$composerPluginMessage .= '<li><p>✅ '.$plugin.' </p></li>';
 			}
+			$composerPluginMessage .= '</ul>';
 			$composerPluginMessage .= '<br>';
 
 			if (!empty($pluginsNotInComposer)) {

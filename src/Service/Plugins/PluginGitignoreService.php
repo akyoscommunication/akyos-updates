@@ -1,15 +1,19 @@
 <?php
 
-namespace AkyosUpdates\Service;
+namespace AkyosUpdates\Service\Plugins;
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Trait\ServiceTrait;
 
-readonly class PluginGitignoreService
+class PluginGitignoreService
 {
+	use ServiceTrait;
+
 	public function __construct(
 		private PluginComposerService $hostingComposerService,
 	)
 	{
+		$this->redirectRoute = 'akyos_updates_plugins';
 	}
 
 	public function getGitignoreFile(): array
@@ -39,7 +43,7 @@ readonly class PluginGitignoreService
 			copy(plugin_dir_path(__DIR__).'../defaultFiles/default_gitignore.txt', ABSPATH.'.gitignore');
 		}
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_hosting'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	public function getGitIgnoreConfigurations(): array
@@ -77,7 +81,7 @@ readonly class PluginGitignoreService
 			file_put_contents(ABSPATH.'.gitignore', $gitignoreContent);
 		}
 
-		return wp_redirect(admin_url('admin.php?page=akyos_updates_hosting'));
+		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
 
 	private function getNotInGitignore(bool $gitignore): array

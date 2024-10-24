@@ -12,26 +12,11 @@
 			<li>Mises à jour de WP (composer), des plugins (composer) et du thème + plugins sur mesure (ex. ACF, Polylang Pro, ... si besoin d'accès aux licences, demander à Guillaume ou Thomas) => On remplace les vieux plugins par la suite WPMU (defender, smush, hummingbird, branda -> Voir Checklist configuration plugins WPMU.). Si besoin, récupérer le thème Howes à jour sur notre compte Themeforest, tenter la maj du thème et récupérer les plugins jscomposer et sliderrevolution. POUR ACF mettre à
 				jour le répo dans le composer.json
 			</li>
-			<li>Si besoin de licence pour MAJ un plugin ou un thème, vérifier sur ThemeForest ou demander au chef de projet de les trouver. Ajouter si besoin les clés de licence sur sopp. (lister les plugins nécessitant des licences ?)</li>
 			<li>Mise à jour plugin RGPD by Akyos via composer (exemple Fimainfo): dernière version à récupérer sur le repo Github, vérifier qu'on passe par tag manager et qu'il n'y a rien dans le champ analytics, si ce n'est pas le cas voir avec le CDP pour créer un compte Tag Manager et le mettre en place</li>
-			<li>Vérifier qu'il y a bien un favicon, un meta-title de la page accueil différent de "Accueil", que les pages mentions légales, cookies et politique de confidentialité soient bien désindexées, vérifier qu'il y a bien TagManager sur le site, vérifier l'indexation du site sur google en cherchant site:nom-de-domaine), vérifier que les post type / archives inutiles type auteur, tag etc soient bien désindexés, vérifier qu'il y a un recaptcha sur les formulaires (Plugins CF7 ou forminator et
-				plugin defender), si on a accès à la search console vérifier que la propriété est validée et que le sitemap est enregistré
+			<li>vérifier qu'il y a bien TagManager sur le site, vérifier qu'il y a un recaptcha sur les formulaires (Plugins CF7 ou
+				forminator et
+				plugin defender)
 			</li>
-			<li><s>Si ce n'est pas fait, désactiver les commentaires. Dans réglages > Commentaire, décocher tout ce qui autorise les commentaires et décocher les gravatars. Dans Réglages > Ecriture, vider les valeurs par défaut des champs pour publication par mail.</s></li>
-			<li>Parcourir toutes les pages du site pour déceler d'éventuels bugs, parties cassées ou éléments étranges (ex pas d'articles sur le blog depuis 2 ans ? Plus de pages ? Gros bugs ? ... ) : si vous en trouvez, réparez ou informez le CDP pour savoir quoi faire</li>
-			<li>Suivre les bonnes pratique BO https://akyos.gitbook.io/book/back-office en cas de modifications</li>
-			<li>Si ce n'est pas fait, mettre en place le style editor et épurer les BO avec les Tabs et les layouts (voir avec Guillaume)</li>
-			<li>Parcourir rapidement le site sur mobile pour vérifier que le responsive va bien</li>
-			<li>Optimisation de la bdd avec Defender, vérification que les assets sont bien compressés en mode prod (yarn build)</li>
-			<li>Vérifier que le site utilise Brevo ou un service d'envoi de mail similaire, si ce n'est pas le cas => Checklist Mise en place Brevo</li>
-			<li>Vérifier la performance du site sur LightHouse (Chrome, inspecter, onglet LightHouse), essayer d'améliorer la note si vraiment pas terrible</li>
-			<li>Bien configurer Smush PRO en suivant la checklist (des fois on a la version gratuite des plugins WPMU), scanner et compresser toutes les images qui ont besoin d'être compressées</li>
-			<li>Vérifier que le code est à jour avec git status</li>
-			<li>Vérifier que le site est en mode prod et que l'indexation est activée</li>
-			<li>Tester l'envoi de mails via Branda</li>
-			<li>Tester la config et l'envoi des formulaires</li>
-			<li>Faire un test lighthouse</li>
-			<li>Tester le site sur SE Ranking</li>
 			<li>Configuration des plugins WPMU</li>
 		</ul>
 	</section>

@@ -4,7 +4,7 @@ namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
-use AkyosUpdates\Service\PageIndexService;
+use AkyosUpdates\Service\SEO\PageIndexService;
 
 class PageIndexController extends AbstractController
 {
@@ -19,7 +19,8 @@ class PageIndexController extends AbstractController
 	public function pageIndex(): void
 	{
 		$this->render('page_index.html.twig', [
-			'pages' => $this->pageIndexService->getPages()
+			'pages' => $this->pageIndexService->getPages(),
+			'seo_plugins' => $this->pageIndexService->getSEOPluginsInstalled()
 		]);
 	}
 }
