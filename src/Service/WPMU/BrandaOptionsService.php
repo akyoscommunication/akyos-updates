@@ -112,10 +112,21 @@ class BrandaOptionsService extends AbstractController
 	 */
 	public function getBrandaWidgets()
 	{
+		global $branda_modules;
+		if (empty($branda_modules)) {
+			$branda_modules = branda_get_option('ultimatebranding_activated_modules', array());
+		}
+
 		$widgets = get_option('ub_rwp_all_active_dashboard_widgets');
 		$widgetsToHide = get_option('ub_dashboard_widgets');
 
 		$activated_modules = get_option('ultimatebranding_activated_modules');
+
+		if (!$activated_modules) {
+			add_option('ultimatebranding_activated_modules', $branda_modules);
+			$activated_modules = get_option('ultimatebranding_activated_modules');
+		}
+
 		$message[0] = ' <p>⭕ La fonctionnalité pour masquer les Widgets n\'est pas activée</p>';
 		$message[1] = '<p>⭕ Les Widgets ne sont pas chargés, <a href="'.admin_url('index.php').'">Charger les widgets ici</a></p>';
 		$message[2] = '<p>⭕ Les Widgets ne sont pas masqués</p>';
@@ -132,7 +143,7 @@ class BrandaOptionsService extends AbstractController
 
 		return [
 			'message' => implode('<br>', $message),
-			'action_required' => !$widgetsToHide,
+			'action_required' => !array_key_exists('widgets/dashboard-widgets.php', $activated_modules) || !$widgetsToHide,
 		];
 	}
 

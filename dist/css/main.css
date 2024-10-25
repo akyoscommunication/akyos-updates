@@ -470,6 +470,12 @@
   opacity: 0.7;
   font-size: 0.75rem;
 }
+.c-action_block-item__message ul {
+  margin-left: 1rem;
+}
+.c-action_block-item__message ul li p {
+  font-size: 0.6875rem !important;
+}
 .c-action_block-item form {
   display: flex;
   flex-flow: row wrap;

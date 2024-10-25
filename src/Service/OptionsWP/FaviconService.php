@@ -4,7 +4,6 @@ namespace AkyosUpdates\Service\OptionsWP;
 
 use AkyosUpdates\Attribute\Hook;
 use AkyosUpdates\Trait\ServiceTrait;
-use Symfony\Component\HttpFoundation\Request;
 
 class FaviconService
 {
