@@ -171,7 +171,7 @@ class PluginComposerService
 	#[Hook(hook: 'admin_post_akyos_updates_run_composer_update')]
 	public function runComposerUpdate(): bool
 	{
-		shell_exec('cd .. && sudo composer update');
+		shell_exec('cd .. && composer update');
 
 		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
