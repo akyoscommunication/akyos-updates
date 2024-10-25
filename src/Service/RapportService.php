@@ -66,7 +66,6 @@ class RapportService
 		$scores = get_option('akyos_updates_page_speed');
 
 		if (!empty($scores)) {
-			//tranform the scores into a message
 			$message = '<p>Voici les scores de la page speed :</p> <br>';
 			$message .= '<em>Desktop : </em><br>';
 			$message .= '<ul>';
@@ -74,6 +73,8 @@ class RapportService
 			$message .= '<li><p><strong>Accessibilité : </strong>'.($scores['desktop']['accessibility'] * 100).' / 100%</p></li>';
 			$message .= '<li><p><strong>Meilleures pratiques : </strong>'.($scores['desktop']['best_practices'] * 100).' / 100%</p></li>';
 			$message .= '<li><p><strong>SEO : </strong>'.($scores['desktop']['seo'] * 100).' / 100%</p></li>';
+			$message .= '<li><h3>Moyenne Total : '.
+				(($scores['desktop']['performance'] + $scores['desktop']['accessibility'] + $scores['desktop']['best_practices'] + $scores['desktop']['seo']) * 25).' / 100%</h3></li>';
 			$message .= '</ul>';
 		} else {
 			$message = 'Pas de données pour le moment';
@@ -98,7 +99,7 @@ class RapportService
 		$res = file_get_contents('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$url.'&key=AIzaSyDr7VTkop0l9S6q7HUIulETH31tEC2xOqA&category=ACCESSIBILITY&category=BEST_PRACTICES&category=PERFORMANCE&category=SEO');
 
 		if ($res) {
-			$res = json_decode($res);
+			$res = json_decode($res, false, 512, JSON_THROW_ON_ERROR);
 			$scores = [
 				'desktop' => [
 					'performance' => $res->lighthouseResult->categories->performance->score,

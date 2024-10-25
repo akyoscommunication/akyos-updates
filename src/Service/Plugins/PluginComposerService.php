@@ -162,8 +162,6 @@ class PluginComposerService
 	{
 		$composerMessage = 'Mettre les plugins à jour';
 
-		// TODO: Check if composer update is needed
-
 		return [
 			'message' => $composerMessage,
 			'action_required' => true
