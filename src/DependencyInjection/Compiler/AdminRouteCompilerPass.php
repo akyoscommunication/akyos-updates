@@ -34,22 +34,28 @@ class AdminRouteCompilerPass implements CompilerPassInterface
 			$reflectionClass = new ReflectionClass($class);
 			$methods = $reflectionClass->getMethods();
 
-			foreach ($methods as $method) {
-				$attributes = $method->getAttributes(AdminRoute::class);
+			require_once ABSPATH.'wp-includes/pluggable.php';
 
-				foreach ($attributes as $attribute) {
-					/** @var AdminRoute $routeAttr */
-					$routeAttr = $attribute->newInstance();
+			$user = wp_get_current_user();
 
-					add_action('admin_menu', function () use ($routeAttr, $container, $class, $method) {
-						$controller = $container->get($class);
+			if ($user && str_contains($user->data->user_email, 'akyos')) {
+				foreach ($methods as $method) {
+					$attributes = $method->getAttributes(AdminRoute::class);
 
-						if ($routeAttr->type === AdminRoute::TYPE_MENU_PAGE) {
-							add_menu_page($routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->iconUrl, $routeAttr->position);
-						} else {
-							add_submenu_page($routeAttr->parentSlug, $routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->position);
-						}
-					});
+					foreach ($attributes as $attribute) {
+						/** @var AdminRoute $routeAttr */
+						$routeAttr = $attribute->newInstance();
+
+						add_action('admin_menu', function () use ($routeAttr, $container, $class, $method) {
+							$controller = $container->get($class);
+
+							if ($routeAttr->type === AdminRoute::TYPE_MENU_PAGE) {
+								add_menu_page($routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->iconUrl, $routeAttr->position);
+							} else {
+								add_submenu_page($routeAttr->parentSlug, $routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->position);
+							}
+						});
+					}
 				}
 			}
 		}

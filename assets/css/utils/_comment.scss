@@ -1,0 +1,18 @@
+.aky_rapport {
+  &__comment {
+	margin-top: rem(16);
+	padding: rem(4) rem(16);
+	border-radius: rem(8);
+	box-shadow: rem(2) rem(2) rem(4) rem(1) color(dark, 0.1);
+
+	p {
+	  &:nth-child(2) {
+		border-top: rem(1) solid color(dark, 0.1);
+
+		em {
+		  font-size: rem(10);
+		}
+	  }
+	}
+  }
+}

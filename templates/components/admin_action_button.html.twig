@@ -10,13 +10,21 @@
 		{% for field in fields %}
 			{% if field.type == 'hidden' %}
 				<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" value="{{ field.value }}" required>
-				{% else %}
-					<div class="form-group">
-						<label for="{{ field.name }}">
-							{{ field.label }}
-						</label>
-						<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" accept="{{ field.acceptc }}" value="{{ field.value }}" required>
-					</div>
+			{% elseif field.type == 'file' %}
+				<div class="form-group">
+					<label for="images" class="drop-container" id="dropcontainer">
+						<span class="drop-title">Déposer une image ici</span>
+						ou
+						<input type="{{ field.type }}" name="{{ field.name }}" id="images" value="{{ field.value }}" accept="{{ field.accept }}" required/>
+					</label>
+				</div>
+			{% else %}
+				<div class="form-group">
+					<label for="{{ field.name }}">
+						{{ field.label }}
+					</label>
+					<input name="{{ field.name }}" type="{{ field.type }}" placeholder="{{ field.label }}" accept="{{ field.acceptc }}" value="{{ field.value }}" required>
+				</div>
 			{% endif %}
 		{% endfor %}
 	{% endif %}

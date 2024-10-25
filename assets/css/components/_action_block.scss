@@ -32,15 +32,64 @@
 
 	form {
 	  @include flex(row, wrap, end, start);
-	  gap: rem(16);
+	  gap: rem(24);
 
 	  grid-column: 4 / 6;
+	  height: fit-content;
 
 	  .form-group {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		grid-gap: rem(16);
 		width: 100%;
+		position: relative;
+
+		label {
+		  position: absolute;
+		  left: rem(10);
+		  top: rem(-10);
+		  background: color(light);
+		  font-size: rem(10);
+		  color: color(dark, 0.7);
+		  padding: 0 rem(2);
+		}
+
+		.drop-container {
+		  position: relative;
+		  display: flex;
+		  gap: rem(10);
+		  flex-direction: column;
+		  justify-content: center;
+		  align-items: center;
+		  height: rem(100);
+		  padding: rem(16);
+		  border-radius: rem(4);
+		  border: rem(1) solid color(dark, 0.5);
+		  color: #444;
+		  cursor: pointer;
+		  transition: background .2s ease-in-out, border .2s ease-in-out;
+
+		  &:hover {
+			background: #eee;
+			border-color: #111;
+
+		  }
+		}
+
+
+		input {
+		  padding: rem(5) rem(8);
+		  width: 100%;
+
+		  &[type=file] {
+			&::file-selector-button {
+			  margin-right: rem(8);
+			  border: none;
+			  background: color(primary);
+			  padding: 8px 12px;
+			  color: color(light);
+			  cursor: pointer;
+			  border-radius: rem(4);
+			}
+		  }
+		}
 	  }
 	}
   }

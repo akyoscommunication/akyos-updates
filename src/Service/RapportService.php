@@ -26,7 +26,11 @@ class RapportService
 
 		$message = '<p>Voici les liste des commentaires :</p> <br>';
 		if ($comments) {
-			$message .= implode('<br> ', array_column($comments, 'content'));
+			$message .= '<ul>';
+			foreach ($comments as $comment) {
+				$message .= '<li><div class="aky_rapport__comment"><p>'.$comment['content'].'</p><p><em>'.$comment['date'].'</em></p></div></li>';
+			}
+			$message .= '</ul>';
 		}
 
 		return [
@@ -55,7 +59,7 @@ class RapportService
 
 		$comments[] = [
 			'content' => $comment,
-			'date' => date('Y-m-d H:i:s')
+			'date' => date('d-m-Y H:i:s')
 		];
 
 		update_option('akyos_updates_comments', $comments);
