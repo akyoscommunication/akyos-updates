@@ -4,13 +4,26 @@
 
 {% block page_content %}
 	<section class="aky_card">
-
 		{% include 'components/action_block.html.twig' with {
-			'title': 'Hummingbird settings',
+			'title': 'Hummingbird Page Caching',
 			'data': settings,
 			'action_name': 'akyos_updates_set_settings',
 			'action_label': 'Configurer le Page Caching',
 		} %}
 
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Hummingbird Gzip',
+			'data': gzip,
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Hummingbird Assets Optimization',
+			'data': assets_optimization,
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Hummingbird Advanced Tools',
+			'data': advanced_tools,
+		} %}
 	</section>
 {% endblock %}

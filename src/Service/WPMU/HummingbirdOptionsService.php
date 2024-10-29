@@ -60,6 +60,11 @@ class HummingbirdOptionsService
 
 		$message .= '</ul>';
 
+		$message .= '<ul>';
+		$message .= '<li>🔧 Si ce n\'est pas déjà activé, lancer la configuration => sélectionner "Apache", laisser "All files types" et "1 year", valider et tout se fait tout seul. S\'il y a un souci il vous proposera de copier-coller du code dans le .htaccess puis de revalider.<a href="'.admin_url('admin.php?page=wphb-caching&view=caching').'">Cliquez ICI</a></li>';
+		$message .= '<li>🔧 Onglet Caching/Intégration (à faire en prod) : Si le site est sur Cloudflare (à vérifier pour les anciens sites, à faire tout le temps pour les nouveaux), mettre en place l\'intégration Cloudflare.<a href="'.admin_url('admin.php?page=wphb-caching&view=integrations').'">Cliquez ICI</a></li>';
+		$message .= '</ul>';
+
 		return [
 			'message' => $message,
 			'action_required' => true
@@ -84,5 +89,42 @@ class HummingbirdOptionsService
 
 
 		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
+	}
+
+	public function getGzip()
+	{
+		$message = '<ul>';
+		$message .= '<li>🔧 Onglet GzipCompression: si ce n\'est pas fait, sélectionner "Apache", "Automatique" et lancer la configuration. Dans 90% des cas ça fonctionne, si ce n\'est pas le cas, copier-coller le code fourni dans le .htaccess. <a href="'.admin_url('admin.php?page=wphb-gzip').'">Cliquez ICI</a></li>';
+		$message .= '</ul>';
+
+		return [
+			'message' => $message,
+			'action_required' => false
+		];
+	}
+
+	public function getAssetsOptimization()
+	{
+		$message = '<ul>';
+		$message .= '<li>🔧 Onglet Assets Optimization: en général je n\'y touche pas, il est arrivé qu\'il y ait des soucis avec des plugins et qu\'on ait du se servir de cette fonctionnalité mais ce n\'est pas obligatoire. <a href="'.admin_url('admin.php?page=wphb-minification').'">Cliquez ICI</a></li>';
+		$message .= '</ul>';
+
+		return [
+			'message' => $message,
+			'action_required' => false
+		];
+	}
+
+	public function getAdvancedTools()
+	{
+		$message = '<ul>';
+		$message .= '<li>🔧 Onglet Advanced Tools / General : cocher les options "Remove query strings from my assets" et "Remove the default Emoji JS & CSS files", si WooCommerce est installé alors cocher également "Disable cart fragments" <a href="'.admin_url('admin.php?page=wphb-advanced').'">Cliquez ICI</a></li>';
+		$message .= '<li>🔧 Onglet Advanced Tools / Database cleanup (MEL / Maintenance): lors de la mise en ligne ou d\'une maintenance, lancer la suppression de tous les éléments de la liste SAUF DES BROUILLONS car les clients mettent souvent des articles/pages en brouillon avant de les publier" <a href="'.admin_url('admin.php?page=wphb-advanced&view=db').'">Cliquez ICI</a></li>';
+		$message .= '</ul>';
+
+		return [
+			'message' => $message,
+			'action_required' => false
+		];
 	}
 }

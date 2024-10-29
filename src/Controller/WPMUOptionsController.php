@@ -51,6 +51,9 @@ class WPMUOptionsController extends AbstractController
 	{
 		$this->render('hummingbird_options.html.twig', [
 			'settings' => $this->hummingbirdOptionsService->getSettings(),
+			'gzip' => $this->hummingbirdOptionsService->getGzip(),
+			'assets_optimization' => $this->hummingbirdOptionsService->getAssetsOptimization(),
+			'advanced_tools' => $this->hummingbirdOptionsService->getAdvancedTools(),
 		]);
 	}
 
