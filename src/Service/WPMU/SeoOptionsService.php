@@ -1,12 +1,11 @@
 <?php
 
-namespace AkyosUpdates\Service\SEO;
+namespace AkyosUpdates\Service\WPMU;
 
 use AkyosUpdates\Attribute\Hook;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 
-class PageIndexService
+class SeoOptionsService
 {
 	public function getPages(): array
 	{
@@ -71,6 +70,18 @@ class PageIndexService
 
 		foreach ($this->getMetaKeys() as $metaKey) {
 			add_post_meta($page_id, $metaKey, '1');
+		}
+	}
+
+	public function configSmartCrawl()
+	{
+		$pluginList = get_plugins();
+
+		if (array_key_exists('wpmu-dev-seo/wpmu-dev-seo.php', $pluginList)) {
+			$settings = get_option('wds_sitemap_options');
+			$settings['sitemap-disable-automatic-regeneration'] = 'auto';
+
+			update_option('wds_sitemap_options', $settings);
 		}
 	}
 

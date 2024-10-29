@@ -6,6 +6,7 @@ use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
 use AkyosUpdates\Service\WPMU\BrandaOptionsService;
 use AkyosUpdates\Service\WPMU\HummingbirdOptionsService;
+use AkyosUpdates\Service\WPMU\SeoOptionsService;
 use AkyosUpdates\Service\WPMU\SmushOptionsService;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
@@ -15,6 +16,7 @@ class WPMUOptionsController extends AbstractController
 		private readonly BrandaOptionsService      $brandaOptionsService,
 		private readonly SmushOptionsService       $smushOptionsService,
 		private readonly HummingbirdOptionsService $hummingbirdOptionsService,
+		private readonly SeoOptionsService         $seoOptionsService,
 	)
 	{
 		parent::__construct();
@@ -31,6 +33,7 @@ class WPMUOptionsController extends AbstractController
 			'branda_widgets' => $this->brandaOptionsService->getBrandaWidgets(),
 			'branda_smtp' => $this->brandaOptionsService->getBandraEmail(),
 			'branda_test_email' => $this->brandaOptionsService->getBrandaTestMail(),
+			'branda_admin_lite' => $this->brandaOptionsService->getAdminLite()
 		]);
 	}
 
@@ -55,5 +58,16 @@ class WPMUOptionsController extends AbstractController
 	public function wpmuDefender(): void
 	{
 		$this->render('branda_options.html.twig', []);
+	}
+
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU SmartCrawl\Yoast SEO', menuTitle: 'WPMU SmartCrawl\Yoast SEO', capability: 'manage_options', slug: 'akyos_updates_seo_options', parentSlug: 'akyos_updates', position: 8)]
+	public function wpmuSeo(): void
+	{
+		$this->seoOptionsService->configSmartCrawl();
+
+		$this->render('seo_options.html.twig', [
+			'pages' => $this->seoOptionsService->getPages(),
+			'seo_plugins' => $this->seoOptionsService->getSEOPluginsInstalled(),
+		]);
 	}
 }

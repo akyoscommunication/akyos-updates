@@ -35,5 +35,12 @@
 			'action_name': 'akyos_updates_hide_branda_widgets',
 			'action_label': 'Mettre à jour les widgets',
 		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Branda Admin Lite',
+			'data': branda_admin_lite,
+			'action_name': 'akyos_updates_create_admin_lite',
+			'action_label': 'Désigner/Créer un compte Admin Lite',
+		} %}
 	</section>
 {% endblock %}

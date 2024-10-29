@@ -8,6 +8,7 @@ use AkyosUpdates\Class\AbstractController;
 use AkyosUpdates\Trait\ServiceTrait;
 use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\HttpFoundation\Request;
+use WP_Roles;
 
 class BrandaOptionsService extends AbstractController
 {
@@ -105,7 +106,6 @@ class BrandaOptionsService extends AbstractController
 
 		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
-
 
 	/**
 	 * @throws TransportExceptionInterface
@@ -253,6 +253,8 @@ class BrandaOptionsService extends AbstractController
 			$activated_modules['emails/smtp.php'] = 'yes';
 		}
 
+		update_option('ultimatebranding_activated_modules', $activated_modules);
+
 		$smtp = [
 			'header' => [
 				'from_email' => $request->request->get('from_email'),
@@ -335,5 +337,51 @@ class BrandaOptionsService extends AbstractController
 
 
 		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
+	}
+
+	public function getAdminLite()
+	{
+		global $wp_roles;
+		if (!isset($wp_roles)) {
+			$wp_roles = new WP_Roles();
+		}
+		$adm = $wp_roles->get_role('administrator');
+		$wp_roles->add_role('admin-lite', 'Admin Lite', $adm?->capabilities);
+
+		$users = get_users([
+			'role' => 'admin-lite'
+		]);
+
+		if (empty($users)) {
+			$message = '<p>⭕ Aucun compte trouvé avec le role Admin Lite</p>';
+		} else {
+			$message = '<p>✅ Le rôle Admin Lite est attribué au(x) compte(s) :</p>';
+			$message .= '<ul>';
+			foreach ($users as $user) {
+				$message .= '<li><p>'.$user->user_email.'</p></li>';
+			}
+			$message .= '</ul>';
+			$message .= '<p>Vous pouvez <a href="'.admin_url('admin.php?page=branding_group_admin&module=admin_menu').'">configurer les accès du rôle Admin Lite ici</a></p>';
+		}
+
+		return [
+			'message' => $message,
+			'action_required' => empty($users),
+		];
+	}
+
+	#[Hook(hook: 'admin_post_akyos_updates_create_admin_lite')]
+	public function redirectToCreateAccount(): bool
+	{
+		$activated_modules = get_option('ultimatebranding_activated_modules');
+
+		if (!array_key_exists('admin/menu.php', $activated_modules)) {
+			$activated_modules['admin/menu.php'] = 'yes';
+		}
+
+		update_option('ultimatebranding_activated_modules', $activated_modules);
+
+
+		return wp_redirect(admin_url('users.php'));
 	}
 }
