@@ -395,4 +395,58 @@ class DefenderOptionsService
 			"sh_feature_policy_urls" => "",
 		], JSON_THROW_ON_ERROR));
 	}
+
+	/**
+	 * @throws \JsonException
+	 */
+	public function getPwnedPassword()
+	{
+		$settings = get_option('wd_password_protection_settings');
+		$actionRequired = false;
+
+		if (!$settings) {
+			$message = '<p>⭕ Pwned Password n\'est pas activé</p>';
+			$actionRequired = true;
+		} else {
+			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
+
+			if ($settings['enabled']) {
+				$message = '<p>✅ Pwned Password est activé</p>';
+			} else {
+				$message = '<p>⭕ Pwned Password n\'est pas activé</p>';
+				$actionRequired = true;
+			}
+		}
+
+		return [
+			'message' => $message,
+			'action_required' => $actionRequired,
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_defender_pwned_password'
+			]
+		];
+	}
+
+	/**
+	 * @throws \JsonException
+	 */
+	#[Hook(hook: 'admin_post_akyos_updates_defender_pwned_password')]
+	public function setPwnedPassword(): void
+	{
+		delete_option('wd_password_protection_settings');
+		add_option('wd_password_protection_settings', json_encode([
+			'enabled' => true,
+			'user_roles' => [
+				'administrator',
+				'editor',
+				'author',
+				'contributor',
+				'subscriber',
+				'admin-lite'
+			],
+			'pwned_actions' => [
+				'force_change_message' => 'Vous devez modifier votre mot de passe parce que le mot de passe que vous utilisez existe dans les enregistrements de violation de la base de données.'
+			],
+		], JSON_THROW_ON_ERROR));
+	}
 }

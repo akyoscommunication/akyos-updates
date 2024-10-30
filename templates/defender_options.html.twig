@@ -33,5 +33,12 @@
 			'action_label': 'Activer les Security Headers',
 		} %}
 
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Defender Pwned Passwords',
+			'data': pwned_passwords,
+			'action_name': 'akyos_updates_defender_pwned_password',
+			'action_label': 'Activer les Pwned Passwords',
+		} %}
+
 	</section>
 {% endblock %}

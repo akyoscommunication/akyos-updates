@@ -73,6 +73,7 @@ class WPMUOptionsController extends AbstractController
 			'blocker_ip' => $this->defenderOptionsService->getGlobalIP(),
 			'mask_login' => $this->defenderOptionsService->getMaskLogin(),
 			'security_headers' => $this->defenderOptionsService->getSecurityHeaders(),
+			'pwned_passwords' => $this->defenderOptionsService->getPwnedPassword(),
 		]);
 	}
 
