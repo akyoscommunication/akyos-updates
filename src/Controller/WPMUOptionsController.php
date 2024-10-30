@@ -48,6 +48,9 @@ class WPMUOptionsController extends AbstractController
 		]);
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Hummingbird', menuTitle: 'WPMU Hummingbird', capability: 'manage_options', slug: 'akyos_updates_hummingbird_options', parentSlug: 'akyos_updates', position: 6)]
 	public function wpmuHummingbird(): void
 	{
@@ -59,11 +62,15 @@ class WPMUOptionsController extends AbstractController
 		]);
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Defender', menuTitle: 'WPMU Defender', capability: 'manage_options', slug: 'akyos_updates_defender_options', parentSlug: 'akyos_updates', position: 7)]
 	public function wpmuDefender(): void
 	{
 		$this->render('defender_options.html.twig', [
-			'translate' => $this->defenderOptionsService->getTranslate()
+			'translate' => $this->defenderOptionsService->getTranslate(),
+			'blocker_ip' => $this->defenderOptionsService->getGlobalIP(),
 		]);
 	}
 

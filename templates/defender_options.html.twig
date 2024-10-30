@@ -4,11 +4,27 @@
 
 {% block page_content %}
 	<section class="aky_card">
+
 		{% include 'components/action_block.html.twig' with {
 			'title': 'Defender Firewall traduction',
 			'data': translate,
 			'action_name': 'akyos_updates_defender_translate',
 			'action_label': 'Traduire les texte de Firewall',
 		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Defender Blocker IP',
+			'data': blocker_ip,
+			'action_name': 'akyos_updates_defender_global_ip',
+			'action_label': 'Activer le Global IP Blocker',
+		} %}
+
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Defender Mask Login',
+			'data': mask_login,
+			'action_name': 'akyos_updates_defender_mask_login',
+			'action_label': 'Enregistrer',
+		} %}
+
 	</section>
 {% endblock %}
