@@ -38,7 +38,7 @@ class AdminRouteCompilerPass implements CompilerPassInterface
 
 			$user = wp_get_current_user();
 
-			if ($user && $user->data && $user->data->user_email && str_contains($user->data->user_email, 'akyos')) {
+			if ($user && $user->ID !== 0 && str_contains($user->data->user_email, 'akyos')) {
 				foreach ($methods as $method) {
 					$attributes = $method->getAttributes(AdminRoute::class);
 
