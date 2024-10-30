@@ -280,16 +280,29 @@ class DefenderOptionsService
 					'type' => 'text',
 					'required' => true
 				]
-			]
+			],
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_defender_mask_login'
+			],
 		];
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	#[Hook(hook: 'admin_post_akyos_updates_defender_mask_login')]
 	public function setMaskLogin()
 	{
 		$request = Request::createFromGlobals();
 		$urlLogin = $request->get('url_login');
 
-		dd($urlLogin);
+		delete_option('wd_masking_login_settings');
+		add_option('wd_masking_login_settings', json_encode([
+			"mask_url" => $urlLogin,
+			"redirect_traffic" => "off",
+			"redirect_traffic_url" => "",
+			"redirect_traffic_page_id" => 0,
+			"enabled" => true
+		], JSON_THROW_ON_ERROR));
 	}
 }
