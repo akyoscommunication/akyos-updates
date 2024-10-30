@@ -26,5 +26,10 @@
 			'action_label': 'Enregistrer',
 		} %}
 
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Defender Security Headers',
+			'data': security_headers,
+		} %}
+
 	</section>
 {% endblock %}

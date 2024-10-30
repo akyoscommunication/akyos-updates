@@ -263,7 +263,7 @@ class DefenderOptionsService
 	 */
 	public function getMaskLogin()
 	{
-		$settings = get_option('wd_masking_login_settings', true);
+		$settings = get_option('wd_masking_login_settings');
 
 		if (!$settings) {
 			$message = '<p>⭕ Le masquage de login n\'est pas configuré</p>';
@@ -277,10 +277,9 @@ class DefenderOptionsService
 			'action_required' => true,
 			'fields' => [
 				[
-					'label' => 'Url Login',
+					'label' => 'Mask login URL',
 					'name' => 'url_login',
 					'value' => $settings['mask_url'] ?? '',
-					'placeholder' => 'admin_url',
 					'type' => 'text',
 					'required' => true
 				]
@@ -308,5 +307,22 @@ class DefenderOptionsService
 			"redirect_traffic_page_id" => 0,
 			"enabled" => true
 		], JSON_THROW_ON_ERROR));
+	}
+
+	/**
+	 * @throws \JsonException
+	 */
+	public function getSecurityHeaders()
+	{
+		$settings = get_option('wd_security_headers_settings');
+
+		if (!$settings) {
+			$message = '<p>⭕ Les headers de sécurité ne sont pas configurés</p>';
+		} else {
+			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
+			$message = '<p>✅ Les headers de sécurité sont configurés</p>';
+		}
+
+		dd($settings);
 	}
 }
