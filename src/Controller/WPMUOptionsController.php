@@ -71,6 +71,7 @@ class WPMUOptionsController extends AbstractController
 		$this->render('defender_options.html.twig', [
 			'translate' => $this->defenderOptionsService->getTranslate(),
 			'blocker_ip' => $this->defenderOptionsService->getGlobalIP(),
+			'mask_login' => $this->defenderOptionsService->getMaskLogin(),
 		]);
 	}
 
