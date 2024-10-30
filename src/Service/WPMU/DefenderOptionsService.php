@@ -258,6 +258,9 @@ class DefenderOptionsService
 		}
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	public function getMaskLogin()
 	{
 		$settings = get_option('wd_masking_login_settings', true);
@@ -265,6 +268,7 @@ class DefenderOptionsService
 		if (!$settings) {
 			$message = '<p>⭕ Le masquage de login n\'est pas configuré</p>';
 		} else {
+			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
 			$message = '<p>✅ Le masquage de login est configuré</p>';
 		}
 
