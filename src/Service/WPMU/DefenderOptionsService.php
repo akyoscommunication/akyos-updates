@@ -316,13 +316,83 @@ class DefenderOptionsService
 	{
 		$settings = get_option('wd_security_headers_settings');
 
+		$message = '<p>Configuration des headers security : </p>';
+		$actionRequired = false;
+
 		if (!$settings) {
-			$message = '<p>⭕ Les headers de sécurité ne sont pas configurés</p>';
+			$message .= '<p>⭕ X-Frame-Options pas activé</p>';
+			$message .= '<p>⭕ X-XSS-Protection pas activé</p>';
+			$message .= '<p>⭕ X-Content-Type-Options pas activé</p>';
+			$message .= '<p>⭕ Strict Transport pas activé</p>';
+			$actionRequired = true;
 		} else {
 			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
-			$message = '<p>✅ Les headers de sécurité sont configurés</p>';
+
+			$message .= '<ul>';
+
+			if ($settings['sh_xframe']) {
+				$message .= '<p>✅ X-Frame-Options est activé</p>';
+			} else {
+				$message .= '<p>⭕ X-Frame-Options pas activé</p>';
+				$actionRequired = true;
+			}
+
+			if ($settings['sh_xss_protection']) {
+				$message .= '<p>✅ X-XSS-Protection est activé</p>';
+			} else {
+				$message .= '<p>⭕ X-XSS-Protection pas activé</p>';
+				$actionRequired = true;
+			}
+
+			if ($settings['sh_content_type_options']) {
+				$message .= '<p>✅ X-Content-Type-Options est activé</p>';
+			} else {
+				$message .= '<p>⭕ X-Content-Type-Options pas activé</p>';
+				$actionRequired = true;
+			}
+
+			if ($settings['sh_strict_transport']) {
+				$message .= '<p>✅ Strict Transport est activé</p>';
+			} else {
+				$message .= '<p>⭕ Strict Transport pas activé</p>';
+				$actionRequired = true;
+			}
+
+			$message .= '</ul>';
 		}
 
-		dd($settings);
+		return [
+			'message' => $message,
+			'action_required' => $actionRequired,
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_defender_security_headers'
+			]
+		];
+	}
+
+	/**
+	 * @throws \JsonException
+	 */
+	#[Hook(hook: 'admin_post_akyos_updates_defender_security_headers')]
+	public function setSecurityHeaders()
+	{
+		delete_option('wd_security_headers_settings');
+		add_option('wd_security_headers_settings', json_encode([
+			"sh_xframe" => true,
+			"sh_xframe_mode" => "sameorigin",
+			"sh_xss_protection" => true,
+			"sh_xss_protection_mode" => "sanitize",
+			"sh_content_type_options" => true,
+			"sh_content_type_options_mode" => "nosniff",
+			"sh_strict_transport" => true,
+			"hsts_preload" => 0,
+			"include_subdomain" => 0,
+			"hsts_cache_duration" => "30 days",
+			"sh_referrer_policy" => false,
+			"sh_referrer_policy_mode" => "origin-when-cross-origin",
+			"sh_feature_policy" => false,
+			"sh_feature_policy_mode" => "self",
+			"sh_feature_policy_urls" => "",
+		], JSON_THROW_ON_ERROR));
 	}
 }
