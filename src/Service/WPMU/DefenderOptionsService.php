@@ -320,10 +320,10 @@ class DefenderOptionsService
 		$actionRequired = false;
 
 		if (!$settings) {
-			$message .= '<p>⭕ X-Frame-Options pas activé</p>';
-			$message .= '<p>⭕ X-XSS-Protection pas activé</p>';
-			$message .= '<p>⭕ X-Content-Type-Options pas activé</p>';
-			$message .= '<p>⭕ Strict Transport pas activé</p>';
+			$message .= '<p>⭕ X-Frame-Options n\'est pas activé</p>';
+			$message .= '<p>⭕ X-XSS-Protection n\'est pas activé</p>';
+			$message .= '<p>⭕ X-Content-Type-Options n\'est pas activé</p>';
+			$message .= '<p>⭕ Strict Transport n\'est pas activé</p>';
 			$actionRequired = true;
 		} else {
 			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
@@ -333,28 +333,28 @@ class DefenderOptionsService
 			if ($settings['sh_xframe']) {
 				$message .= '<p>✅ X-Frame-Options est activé</p>';
 			} else {
-				$message .= '<p>⭕ X-Frame-Options pas activé</p>';
+				$message .= '<p>⭕ X-Frame-Options n\'est pas activé</p>';
 				$actionRequired = true;
 			}
 
 			if ($settings['sh_xss_protection']) {
 				$message .= '<p>✅ X-XSS-Protection est activé</p>';
 			} else {
-				$message .= '<p>⭕ X-XSS-Protection pas activé</p>';
+				$message .= '<p>⭕ X-XSS-Protection n\'est pas activé</p>';
 				$actionRequired = true;
 			}
 
 			if ($settings['sh_content_type_options']) {
 				$message .= '<p>✅ X-Content-Type-Options est activé</p>';
 			} else {
-				$message .= '<p>⭕ X-Content-Type-Options pas activé</p>';
+				$message .= '<p>⭕ X-Content-Type-Options n\'est pas activé</p>';
 				$actionRequired = true;
 			}
 
 			if ($settings['sh_strict_transport']) {
 				$message .= '<p>✅ Strict Transport est activé</p>';
 			} else {
-				$message .= '<p>⭕ Strict Transport pas activé</p>';
+				$message .= '<p>⭕ Strict Transport n\'est pas activé</p>';
 				$actionRequired = true;
 			}
 
