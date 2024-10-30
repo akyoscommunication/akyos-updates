@@ -5,6 +5,7 @@ namespace AkyosUpdates\Controller;
 use AkyosUpdates\Attribute\AdminRoute;
 use AkyosUpdates\Class\AbstractController;
 use AkyosUpdates\Service\WPMU\BrandaOptionsService;
+use AkyosUpdates\Service\WPMU\DefenderOptionsService;
 use AkyosUpdates\Service\WPMU\HummingbirdOptionsService;
 use AkyosUpdates\Service\WPMU\SeoOptionsService;
 use AkyosUpdates\Service\WPMU\SmushOptionsService;
@@ -17,6 +18,7 @@ class WPMUOptionsController extends AbstractController
 		private readonly SmushOptionsService       $smushOptionsService,
 		private readonly HummingbirdOptionsService $hummingbirdOptionsService,
 		private readonly SeoOptionsService         $seoOptionsService,
+		private readonly DefenderOptionsService    $defenderOptionsService
 	)
 	{
 		parent::__construct();
@@ -60,7 +62,9 @@ class WPMUOptionsController extends AbstractController
 	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Defender', menuTitle: 'WPMU Defender', capability: 'manage_options', slug: 'akyos_updates_defender_options', parentSlug: 'akyos_updates', position: 7)]
 	public function wpmuDefender(): void
 	{
-		$this->render('branda_options.html.twig', []);
+		$this->render('defender_options.html.twig', [
+			'translate' => $this->defenderOptionsService->getTranslate()
+		]);
 	}
 
 	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU SmartCrawl\Yoast SEO', menuTitle: 'WPMU SmartCrawl\Yoast SEO', capability: 'manage_options', slug: 'akyos_updates_seo_options', parentSlug: 'akyos_updates', position: 8)]
