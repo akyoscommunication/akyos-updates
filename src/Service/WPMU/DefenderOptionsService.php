@@ -469,6 +469,9 @@ class DefenderOptionsService
 			}
 		}
 
+		$message .= '<script src="https://www.google.com/recaptcha/api.js?render='.$settings['data_v3_recaptcha']['key'].'"></script>
+						<div id="aky_recaptcha_preview"></div>';
+
 		return [
 			'message' => $message,
 			'action_required' => true,
@@ -515,7 +518,7 @@ class DefenderOptionsService
 			"data_v3_recaptcha" => [
 				"key" => $recaptchaKey,
 				"secret" => $recaptchaSecret,
-				"threshold" => "0.6",
+				"threshold" => "0.8",
 			],
 			"language" => "automatic",
 			"message" => "La vérification reCAPTCHA a échoué. Veuillez réessayer.",
