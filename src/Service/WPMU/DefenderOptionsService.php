@@ -399,7 +399,7 @@ class DefenderOptionsService
 	/**
 	 * @throws \JsonException
 	 */
-	public function getPwnedPassword()
+	public function getPwnedPassword(): array
 	{
 		$settings = get_option('wd_password_protection_settings');
 		$actionRequired = false;
@@ -450,13 +450,81 @@ class DefenderOptionsService
 		], JSON_THROW_ON_ERROR));
 	}
 
-	public function recaptcha()
+	/**
+	 * @throws \JsonException
+	 */
+	public function recaptcha(): array
 	{
+		$settings = get_option('wd_recaptcha_settings');
+
+		if (!$settings) {
+			$message = '<p>⭕ Recaptcha n\'est pas activé</p>';
+		} else {
+			$settings = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
+
+			if ($settings['enabled']) {
+				$message = '<p>✅ Recaptcha est activé</p>';
+			} else {
+				$message = '<p>⭕ Recaptcha n\'est pas activé</p>';
+			}
+		}
+
 		return [
-			'message' => '<p>activer si ce n\'est pas fait et mettre les clés du recaptcha V3 du site (il a probablement déjà été créé pour les formulaires) => <strong>UTILISER LE COMPTE WEBMASTER.AKYOS@GMAIL.COM</strong> pour configurer le recaptcha du site.</p>
-<br> 
-<p>Activer la protection sur toutes les pages proposées (login, ...).</p>',
-			'action_required' => false
+			'message' => $message,
+			'action_required' => true,
+			'fields' => [
+				[
+					'label' => 'Recaptcha Key',
+					'name' => 'recaptcha_key',
+					'value' => $settings['data_v3_recaptcha']['key'] ?? '',
+					'type' => 'text',
+					'required' => true
+				],
+				[
+					'label' => 'Recaptcha Secret',
+					'name' => 'recaptcha_secret',
+					'value' => $settings['data_v3_recaptcha']['secret'] ?? '',
+					'type' => 'text',
+					'required' => true
+				]
+			],
+			'ajax' => [
+				'hook' => 'admin_post_akyos_updates_defender_recaptcha'
+			]
 		];
+	}
+
+	/**
+	 * @throws \JsonException
+	 */
+	#[Hook(hook: 'admin_post_akyos_updates_defender_recaptcha')]
+	public function setRecaptcha()
+	{
+		$request = Request::createFromGlobals();
+		$recaptchaKey = $request->get('recaptcha_key');
+		$recaptchaSecret = $request->get('recaptcha_secret');
+
+		delete_option('wd_recaptcha_settings');
+		add_option('wd_recaptcha_settings', json_encode([
+			"enabled" => true,
+			"active_type" => "v3_recaptcha",
+			"data_v2_checkbox" => [
+				"key" => "",
+				"secret" => "",
+			],
+			"data_v3_recaptcha" => [
+				"key" => $recaptchaKey,
+				"secret" => $recaptchaSecret,
+				"threshold" => "0.6",
+			],
+			"language" => "automatic",
+			"message" => "La vérification reCAPTCHA a échoué. Veuillez réessayer.",
+			"locations" => ["login", "register", "lost_password", "comments"],
+			"detect_woo" => false,
+			"woo_checked_locations" => [],
+			"detect_buddypress" => false,
+			"buddypress_checked_locations" => [],
+			"disable_for_known_users" => true
+		], JSON_THROW_ON_ERROR));
 	}
 }
