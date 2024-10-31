@@ -25,13 +25,13 @@ class RapportService
 		}
 
 		$message = '<p>Voici les liste des commentaires :</p> <br>';
-		if ($comments) {
-			$message .= '<ul>';
-			foreach ($comments as $comment) {
-				$message .= '<li><div class="aky_rapport__comment"><p>'.$comment['content'].'</p><p><em>'.$comment['date'].'</em></p></div></li>';
-			}
-			$message .= '</ul>';
-		}
+//		if ($comments) {
+//			$message .= '<ul>';
+//			foreach ($comments as $comment) {
+//				$message .= '<li><div class="aky_rapport__comment"><p>'.$comment['content'].'</p><p><em>'.$comment['date'].'</em></p></div></li>';
+//			}
+//			$message .= '</ul>';
+//		}
 
 		return [
 			'message' => $message,
@@ -40,13 +40,28 @@ class RapportService
 				[
 					'label' => 'Commentaire',
 					'name' => 'comment',
-					'type' => 'text',
+					'type' => 'textarea',
 				]
 			],
 			'ajax' => [
 				'hook' => 'admin_post_akyos_updates_add_comment',
-			]
+			],
+			'list' => $comments,
+			'list_action_delete' => 'admin_post_akyos_updates_delete_comment',
 		];
+	}
+
+	#[Hook(hook: 'admin_post_akyos_updates_delete_comment')]
+	public function deleteComment()
+	{
+		$request = Request::createFromGlobals();
+		$index = $request->request->get('index');
+
+		$comments = get_option('akyos_updates_comments');
+
+		unset($comments[$index]);
+
+		update_option('akyos_updates_comments', $comments);
 	}
 
 	#[Hook(hook: 'admin_post_akyos_updates_add_comment')]

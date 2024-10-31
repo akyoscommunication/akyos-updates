@@ -86,6 +86,7 @@ class WPMUOptionsController extends AbstractController
 		$this->render('seo_options.html.twig', [
 			'pages' => $this->seoOptionsService->getPages(),
 			'seo_plugins' => $this->seoOptionsService->getSEOPluginsInstalled(),
+			'schema_advanced' => $this->seoOptionsService->schemaAdvanced(),
 		]);
 	}
 }

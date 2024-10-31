@@ -87,9 +87,11 @@ class HummingbirdOptionsService
 		$module->update_options($options);
 		$module->save_settings($existing_settings);
 
+		set_transient('akyos_success_notice', 'Mise à jour des paramètres de Humingbird réalisée avec succès !', 30);
 
 		return wp_redirect(admin_url('admin.php?page='.$this->redirectRoute));
 	}
+
 
 	public function getGzip()
 	{

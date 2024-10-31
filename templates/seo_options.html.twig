@@ -9,6 +9,13 @@
 			'data': seo_plugins,
 		} %}
 
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Schema Advanced',
+			'data': schema_advanced,
+			'action_name': 'akyos_updates_schema_advanced',
+			'action_label': 'Aller à la page',
+		} %}
+
 		{% for key, page in pages %}
 			{% include 'components/action_block.html.twig' with {
 				'title': null,

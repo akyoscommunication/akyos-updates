@@ -518,11 +518,11 @@
   background: #eee;
   border-color: #111;
 }
-.c-action_block-item form .form-group input {
+.c-action_block-item form .form-group input, .c-action_block-item form .form-group textarea {
   padding: 0.3125rem 0.5rem;
   width: 100%;
 }
-.c-action_block-item form .form-group input[type=file]::file-selector-button {
+.c-action_block-item form .form-group input[type=file]::file-selector-button, .c-action_block-item form .form-group textarea[type=file]::file-selector-button {
   margin-right: 0.5rem;
   border: none;
   background: rgba(var(--aky-color-primary--rgb), 1);
@@ -530,6 +530,9 @@
   color: rgba(var(--aky-color-light--rgb), 1);
   cursor: pointer;
   border-radius: 0.25rem;
+}
+.c-action_block-item form .form-group textarea {
+  min-height: 12.5rem;
 }
 
 .btn {
@@ -586,6 +589,8 @@
   padding: 0.25rem 1rem;
   border-radius: 0.5rem;
   box-shadow: 0.125rem 0.125rem 0.25rem 0.0625rem rgba(var(--aky-color-dark--rgb), 0.1);
+  width: -moz-fit-content;
+  width: fit-content;
 }
 .aky_rapport__comment p:nth-child(2) {
   border-top: 0.0625rem solid rgba(var(--aky-color-dark--rgb), 0.1);

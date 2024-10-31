@@ -7,6 +7,9 @@
 		<div class="c-action_block-item">
 			<div class="c-action_block-item__message">
 				{{ data.message|raw }}
+				{% if data.list %}
+					{% include 'components/list_action.html.twig' with {'list': data.list} %}
+				{% endif %}
 			</div>
 
 			{% if data.action_required is defined and data.action_required %}

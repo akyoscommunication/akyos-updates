@@ -15,7 +15,7 @@ class RapportController extends AbstractController
 		parent::__construct();
 	}
 
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Commentaires', menuTitle: 'Commentaires', capability: 'manage_options', slug: 'akyos_updates_rapport', parentSlug: 'akyos_updates', position: 99)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Rapports', menuTitle: 'Rapports', capability: 'manage_options', slug: 'akyos_updates_rapport', parentSlug: 'akyos_updates', position: 99)]
 	public function index(): void
 	{
 		$this->render('rapport.html.twig', [

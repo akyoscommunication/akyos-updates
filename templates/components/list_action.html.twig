@@ -1,0 +1,11 @@
+<ul>
+	{% for key, el in list %}
+		<li>
+			<div class="aky_rapport__comment">
+				<p>{{ el['content'] }}</p>
+				<p><em>{{ el['date'] }}</em></p>
+			</div>
+		</li>
+	{% endfor %}
+</ul>
+

@@ -18,6 +18,13 @@
 						<input type="{{ field.type }}" name="{{ field.name }}" id="images" value="{{ field.value }}" accept="{{ field.accept }}" required/>
 					</label>
 				</div>
+			{% elseif field.type == 'textarea' %}
+				<div class="form-group">
+					<label for="{{ field.name }}">
+						{{ field.label }}
+					</label>
+					<textarea name="{{ field.name }}" placeholder="{{ field.label }}" required>{{ field.value }}</textarea>
+				</div>
 			{% else %}
 				<div class="form-group">
 					<label for="{{ field.name }}">

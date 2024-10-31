@@ -61,4 +61,18 @@ readonly class AkyosUpdates
 		wp_enqueue_style(AKYOS_UPDATES_NAME, plugins_url().'/'.AKYOS_UPDATES_NAME.'/dist/css/main.css', [], AKYOS_UPDATES_VERSION, false);
 		wp_enqueue_script(AKYOS_UPDATES_NAME, plugins_url().'/'.AKYOS_UPDATES_NAME.'/dist/js/app.js', [], AKYOS_UPDATES_VERSION, false);
 	}
+
+	#[Hook(hook: 'admin_notices', type: Hook::TYPE_ACTION)]
+	public function akyos_notice()
+	{
+		if ($message = get_transient('akyos_success_notice')) {
+			?>
+			<div class="notice notice-success is-dismissible">
+				<p><?php echo esc_html($message); ?></p>
+			</div>
+			<?php
+			// Supprime la transitoire pour éviter une réaffichage multiple
+			delete_transient('akyos_success_notice');
+		}
+	}
 }

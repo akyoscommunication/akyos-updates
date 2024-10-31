@@ -85,6 +85,20 @@ class SeoOptionsService
 		}
 	}
 
+	public function schemaAdvanced(): array
+	{
+		return [
+			'message' => '<p>Schéma > Avancé : sélectionnez les pages correspondantes dans les prmeiers champs puis désactiver le balisage pour les post type et contenus inutiles + la page recherche s\'il n\'y en a pas</p>',
+			'action_required' => true,
+		];
+	}
+
+	#[Hook(hook: 'admin_post_akyos_updates_schema_advanced')]
+	public function goToSchemaAdvanced()
+	{
+		return wp_redirect(admin_url('admin.php?page=wds_schema&tab=tab_advanced'));
+	}
+
 	public function getSEOPluginsInstalled()
 	{
 		$pluginList = get_plugins();
@@ -108,7 +122,6 @@ class SeoOptionsService
 			'message' => $message,
 			'action_required' => false,
 		];
-
 	}
 
 	public function getMetaKeys(): array

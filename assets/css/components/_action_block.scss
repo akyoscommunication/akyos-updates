@@ -84,7 +84,7 @@
 		}
 
 
-		input {
+		input, textarea {
 		  padding: rem(5) rem(8);
 		  width: 100%;
 
@@ -99,6 +99,11 @@
 			  border-radius: rem(4);
 			}
 		  }
+		}
+
+		textarea {
+		  min-height: rem(200);
+
 		}
 	  }
 	}

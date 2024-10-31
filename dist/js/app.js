@@ -72,6 +72,9 @@ var AjaxAction = /*#__PURE__*/function () {
           jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).find('input').each(function () {
             data[jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).attr('name')] = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).val();
           });
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).find('textarea').each(function () {
+            data[jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).attr('name')] = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).val();
+          });
           that.initAjax(formAction, block_action, data);
         }
       });
