@@ -193,7 +193,6 @@ var Recaptcha = /*#__PURE__*/function () {
     value: function init() {
       this._container = document.querySelector('#aky_recaptcha_preview');
       this._container.appendChild(this._recaptcha);
-      this._recaptcha.style.display = 'none';
     }
   }]);
 }();

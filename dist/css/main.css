@@ -593,3 +593,14 @@
 .aky_rapport__comment p:nth-child(2) em {
   font-size: 0.625rem;
 }
+
+#aky_recaptcha_preview .grecaptcha-badge {
+  position: initial !important;
+}
+#aky_recaptcha_preview .rc-anchor-logo-img-large {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+}
+#aky_recaptcha_preview .rc-anchor-pt {
+  opacity: 1 !important;
+}
