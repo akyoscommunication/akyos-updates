@@ -449,4 +449,14 @@ class DefenderOptionsService
 			],
 		], JSON_THROW_ON_ERROR));
 	}
+
+	public function recaptcha()
+	{
+		return [
+			'message' => '<p>activer si ce n\'est pas fait et mettre les clés du recaptcha V3 du site (il a probablement déjà été créé pour les formulaires) => <strong>UTILISER LE COMPTE WEBMASTER.AKYOS@GMAIL.COM</strong> pour configurer le recaptcha du site.</p>
+<br> 
+<p>Activer la protection sur toutes les pages proposées (login, ...).</p>',
+			'action_required' => false
+		];
+	}
 }

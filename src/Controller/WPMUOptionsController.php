@@ -74,6 +74,7 @@ class WPMUOptionsController extends AbstractController
 			'mask_login' => $this->defenderOptionsService->getMaskLogin(),
 			'security_headers' => $this->defenderOptionsService->getSecurityHeaders(),
 			'pwned_passwords' => $this->defenderOptionsService->getPwnedPassword(),
+			'recaptcha' => $this->defenderOptionsService->recaptcha()
 		]);
 	}
 

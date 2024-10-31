@@ -40,5 +40,10 @@
 			'action_label': 'Activer les Pwned Passwords',
 		} %}
 
+		{% include 'components/action_block.html.twig' with {
+			'title': 'Defender Recaptcha',
+			'data': recaptcha
+		} %}
+
 	</section>
 {% endblock %}
