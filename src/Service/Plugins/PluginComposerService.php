@@ -9,16 +9,8 @@ class PluginComposerService
 {
 	use ServiceTrait;
 
-
-	private array $wpmuPluginsComposer;
-
-	/**
-	 * @throws \JsonException
-	 */
 	public function __construct()
 	{
-		$this->wpmuPluginsComposer = json_decode(file_get_contents('https://raw.githubusercontent.com/josephfusco/wpmudev-plugins/refs/heads/master/composer.json'), true, 512, JSON_THROW_ON_ERROR);
-
 		$this->redirectRoute = 'akyos_updates_plugins';
 	}
 
@@ -148,9 +140,14 @@ class PluginComposerService
 		return $headers && str_contains($headers[0], '200');
 	}
 
-	private function packageExistsOnWPMU($package): bool
+    /**
+     * @throws \JsonException
+     */
+    private function packageExistsOnWPMU($package): bool
 	{
-		$pluginsInWPMUComposer = array_keys($this->wpmuPluginsComposer['require']);
+        $wpmuPluginsComposer = json_decode(file_get_contents('https://raw.githubusercontent.com/josephfusco/wpmudev-plugins/refs/heads/master/composer.json'), true, 512, JSON_THROW_ON_ERROR);
+
+        $pluginsInWPMUComposer = array_keys($wpmuPluginsComposer['require']);
 		$pluginsInWPMUComposer = array_map(function ($plugin) {
 			$exploded = explode('/', $plugin);
 			return end($exploded);
