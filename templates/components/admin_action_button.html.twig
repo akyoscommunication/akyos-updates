@@ -25,6 +25,17 @@
 					</label>
 					<textarea name="{{ field.name }}" placeholder="{{ field.label }}" required>{{ field.value }}</textarea>
 				</div>
+			{% elseif field.type == 'select' %}
+				<div class="form-group">
+					<label for="{{ field.name }}">
+						{{ field.label }}
+					</label>
+					<select name="{{ field.name }}" required>
+						{% for version in field.value %}
+							<option value="{{ version }}">{{ version }}</option>
+						{% endfor %}
+					</select>
+				</div>
 			{% else %}
 				<div class="form-group">
 					<label for="{{ field.name }}">

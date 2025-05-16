@@ -476,6 +476,15 @@
 .c-action_block-item__message ul li p {
   font-size: 0.6875rem !important;
 }
+.c-action_block-item__message pre code {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  display: block;
+  font-family: Consolas, monospace;
+  overflow-x: auto;
+  color: #333;
+}
 .c-action_block-item form {
   display: flex;
   flex-flow: row wrap;
@@ -518,11 +527,12 @@
   background: #eee;
   border-color: #111;
 }
-.c-action_block-item form .form-group input, .c-action_block-item form .form-group textarea {
+.c-action_block-item form .form-group input, .c-action_block-item form .form-group textarea, .c-action_block-item form .form-group select {
   padding: 0.3125rem 0.5rem;
   width: 100%;
+  max-width: unset;
 }
-.c-action_block-item form .form-group input[type=file]::file-selector-button, .c-action_block-item form .form-group textarea[type=file]::file-selector-button {
+.c-action_block-item form .form-group input[type=file]::file-selector-button, .c-action_block-item form .form-group textarea[type=file]::file-selector-button, .c-action_block-item form .form-group select[type=file]::file-selector-button {
   margin-right: 0.5rem;
   border: none;
   background: rgba(var(--aky-color-primary--rgb), 1);

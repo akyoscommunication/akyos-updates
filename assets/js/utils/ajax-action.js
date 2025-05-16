@@ -35,6 +35,10 @@ export class AjaxAction {
 					data[$(this).attr('name')] = $(this).val();
 				});
 
+				$(this).find('select').each(function () {
+					data[$(this).attr('name')] = $(this).val();
+				});
+
 				that.initAjax(formAction, block_action, data);
 			}
 		});

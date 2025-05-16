@@ -13,17 +13,17 @@
 		} %}
 
 		{% include 'components/action_block.html.twig' with {
-			'title': null,
+			'title': 'Mettre les plugins à jour',
 			'data': composer_update,
 			'action_name': 'akyos_updates_run_composer_update',
-			'action_label': 'Run composer update'
+			'action_label': 'Mettre à jour'
 		} %}
 
 		{% include 'components/action_block.html.twig' with {
 			'title': 'Plugins',
 			'data': composer_plugins,
 			'action_name': 'akyos_updates_add_packages_in_composer',
-			'action_label': 'Ajouter les packages au composer.json'
+			'action_label': 'Ajouter les plugins au composer.json'
 		} %}
 
 		{% include 'components/action_block.html.twig' with {
@@ -31,13 +31,6 @@
 			'data': gitignore_file,
 			'action_name': 'akyos_updates_add_gitignore',
 			'action_label': 'Ajouter le fichier .gitignore'
-		} %}
-
-		{% include 'components/action_block.html.twig' with {
-			'title': 'Gitignore configs',
-			'data': gitignore_configurations,
-			'action_name': 'akyos_updates_add_gitignore_configurations',
-			'action_label': 'Ajouter au fichier .gitignore'
 		} %}
 	</section>
 {% endblock %}

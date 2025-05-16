@@ -27,7 +27,7 @@ class WPMUOptionsController extends AbstractController
 	/**
 	 * @throws TransportExceptionInterface
 	 */
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Branda', menuTitle: 'WPMU Branda', capability: 'manage_options', slug: 'akyos_updates_branda_options', parentSlug: 'akyos_updates', position: 4)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Branda', menuTitle: 'Branda', capability: 'manage_options', slug: 'akyos_updates_branda_options', parentSlug: 'akyos_updates', position: 4)]
 	public function wpmuBranda(): void
 	{
 		$this->render('branda_options.html.twig', [
@@ -39,7 +39,7 @@ class WPMUOptionsController extends AbstractController
 		]);
 	}
 
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Smush', menuTitle: 'WPMU Smush', capability: 'manage_options', slug: 'akyos_updates_smush_options', parentSlug: 'akyos_updates', position: 5)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Smush', menuTitle: 'Smush', capability: 'manage_options', slug: 'akyos_updates_smush_options', parentSlug: 'akyos_updates', position: 5)]
 	public function wpmuSmush(): void
 	{
 		$this->render('smush_options.html.twig', [
@@ -51,7 +51,7 @@ class WPMUOptionsController extends AbstractController
 	/**
 	 * @throws \JsonException
 	 */
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Hummingbird', menuTitle: 'WPMU Hummingbird', capability: 'manage_options', slug: 'akyos_updates_hummingbird_options', parentSlug: 'akyos_updates', position: 6)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Hummingbird', menuTitle: 'Hummingbird', capability: 'manage_options', slug: 'akyos_updates_hummingbird_options', parentSlug: 'akyos_updates', position: 6)]
 	public function wpmuHummingbird(): void
 	{
 		$this->render('hummingbird_options.html.twig', [
@@ -65,7 +65,7 @@ class WPMUOptionsController extends AbstractController
 	/**
 	 * @throws \JsonException
 	 */
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU Defender', menuTitle: 'WPMU Defender', capability: 'manage_options', slug: 'akyos_updates_defender_options', parentSlug: 'akyos_updates', position: 7)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Defender', menuTitle: 'Defender', capability: 'manage_options', slug: 'akyos_updates_defender_options', parentSlug: 'akyos_updates', position: 7)]
 	public function wpmuDefender(): void
 	{
 		$this->render('defender_options.html.twig', [
@@ -78,7 +78,7 @@ class WPMUOptionsController extends AbstractController
 		]);
 	}
 
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'WPMU SmartCrawl\Yoast SEO', menuTitle: 'WPMU SmartCrawl\Yoast SEO', capability: 'manage_options', slug: 'akyos_updates_seo_options', parentSlug: 'akyos_updates', position: 8)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'SmartCrawl\Yoast SEO', menuTitle: 'SmartCrawl\Yoast SEO', capability: 'manage_options', slug: 'akyos_updates_seo_options', parentSlug: 'akyos_updates', position: 8)]
 	public function wpmuSeo(): void
 	{
 		$this->seoOptionsService->configSmartCrawl();

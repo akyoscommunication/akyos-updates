@@ -18,12 +18,21 @@ class PluginGitignoreService
 
 	public function getGitignoreFile(): array
 	{
-		$gitignore = file_exists(ABSPATH.'.gitignore');
+
+		if ($this->hostingComposerService->isBedrock()) {
+			$gitignorePath = $this->hostingComposerService->getBedrockRoot().'/.gitignore';
+		} else {
+			$gitignorePath = ABSPATH.'.gitignore';
+		}
 
 		$gitIgnoreMessage = '';
 
-		if ($gitignore) {
+		if (file_exists($gitignorePath)) {
 			$gitIgnoreMessage = "<p>✅ Le fichier .gitignore est présent à la racine du site </p><br>";
+            $gitignoreData = file_get_contents($gitignorePath);
+            $gitignore = explode("\n", $gitignoreData);
+
+            $gitIgnoreMessage .= "<pre><code>" . $gitignoreData . "</code></pre><br/>";
 		} else {
 			$gitIgnoreMessage = "<p>⭕ Le fichier .gitignore n'est pas présent à la racine du site </p><br>";
 		}
@@ -37,9 +46,13 @@ class PluginGitignoreService
 	#[Hook(hook: 'admin_post_akyos_updates_add_gitignore')]
 	public function addGitignore(): bool
 	{
-		$gitignore = file_exists(ABSPATH.'.gitignore');
+        if ($this->hostingComposerService->isBedrock()) {
+            $gitignorePath = $this->hostingComposerService->getBedrockRoot().'/.gitignore';
+        } else {
+            $gitignorePath = ABSPATH.'.gitignore';
+        }
 
-		if (!$gitignore) {
+		if (!file_exists($gitignorePath)) {
 			copy(plugin_dir_path(__DIR__).'../defaultFiles/default_gitignore.txt', ABSPATH.'.gitignore');
 		}
 
@@ -48,10 +61,15 @@ class PluginGitignoreService
 
 	public function getGitIgnoreConfigurations(): array
 	{
-		$gitignore = file_exists(ABSPATH.'.gitignore');
+        if ($this->hostingComposerService->isBedrock()) {
+            $gitignorePath = $this->hostingComposerService->getBedrockRoot().'/.gitignore';
+        } else {
+            $gitignorePath = ABSPATH.'.gitignore';
+        }
 
 		$gitIgnoreMessage = '';
-		[$notInGitignore, $gitignoreContent] = $this->getNotInGitignore($gitignore);
+		[$notInGitignore, $gitignoreContent] = $this->getNotInGitignore(file_exists($gitignorePath));
+
 
 		if (count($notInGitignore) === 0) {
 			$gitIgnoreMessage = "<p>✅ Tous les éléments sont présents dans le fichier .gitignore</p>";
@@ -72,9 +90,13 @@ class PluginGitignoreService
 	#[Hook(hook: 'admin_post_akyos_updates_add_gitignore_configurations')]
 	public function addGitignoreConfigurations(): bool
 	{
-		$gitignore = file_exists(ABSPATH.'.gitignore');
+        if ($this->hostingComposerService->isBedrock()) {
+            $gitignorePath = $this->hostingComposerService->getBedrockRoot().'/.gitignore';
+        } else {
+            $gitignorePath = ABSPATH.'.gitignore';
+        }
 
-		[$notInGitignore, $gitignoreContent] = $this->getNotInGitignore($gitignore);
+		[$notInGitignore, $gitignoreContent] = $this->getNotInGitignore(file_exists($gitignorePath));
 
 		if (count($notInGitignore) > 0) {
 			$gitignoreContent .= "\n".implode("\n", $notInGitignore);
@@ -90,7 +112,14 @@ class PluginGitignoreService
 		$notInGitignore = [];
 
 		if ($gitignore) {
-			$gitignoreContent = file_get_contents(ABSPATH.'.gitignore');
+
+            if ($this->hostingComposerService->isBedrock()) {
+                $gitignorePath = $this->hostingComposerService->getBedrockRoot().'/.gitignore';
+            } else {
+                $gitignorePath = ABSPATH.'.gitignore';
+            }
+
+			$gitignoreContent = file_get_contents($gitignorePath);
 			$lines = explode("\n", $gitignoreContent);
 
 			if (!in_array('.idea', $lines)) {
@@ -98,21 +127,6 @@ class PluginGitignoreService
 			}
 			if (!in_array('.DS_Store', $lines)) {
 				$notInGitignore[] = '.DS_Store';
-			}
-			if (!in_array('wp-content/plugins/', $lines)) {
-				$notInGitignore[] = 'wp-content/plugins/';
-			}
-
-			[$plugins, $pluginsInComposer, $pluginsNotInComposer] = $this->hostingComposerService->getPlugins();
-
-			foreach ($pluginsNotInComposer as $plugin) {
-				$pluginPackage = $this->hostingComposerService->getPackage($plugin);
-
-				if (!$pluginPackage) {
-					if (!in_array('!wp-content/plugins/'.$plugin.'/', $lines)) {
-						$notInGitignore[] = '!wp-content/plugins/'.$plugin.'/';
-					}
-				}
 			}
 		}
 

@@ -4,6 +4,7 @@ namespace AkyosUpdates;
 
 use AkyosUpdates\DependencyInjection\Compiler\HookCompilerPass;
 use AkyosUpdates\DependencyInjection\Compiler\AdminRouteCompilerPass;
+use Illuminate\Container\Container;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,4 +33,5 @@ class Kernel
 
         return $container;
     }
+
 }

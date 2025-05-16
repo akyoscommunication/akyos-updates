@@ -1,12 +1,19 @@
 {% extends 'sections/layout.html.twig' %}
 
-{% block title %}Configuration de l'hébergement{% endblock %}
+{% block title %}Informations générales{% endblock %}
 
 {% block page_content %}
 <section class="aky_card">
     {% include 'components/action_block.html.twig' with {
         'title': 'Version de PHP',
         'data': php_version,
+    } %}
+
+    {% include 'components/action_block.html.twig' with {
+        'title': 'Version de WordPress',
+        'data': wordpress_version,
+        'action_name': 'akyos_updates_wordpress_update',
+        'action_label': 'Mettre à jour WordPress',
     } %}
 </section>
 {% endblock %}

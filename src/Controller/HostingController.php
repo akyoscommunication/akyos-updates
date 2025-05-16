@@ -15,11 +15,12 @@ class HostingController extends AbstractController
         parent::__construct();
     }
 
-    #[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Configuration de l\'hébergement', menuTitle: 'Hébergement', capability: 'manage_options', slug: 'akyos_updates_hosting', parentSlug: 'akyos_updates', position: 1)]
+    #[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Informations générales', menuTitle: 'Informations générales', capability: 'manage_options', slug: 'akyos_updates_hosting', parentSlug: 'akyos_updates', position: 1)]
     public function hosting(): void
     {
         $this->render('hosting.html.twig', [
             'php_version' => $this->hostingService->getPhpVersion(),
+            'wordpress_version' => $this->hostingService->getWordpressVersion(),
         ]);
     }
 }

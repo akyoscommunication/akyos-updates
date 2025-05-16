@@ -1,3 +1,6 @@
+imports:
+    - { resource: packages/ai_chat.yaml }
+
 services:
     # default configuration for services in *this* file
     _defaults:
