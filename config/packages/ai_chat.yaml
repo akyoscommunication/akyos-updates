@@ -1,49 +1,25 @@
-# web/app/plugins/akyos-updates/config/packages/ai_chat.yaml
 parameters:
-    akyos_updates.ai_chat.openai_api_key: "%env(OPENAI_API_KEY)%"
-    akyos_updates.ai_chat.openai_model: "gpt-4-turbo-preview" # Ou votre modèle préféré
-    # Optional: Define base system prompt here if not using PromptBuilder's default
-    # akyos_updates.ai_chat.base_system_prompt: "Your custom base prompt..."
+    akyos_updates.ai_chat.openai_api_key: '%env(OPENAI_API_KEY)%'
+    akyos_updates.ai_chat.openai_model: 'gpt-4-turbo-preview'
 
 services:
-    # AI Chat Services
-    Akyos\Updates\AIChat\Prompt\PromptBuilder:
+    AkyosUpdates\AIChat\Prompt\PromptBuilder:
         arguments:
-            #$baseSystemPrompt: "%akyos_updates.ai_chat.base_system_prompt%" # Uncomment if using custom base prompt
-            $baseSystemPrompt: '' # Uses default from class
-
-    Akyos\Updates\AIChat\Service\OpenAIService:
+            $baseSystemPrompt: '' 
+    AkyosUpdates\AIChat\Service\OpenAIService:
         arguments:
-            $apiKey: "%akyos_updates.ai_chat.openai_api_key%"
-            $model: "%akyos_updates.ai_chat.openai_model%"
-            # If you use Symfony HTTP Client, uncomment and configure it:
-            # $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
-
-    Akyos\Updates\AIChat\Service\ActionRegistryService:
+            $apiKey: '%akyos_updates.ai_chat.openai_api_key%'
+            $model: '%akyos_updates.ai_chat.openai_model%'
+    AkyosUpdates\AIChat\Service\ActionRegistryService:
         arguments:
-            $taggedActions: !tagged akyos_updates.ai_action
-            $container: "@service_container"
-
-    Akyos\Updates\AIChat\Utils\ToolSchemaGenerator:
+            $taggedActions: !tagged_iterator ai.action
+            $container: '@service_container'
+    AkyosUpdates\AIChat\Utils\ToolSchemaGenerator:
         arguments:
-            $actionRegistry: "@Akyos\Updates\AIChat\Service\ActionRegistryService"
-
-    Akyos\Updates\AIChat\Service\IntentRouterService:
+            $actionRegistry: '@AkyosUpdates\AIChat\Service\ActionRegistryService'
+    AkyosUpdates\AIChat\Service\IntentRouterService:
         arguments:
-            $openAIService: "@Akyos\Updates\AIChat\Service\OpenAIService"
-            $actionRegistry: "@Akyos\Updates\AIChat\Service\ActionRegistryService"
-            # If you integrate PromptBuilder directly into IntentRouterService (optional)
-            # $promptBuilder: "@Akyos\Updates\AIChat\Prompt\PromptBuilder"
-
-    # Register your AI Actions here and tag them
-    Akyos\Updates\AIChat\Action\UpdateWordPressAction:
-        tags: ['akyos_updates.ai_action']
-        # If your action has dependencies, inject them here:
-        # arguments:
-            # $someService: '@SomeOtherService'
-
-    # Example of another action (you would create the class for it)
-    # Akyos\Updates\AIChat\Action\CreatePostAction:
-    #     tags: ['akyos_updates.ai_action']
-    #     arguments:
-    #         # ... dependencies 
+            $openAIService: '@AkyosUpdates\AIChat\Service\OpenAIService'
+            $actionRegistry: '@AkyosUpdates\AIChat\Service\ActionRegistryService'
+    AkyosUpdates\AIChat\Action\UpdateWordPressAction:
+        tags: ['ai.action']

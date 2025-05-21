@@ -1,6 +1,6 @@
 <?php
 
-namespace Akyos\Updates\AIChat\Prompt;
+namespace AkyosUpdates\AIChat\Prompt;
 
 class PromptBuilder
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Akyos\Updates\AIChat\Service;
+namespace AkyosUpdates\AIChat\Service;
 
-use Akyos\Updates\AIChat\Action\AIActionInterface;
+use AkyosUpdates\AIChat\Action\AIActionInterface;
 
 class IntentRouterService
 {

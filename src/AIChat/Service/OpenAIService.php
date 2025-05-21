@@ -1,6 +1,6 @@
 <?php
 
-namespace Akyos\Updates\AIChat\Service;
+namespace AkyosUpdates\AIChat\Service;
 
 // Uses for HttpClientInterface might be needed depending on your setup
 // use Symfony\Contracts\HttpClient\HttpClientInterface;

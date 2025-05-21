@@ -18,7 +18,7 @@ class PluginsController extends AbstractController
 		parent::__construct();
 	}
 
-	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Plugins', menuTitle: 'Plugins', capability: 'manage_options', slug: 'akyos_updates_plugins', parentSlug: 'akyos_updates', position: 2)]
+	#[AdminRoute(type: AdminRoute::TYPE_SUBMENU_PAGE, pageTitle: 'Plugins', menuTitle: 'Plugins', capability: 'manage_options', slug: 'akyos_updates_plugins', parentSlug: 'akyos_updates', position: 3)]
 	public function plugins(): void
 	{
 		$this->render('plugins.html.twig', [

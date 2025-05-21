@@ -1,8 +1,8 @@
 <?php
 
-namespace Akyos\Updates\AIChat\Utils;
+namespace AkyosUpdates\AIChat\Utils;
 
-use Akyos\Updates\AIChat\Service\ActionRegistryService;
+use AkyosUpdates\AIChat\Service\ActionRegistryService;
 
 class ToolSchemaGenerator
 {

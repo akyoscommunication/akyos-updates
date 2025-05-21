@@ -45,6 +45,7 @@ class AdminRouteCompilerPass implements CompilerPassInterface
 					foreach ($attributes as $attribute) {
 						/** @var AdminRoute $routeAttr */
 						$routeAttr = $attribute->newInstance();
+				
 
 						add_action('admin_menu', function () use ($routeAttr, $container, $class, $method) {
 							$controller = $container->get($class);
@@ -52,6 +53,7 @@ class AdminRouteCompilerPass implements CompilerPassInterface
 							if ($routeAttr->type === AdminRoute::TYPE_MENU_PAGE) {
 								add_menu_page($routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->iconUrl, $routeAttr->position);
 							} else {
+						
 								add_submenu_page($routeAttr->parentSlug, $routeAttr->pageTitle, $routeAttr->menuTitle, $routeAttr->capability, $routeAttr->slug, [$controller, $method->getName()], $routeAttr->position);
 							}
 						});

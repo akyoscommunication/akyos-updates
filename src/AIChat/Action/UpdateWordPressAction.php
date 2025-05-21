@@ -1,6 +1,6 @@
 <?php
 
-namespace Akyos\Updates\AIChat\Action;
+namespace AkyosUpdates\AIChat\Action;
 
 class UpdateWordPressAction implements AIActionInterface
 {
