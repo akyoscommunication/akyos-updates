@@ -3,29 +3,24 @@
 namespace AkyosUpdates\Service\Plugins;
 
 use AkyosUpdates\Attribute\Hook;
+use AkyosUpdates\Service\PathService;
 use AkyosUpdates\Trait\ServiceTrait;
 
 class PluginComposerService
 {
     use ServiceTrait;
 
-    public function __construct()
+    public function __construct(
+        private readonly PathService $pathService,
+    )
     {
         $this->redirectRoute = 'akyos_updates_plugins';
     }
 
     public function getComposerConfiguration(): array
     {
-        $composerJson = file_exists(ABSPATH . 'composer.json');
-        $authJson = file_exists(ABSPATH . 'auth.json');
-
-        if ($this->isBedrock()) {
-            $composerJson = file_exists($this->getBedrockRoot() . '/composer.json');
-            $authJson = file_exists($this->getBedrockRoot() . '/auth.json');
-        } else {
-            $composerJson = file_exists(ABSPATH . 'composer.json');
-            $authJson = file_exists(ABSPATH . 'auth.json');
-        }
+        $composerJson = file_exists($this->pathService->getRootPath() . '/composer.json');
+        $authJson = file_exists($this->pathService->getRootPath() . '/auth.json');
 
         $composerMessage = '';
 
@@ -68,12 +63,7 @@ class PluginComposerService
     public function getComposerPlugins(): array
     {
 
-        if ($this->isBedrock()) {
-            $composerJson = file_exists($this->getBedrockRoot() . '/composer.json');
-        } else {
-            $composerJson = file_exists(ABSPATH . 'composer.json');
-        }
-
+        $composerJson = file_exists($this->pathService->getRootPath() . '/composer.json');
         $composerPlugins = [];
         $composerPluginMessage = '';
 
@@ -129,11 +119,7 @@ class PluginComposerService
     #[Hook(hook: 'admin_post_akyos_updates_add_packages_in_composer')]
     public function addPackagesInComposer(): void
     {
-        if ($this->isBedrock()) {
-            $composerPath = $this->getBedrockRoot() . '/composer.json';
-        } else {
-            $composerPath = ABSPATH . 'composer.json';
-        }
+        $composerPath = $this->pathService->getRootPath() . '/composer.json';
 
         $composerJson = file_exists($composerPath);
         $composerData = json_decode(file_get_contents($composerPath), true, 512, JSON_THROW_ON_ERROR);
@@ -149,8 +135,8 @@ class PluginComposerService
                 if ($pluginPackage) {
                     $composerPlugins[] = $pluginPackage;
                 } else {
-                    if ($this->isBedrock()) {
-                        $gitIgnorePath = $this->getBedrockRoot() . '/.gitignore';
+                    if ($this->pathService->isBedrock()) {
+                        $gitIgnorePath = $this->pathService->getRootPath() . '/.gitignore';
                         $gitIgnoreContent = file_get_contents($gitIgnorePath);
                         $gitIgnoreContent .= "\n" . '!web/app/plugins/' . $plugin . '/';
                     } else {
@@ -222,7 +208,7 @@ class PluginComposerService
      */
     public function getPlugins(): array
     {
-        if ($this->isBedrock()) {
+        if ($this->pathService->isBedrock()) {
             $plugins = array_filter(glob(dirname(ABSPATH) . '/app/plugins/*'), 'is_dir');
         } else {
             $plugins = array_filter(glob(ABSPATH . 'wp-content/plugins/*'), 'is_dir');
@@ -237,8 +223,8 @@ class PluginComposerService
 
         // Find packages in composer.json require section
         $pluginsInComposer = [];
-        if ($this->isBedrock()) {
-            $composerJson = file_get_contents($this->getBedrockRoot() . '/composer.json');
+        if ($this->pathService->isBedrock()) {
+            $composerJson = file_get_contents($this->pathService->getRootPath() . '/composer.json');
         } else {
             $composerJson = file_get_contents(ABSPATH . 'composer.json');
         }
@@ -292,7 +278,7 @@ class PluginComposerService
 
     public function isBedrock(): bool
     {
-        return file_exists(ABSPATH . 'wp-load.php');
+        return $this->pathService->isBedrock();
     }
 
     public function getBedrockRoot(): string

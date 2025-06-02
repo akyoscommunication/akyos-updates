@@ -14,7 +14,7 @@ class PathService
 
     public function isBedrock(): bool
     {
-        return file_exists(ABSPATH . 'wp-load.php');
+        return file_exists(dirname(ABSPATH, 1) . '/wp-config.php');
     }
 
     public function getBedrockRoot(): string
