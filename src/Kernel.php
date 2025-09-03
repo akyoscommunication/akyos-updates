@@ -25,7 +25,6 @@ class Kernel
 
         // load services from the yaml file
         $loader->load($this->getConfigDir() . '/services.yaml');
-        $loader->load($this->getConfigDir() . '/packages/ai_chat.yaml');
 
         // load Compiler Pass for attributes
         $container->addCompilerPass(new AdminRouteCompilerPass());
