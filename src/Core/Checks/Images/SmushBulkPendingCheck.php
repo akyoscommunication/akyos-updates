@@ -5,6 +5,7 @@ namespace AkyosUpdates\Core\Checks\Images;
 use AkyosUpdates\Core\Checks\CheckInterface;
 use AkyosUpdates\Core\Checks\CheckResult;
 use AkyosUpdates\Core\Context\SiteContext;
+use AkyosUpdates\Service\SmushService;
 use Smush\Core\Stats\Global_Stats;
 
 final class SmushBulkPendingCheck implements CheckInterface
@@ -41,7 +42,9 @@ final class SmushBulkPendingCheck implements CheckInterface
                 'Smush détecté mais API stats indisponible.',
                 false,
                 null,
-                []
+                [
+                    'smushDashboardUrl' => SmushService::dashboardAdminUrl(),
+                ]
             );
         }
 
@@ -59,13 +62,14 @@ final class SmushBulkPendingCheck implements CheckInterface
                 'warn',
                 'warning',
                 sprintf('%d image(s) en attente d’optimisation Smush.', $remainingCount),
-                true,
-                'images.smush_bulk_optimize',
+                false,
+                null,
                 [
                     'remainingCount' => $remainingCount,
                     'totalCount' => $totalCount,
                     'optimizedCount' => $optimizedCount,
                     'isOutdated' => $isOutdated,
+                    'smushDashboardUrl' => SmushService::dashboardAdminUrl(),
                 ]
             );
         }
@@ -84,6 +88,7 @@ final class SmushBulkPendingCheck implements CheckInterface
                 'totalCount' => $totalCount,
                 'optimizedCount' => $optimizedCount,
                 'isOutdated' => $isOutdated,
+                'smushDashboardUrl' => SmushService::dashboardAdminUrl(),
             ]
         );
     }

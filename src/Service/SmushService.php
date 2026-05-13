@@ -48,4 +48,17 @@ final class SmushService
         return class_exists('\Smush\Core\Settings')
             && class_exists('\Smush\Core\Stats\Global_Stats');
     }
+
+    public static function dashboardAdminUrl(): string
+    {
+        if (class_exists('\Smush\Core\Helper')) {
+            return \Smush\Core\Helper::get_page_url('smush');
+        }
+
+        if (is_multisite() && is_network_admin()) {
+            return network_admin_url('admin.php?page=smush');
+        }
+
+        return admin_url('admin.php?page=smush');
+    }
 }

@@ -79,7 +79,7 @@ export function ImagesChecks({
 					return <SmushImageSizingCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
 				}
 				if (result.id === "images.smush_bulk_pending") {
-					return <SmushStatsCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
+					return <SmushStatsCheck key={result.id} result={result} />;
 				}
 				if (result.id === "images.smush_resize_large") {
 					return (

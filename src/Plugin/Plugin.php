@@ -30,7 +30,6 @@ use AkyosUpdates\Core\Actions\SmushApplyImageSizingAction;
 use AkyosUpdates\Core\Actions\SmushApplyNextGenFormatAction;
 use AkyosUpdates\Core\Actions\SmushApplyRecommendedConfigAction;
 use AkyosUpdates\Core\Actions\SmushApplyResizeLargeAction;
-use AkyosUpdates\Core\Actions\SmushBulkOptimizeAction;
 use AkyosUpdates\Core\Actions\SetFaviconAction;
 use AkyosUpdates\Core\Checks\Plugins\AuthJsonRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerRootCheck;
@@ -162,7 +161,6 @@ final class Plugin
         ];
 
         if (SmushService::isSmushV4AnalysisSupported()) {
-            $actionsList[] = new SmushBulkOptimizeAction();
             $actionsList[] = new SmushApplyRecommendedConfigAction();
             $actionsList[] = new SmushApplyNextGenFormatAction();
             $actionsList[] = new SmushApplyImageSizingAction();

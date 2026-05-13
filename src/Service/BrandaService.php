@@ -12,7 +12,7 @@ final class BrandaService
 
     public const MODULE_DASHBOARD_WIDGETS = 'widgets/dashboard-widgets.php';
 
-    public const ROLE_ADMIN_LITE = 'admin_lite';
+    public const ROLE_ADMIN_LITE = 'admin-lite';
 
     public static function isPluginActive(): bool
     {
@@ -26,7 +26,7 @@ final class BrandaService
 
     public static function isModuleActive(string $modulePath): bool
     {
-        if (! self::isBrandaLoaded()) {
+        if (!self::isBrandaLoaded()) {
             return false;
         }
 
@@ -35,12 +35,12 @@ final class BrandaService
 
     public static function activateModule(string $modulePath): bool
     {
-        if (! self::isBrandaLoaded() || ! function_exists('branda_load_single_module')) {
+        if (!self::isBrandaLoaded() || !function_exists('branda_load_single_module')) {
             return false;
         }
 
         $modules = get_branda_activated_modules('raw');
-        if (! is_array($modules)) {
+        if (!is_array($modules)) {
             $modules = [];
         }
         $modules[$modulePath] = 'yes';
@@ -56,16 +56,16 @@ final class BrandaService
 
     private static function primeDashboardWidgetCatalog(): void
     {
-        if (! function_exists('wp_get_current_user')) {
+        if (!function_exists('wp_get_current_user')) {
             return;
         }
 
         $user = wp_get_current_user();
-        if (! $user || ! $user->ID) {
+        if (!$user || !$user->ID) {
             return;
         }
 
-        if (! function_exists('wp_dashboard_setup')) {
+        if (!function_exists('wp_dashboard_setup')) {
             require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
             require_once ABSPATH . 'wp-admin/includes/screen.php';
             require_once ABSPATH . 'wp-admin/includes/template.php';
@@ -130,7 +130,7 @@ final class BrandaService
             'configured' => false,
         ];
 
-        if (! self::isPluginActive() || ! self::isBrandaLoaded()) {
+        if (!self::isPluginActive() || !self::isBrandaLoaded()) {
             return $defaults;
         }
 
@@ -138,7 +138,7 @@ final class BrandaService
         $defaults['smtpModuleActive'] = self::isModuleActive(self::MODULE_SMTP);
 
         $raw = branda_get_option_filtered('ub_smtp');
-        if (! is_array($raw)) {
+        if (!is_array($raw)) {
             return $defaults;
         }
 
@@ -161,7 +161,7 @@ final class BrandaService
         $hasHost = trim($defaults['smtpHost']) !== '';
         $hasPort = trim($defaults['smtpPort']) !== '';
         $authOn = $defaults['smtpAuth'] === 'on';
-        $hasAuth = ! $authOn || ($defaults['smtpUsername'] !== '' && $defaults['passwordSet']);
+        $hasAuth = !$authOn || ($defaults['smtpUsername'] !== '' && $defaults['passwordSet']);
 
         $defaults['configured'] = $defaults['smtpModuleActive'] && $hasEmail && $hasHost && $hasPort && $hasAuth;
 
@@ -174,16 +174,16 @@ final class BrandaService
      */
     public static function saveSmtp(array $payload): array
     {
-        if (! self::isPluginActive() || ! self::isBrandaLoaded()) {
+        if (!self::isPluginActive() || !self::isBrandaLoaded()) {
             return ['success' => false, 'message' => 'Branda n’est pas disponible.'];
         }
 
-        if (! self::isModuleActive(self::MODULE_SMTP)) {
+        if (!self::isModuleActive(self::MODULE_SMTP)) {
             self::activateModule(self::MODULE_SMTP);
         }
 
         $current = branda_get_option_filtered('ub_smtp');
-        if (! is_array($current)) {
+        if (!is_array($current)) {
             $current = [];
         }
 
@@ -192,7 +192,7 @@ final class BrandaService
         $auth = is_array($current['smtp_authentication'] ?? null) ? $current['smtp_authentication'] : [];
 
         $fromEmail = sanitize_email((string) ($payload['fromEmail'] ?? ''));
-        if ($fromEmail === '' || ! is_email($fromEmail)) {
+        if ($fromEmail === '' || !is_email($fromEmail)) {
             return ['success' => false, 'message' => 'Adresse expéditeur invalide.'];
         }
 
@@ -209,7 +209,7 @@ final class BrandaService
         $port = preg_replace('/\D/', '', (string) ($payload['smtpPort'] ?? ''));
         $server['smtp_port'] = $port !== '' ? $port : '587';
         $server['smtp_type_encryption'] = sanitize_text_field((string) ($payload['smtpEncryption'] ?? $server['smtp_type_encryption'] ?? 'tls'));
-        if (! in_array($server['smtp_type_encryption'], ['none', 'ssl', 'tls'], true)) {
+        if (!in_array($server['smtp_type_encryption'], ['none', 'ssl', 'tls'], true)) {
             $server['smtp_type_encryption'] = 'tls';
         }
         $server['smtp_insecure_ssl'] = ($payload['smtpInsecureSsl'] ?? null) === 'on' || ($server['smtp_insecure_ssl'] ?? '') === 'on' ? 'on' : 'off';
@@ -240,7 +240,7 @@ final class BrandaService
         if (class_exists(\Branda_SMTP::class, false)) {
             return;
         }
-        if (! defined('WPMUDEV_BRANDA_DIR')) {
+        if (!defined('WPMUDEV_BRANDA_DIR')) {
             return;
         }
         $path = WPMUDEV_BRANDA_DIR . 'inc/modules/emails/smtp.php';
@@ -251,14 +251,14 @@ final class BrandaService
 
     private static function encryptSmtpPassword(string $plain): string
     {
-        if ($plain === '' || ! class_exists(\Branda_SMTP::class)) {
+        if ($plain === '' || !class_exists(\Branda_SMTP::class)) {
             return '';
         }
 
         try {
             $ref = new ReflectionClass(\Branda_SMTP::class);
             $instance = $ref->newInstanceWithoutConstructor();
-            if (! method_exists($instance, 'encrypt')) {
+            if (!method_exists($instance, 'encrypt')) {
                 return '';
             }
 
@@ -274,12 +274,12 @@ final class BrandaService
     public static function sendTestEmail(string $to): array
     {
         $to = sanitize_email($to);
-        if ($to === '' || ! is_email($to)) {
+        if ($to === '' || !is_email($to)) {
             return ['success' => false, 'message' => 'Destinataire invalide.'];
         }
 
         $state = self::getSmtpState();
-        if (! $state['configured']) {
+        if (!$state['configured']) {
             return ['success' => false, 'message' => 'SMTP incomplet ou module Branda SMTP inactif.'];
         }
 
@@ -290,7 +290,7 @@ final class BrandaService
         );
 
         $sent = wp_mail($to, $subject, $body);
-        if (! $sent) {
+        if (!$sent) {
             return ['success' => false, 'message' => 'Échec envoi (wp_mail). Vérifiez les logs serveur et les identifiants SMTP.'];
         }
 
@@ -312,7 +312,7 @@ final class BrandaService
             'hiddenCount' => 0,
         ];
 
-        if (! self::isPluginActive() || ! self::isBrandaLoaded()) {
+        if (!self::isPluginActive() || !self::isBrandaLoaded()) {
             return $defaults;
         }
 
@@ -320,7 +320,7 @@ final class BrandaService
         $defaults['moduleActive'] = self::isModuleActive(self::MODULE_DASHBOARD_WIDGETS);
 
         $available = branda_get_option_filtered('ub_rwp_all_active_dashboard_widgets');
-        if (! is_array($available)) {
+        if (!is_array($available)) {
             $available = [];
         }
 
@@ -345,7 +345,7 @@ final class BrandaService
         } else {
             $all = true;
             foreach ($ids as $id) {
-                if (! isset($hiddenMap[(string) $id])) {
+                if (!isset($hiddenMap[(string) $id])) {
                     $all = false;
                     break;
                 }
@@ -361,20 +361,20 @@ final class BrandaService
      */
     public static function hideAllDashboardWidgets(): array
     {
-        if (! self::isPluginActive() || ! self::isBrandaLoaded()) {
+        if (!self::isPluginActive() || !self::isBrandaLoaded()) {
             return ['success' => false, 'message' => 'Branda indisponible.'];
         }
 
-        if (! self::isModuleActive(self::MODULE_DASHBOARD_WIDGETS)) {
+        if (!self::isModuleActive(self::MODULE_DASHBOARD_WIDGETS)) {
             return ['success' => false, 'message' => 'Activez d’abord le module Dashboard Widgets dans Branda.'];
         }
 
         $available = branda_get_option_filtered('ub_rwp_all_active_dashboard_widgets');
-        if (! is_array($available) || $available === []) {
+        if (!is_array($available) || $available === []) {
             self::primeDashboardWidgetCatalog();
             $available = branda_get_option_filtered('ub_rwp_all_active_dashboard_widgets');
         }
-        if (! is_array($available) || $available === []) {
+        if (!is_array($available) || $available === []) {
             return [
                 'success' => false,
                 'message' => 'Aucun widget listé : ouvre le tableau de bord WordPress une fois ou réessaie après analyse.',
@@ -382,13 +382,13 @@ final class BrandaService
         }
 
         $data = branda_get_option_filtered('ub_dashboard_widgets');
-        if (! is_array($data)) {
+        if (!is_array($data)) {
             $data = [];
         }
-        if (! isset($data['visibility']) || ! is_array($data['visibility'])) {
+        if (!isset($data['visibility']) || !is_array($data['visibility'])) {
             $data['visibility'] = [];
         }
-        if (! isset($data['visibility']['wp_widgets']) || ! is_array($data['visibility']['wp_widgets'])) {
+        if (!isset($data['visibility']['wp_widgets']) || !is_array($data['visibility']['wp_widgets'])) {
             $data['visibility']['wp_widgets'] = [];
         }
 
