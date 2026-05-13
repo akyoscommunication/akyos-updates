@@ -1,0 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	body {
+		font-family: "Inter", sans-serif;
+	}
+}
+
+@layer utilities {
+	.au-float {
+		animation: au-float 8s ease-in-out infinite;
+	}
+}
+
+@keyframes au-float {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-18px) rotate(2deg);
+	}
+}
+
+.toplevel_page_akyos-updates #wpcontent {
+	padding-left: 0px;
+}
+
+.toplevel_page_akyos-updates #wpbody-content {
+	padding-bottom: 0px;
+}
