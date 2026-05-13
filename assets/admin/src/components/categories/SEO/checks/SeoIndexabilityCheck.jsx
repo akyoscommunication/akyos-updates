@@ -21,7 +21,15 @@ export function SeoIndexabilityCheck({ result, isFixBusy, onFix }) {
 									<td className="px-3 py-2 text-slate-500">{row.kind === "taxonomy" ? "Taxonomie" : "Post type"}</td>
 									<td className="px-3 py-2 font-medium text-slate-900">{row.label || row.name}</td>
 									<td className="px-3 py-2">
-										<span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{row.indexable ? "Indexable" : "Noindex"}</span>
+										<span
+											className={
+												row.indexable
+													? "inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-800"
+													: "inline-flex rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-900"
+											}
+										>
+											{row.indexable ? "Indexable" : "Noindex"}
+										</span>
 									</td>
 									<td className="px-3 py-2 text-right">
 										<button

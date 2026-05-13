@@ -7,9 +7,8 @@ final class SeoService
     public const PROVIDER_SMARTCRAWL = 'smartcrawl';
     public const PROVIDER_YOAST = 'yoast';
     public const PROVIDER_NONE = 'none';
-    private const SITEMAP_CACHE_PREFIX = 'akyos_updates_sitemap_url_';
+    private const SITEMAP_CACHE_PREFIX = 'akyos_updates_sitemap_url_v3_';
     private const SITEMAP_CACHE_TTL_FOUND = 30 * MINUTE_IN_SECONDS;
-    private const SITEMAP_CACHE_TTL_MISSING = 5 * MINUTE_IN_SECONDS;
 
     public static function detectProvider(): array
     {
@@ -142,20 +141,12 @@ final class SeoService
     {
         $cacheKey = self::SITEMAP_CACHE_PREFIX . md5(home_url('/'));
         $cached = get_transient($cacheKey);
-        if (is_string($cached)) {
-            return $cached !== '' ? $cached : null;
+        if (is_string($cached) && $cached !== '') {
+            return $cached;
         }
 
         $inferred = self::inferSitemapUrlFromActiveProvider();
-        $candidates = [];
-        if ($inferred !== '') {
-            $candidates[] = $inferred;
-        }
-        foreach ([home_url('/wp-sitemap.xml'), home_url('/sitemap_index.xml'), home_url('/sitemap.xml')] as $candidate) {
-            if (! in_array($candidate, $candidates, true)) {
-                $candidates[] = $candidate;
-            }
-        }
+        $candidates = self::orderedSitemapCandidates($inferred);
 
         foreach ($candidates as $candidate) {
             if (self::isSitemapUrlReachable($candidate)) {
@@ -164,14 +155,13 @@ final class SeoService
             }
         }
 
-        set_transient($cacheKey, '', self::SITEMAP_CACHE_TTL_MISSING);
         return null;
     }
 
     private static function isSitemapUrlReachable(string $url): bool
     {
         $args = [
-            'timeout' => 1.2,
+            'timeout' => 5,
             'redirection' => 2,
             'sslverify' => apply_filters('https_local_ssl_verify', false),
         ];
@@ -182,9 +172,6 @@ final class SeoService
             if ($status >= 200 && $status < 400) {
                 return true;
             }
-            if ($status !== 405 && $status !== 403) {
-                return false;
-            }
         }
 
         $get = wp_remote_get($url, $args);
@@ -194,6 +181,44 @@ final class SeoService
 
         $status = (int) wp_remote_retrieve_response_code($get);
         return $status >= 200 && $status < 400;
+    }
+
+    private static function orderedSitemapCandidates(string $inferred): array
+    {
+        $candidates = [];
+        if ($inferred !== '') {
+            $candidates[] = $inferred;
+        }
+
+        $providerKey = self::detectProvider()['key'];
+
+        if ($providerKey === self::PROVIDER_YOAST) {
+            $tail = [
+                home_url('/sitemap_index.xml'),
+                home_url('/wp-sitemap.xml'),
+                home_url('/sitemap.xml'),
+            ];
+        } elseif ($providerKey === self::PROVIDER_SMARTCRAWL) {
+            $tail = [
+                home_url('/sitemap.xml'),
+                home_url('/sitemap_index.xml'),
+                home_url('/wp-sitemap.xml'),
+            ];
+        } else {
+            $tail = [
+                home_url('/wp-sitemap.xml'),
+                home_url('/sitemap_index.xml'),
+                home_url('/sitemap.xml'),
+            ];
+        }
+
+        foreach ($tail as $candidate) {
+            if (! in_array($candidate, $candidates, true)) {
+                $candidates[] = $candidate;
+            }
+        }
+
+        return $candidates;
     }
 
     private static function inferSitemapUrlFromActiveProvider(): string
@@ -232,7 +257,7 @@ final class SeoService
             return false;
         }
 
-        return (bool) \WPSEO_Options::get('enable_xml_sitemap', false);
+        return (bool) \WPSEO_Options::get('enable_xml_sitemap', false, ['wpseo']);
     }
 
     private static function isSmartcrawlActive(): bool
