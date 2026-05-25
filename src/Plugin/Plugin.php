@@ -57,7 +57,6 @@ use AkyosUpdates\Core\Checks\Rgpd\RgpdPluginCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoIndexabilityCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoLegalPagesNoindexCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoPluginCheck;
-use AkyosUpdates\Core\Checks\Seo\SeoSitemapCheck;
 use AkyosUpdates\Core\Checks\WordPress\CommentsDisabledCheck;
 use AkyosUpdates\Core\Checks\WordPress\FaviconCheck;
 use AkyosUpdates\Core\Checks\WordPress\PostByEmailDisabledCheck;
@@ -92,7 +91,6 @@ final class Plugin
             new ComposerPluginsCheck(),
             new PluginsInventoryCheck(),
             new SeoPluginCheck(),
-            new SeoSitemapCheck(),
             new SeoLegalPagesNoindexCheck(),
             new SeoIndexabilityCheck(),
             new DefenderPluginCheck(),

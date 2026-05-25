@@ -272,4 +272,19 @@ final class SeoService
     {
         return PluginService::isPluginActiveFile('wordpress-seo/wp-seo.php');
     }
+
+    public static function getReportSitemapUrl(): ?string
+    {
+        $providerKey = self::detectProvider()['key'];
+
+        if ($providerKey === self::PROVIDER_YOAST) {
+            return home_url('/sitemap_index.xml');
+        }
+
+        if ($providerKey === self::PROVIDER_SMARTCRAWL) {
+            return home_url('/sitemap.xml');
+        }
+
+        return null;
+    }
 }

@@ -25,6 +25,47 @@
 	}
 }
 
+@keyframes au-progress-shimmer {
+	0% {
+		transform: translateX(-120%);
+	}
+	100% {
+		transform: translateX(220%);
+	}
+}
+
+@keyframes au-progress-indeterminate {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(280%);
+	}
+}
+
+@keyframes au-loader-orbit {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.au-analysis-progress-shimmer::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 45%, transparent 100%);
+	animation: au-progress-shimmer 1.75s ease-in-out infinite;
+}
+
+.au-analysis-progress-indeterminate {
+	animation: au-progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+.au-analysis-loader-ring {
+	animation: au-loader-orbit 1.05s linear infinite;
+}
+
 .toplevel_page_akyos-updates #wpcontent {
 	padding-left: 0px;
 }

@@ -20,8 +20,12 @@ export function filterDisplayedCheckResults(selectedResults, safeStep, presence)
 	if (safeStep === "Performance" && presence.hummingbirdActive === false) {
 		return selectedResults.filter((result) => !String(result.id || "").startsWith(HUMMINGBIRD_CHECK_PREFIX));
 	}
-	if (safeStep === "SEO" && presence.seoPluginActive === false) {
-		return selectedResults.filter((result) => SEO_FALLBACK_CHECK_IDS.has(result.id));
+	if (safeStep === "SEO") {
+		const withoutLegacySitemap = selectedResults.filter((result) => result.id !== "seo.sitemap");
+		if (presence.seoPluginActive === false) {
+			return withoutLegacySitemap.filter((result) => SEO_FALLBACK_CHECK_IDS.has(result.id));
+		}
+		return withoutLegacySitemap;
 	}
 	if (safeStep === "Images" && presence.smushActive === false) {
 		return [];

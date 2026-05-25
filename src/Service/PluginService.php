@@ -77,6 +77,7 @@ final class PluginService
             'seoSmartcrawlActive' => $smartcrawlActive,
             'seoActivateFile' => $seoActivateFile,
             'seoActivateLabel' => $seoActivateLabel,
+            'seoSitemapUrl' => SeoService::getReportSitemapUrl(),
 
             'smushActive' => $smushActive,
             'smushInstalled' => $smushInstalled,
