@@ -70,6 +70,7 @@ use AkyosUpdates\Service\BrandaService;
 use AkyosUpdates\Service\DefenderService;
 use AkyosUpdates\Service\HummingbirdService;
 use AkyosUpdates\Service\SmushService;
+use AkyosUpdates\Controller\ApiController;
 use AkyosUpdates\Controller\PluginController;
 use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
@@ -168,12 +169,14 @@ final class Plugin
 
         $adminPage = new AdminPage($analyzer);
         $routeController = new RouteController($analyzer);
+        $apiController = new ApiController($analyzer);
         $fixController = new FixRestController($actions, $detector, $checks);
         $pluginController = new PluginController();
 
         add_action('admin_menu', [$adminPage, 'register']);
         add_action('admin_enqueue_scripts', [$adminPage, 'enqueue']);
         add_action('rest_api_init', [$routeController, 'register']);
+        add_action('rest_api_init', [$apiController, 'register']);
         add_action('rest_api_init', [$fixController, 'register']);
         add_action('rest_api_init', [$pluginController, 'register']);
     }

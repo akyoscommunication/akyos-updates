@@ -40,6 +40,91 @@ final class Maintenance
         );
     }
 
+    /**
+     * Lance une analyse complète de façon synchrone, persiste le rapport et retourne le payload CRM.
+     *
+     * @param list<string>|null $categories Sous-ensemble de catégories en mode full (null = toutes).
+     *
+     * @return array{updatedAt: string, overview: array, summary: array{total: int, ok: int, warn: int, fail: int}, categories: array, checks: array, pluginPresence: mixed}
+     */
+    public function runFullAnalysis(?array $categories = null): array
+    {
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(120);
+        }
+
+        $start = $this->startAnalysisByMode(self::ANALYSIS_MODE_FULL, null, $categories);
+        $sessionId = (string) ($start['sessionId'] ?? '');
+        if ($sessionId === '') {
+            throw new \RuntimeException('Impossible de démarrer l\'analyse.');
+        }
+
+        do {
+            $step = $this->runNextStep($sessionId);
+        } while (($step['done'] ?? false) !== true);
+
+        if (isset($step['error']) && is_string($step['error'])) {
+            throw new \RuntimeException($step['error']);
+        }
+
+        $report = is_array($step['report'] ?? null) ? $step['report'] : [];
+        $stored = get_option('akyos_updates_last_report', []);
+        $updatedAt = is_array($stored) && is_string($stored['updatedAt'] ?? null)
+            ? $stored['updatedAt']
+            : gmdate('c');
+        $overview = $this->getSiteOverview();
+        $categoriesStats = is_array($report['categories'] ?? null) ? $report['categories'] : [];
+
+        return [
+            'updatedAt' => $updatedAt,
+            'overview' => JsonService::mixed($overview),
+            'summary' => self::computeGlobalSummary($categoriesStats),
+            'categories' => JsonService::mixed($categoriesStats),
+            'checks' => JsonService::mixed(is_array($report['results'] ?? null) ? $report['results'] : []),
+            'pluginPresence' => JsonService::mixed($report['pluginPresence'] ?? null),
+        ];
+    }
+
+    /**
+     * Dernier rapport persisté, format interne (overview + results + report).
+     *
+     * @return array<string, mixed>
+     */
+    public function getPersistedReportPayload(): array
+    {
+        $last = get_option('akyos_updates_last_report', []);
+        if (!is_array($last) || $last === []) {
+            return [];
+        }
+
+        $results = is_array($last['results'] ?? null) ? $last['results'] : [];
+        if ($this->isReportOutdatedForCurrentChecks($results)) {
+            return [];
+        }
+
+        return $this->getReport('');
+    }
+
+    /**
+     * @param array<string, array{total?: int, ok?: int, warn?: int, fail?: int}> $categories
+     *
+     * @return array{total: int, ok: int, warn: int, fail: int}
+     */
+    public static function computeGlobalSummary(array $categories): array
+    {
+        $summary = ['total' => 0, 'ok' => 0, 'warn' => 0, 'fail' => 0];
+        foreach ($categories as $stats) {
+            if (!is_array($stats)) {
+                continue;
+            }
+            foreach (array_keys($summary) as $key) {
+                $summary[$key] += (int) ($stats[$key] ?? 0);
+            }
+        }
+
+        return $summary;
+    }
+
     public function startAnalysis(): array
     {
         return $this->startAnalysisByMode(self::ANALYSIS_MODE_FULL);
