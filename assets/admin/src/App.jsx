@@ -7,7 +7,6 @@ import { ComposerJsonModal } from "./components/categories/Plugins/ComposerJsonM
 import { ComposerProposalsModal } from "./components/categories/Plugins/ComposerProposalsModal";
 import { GitignoreProposalsModal } from "./components/categories/Plugins/GitignoreProposalsModal";
 import { RelaunchAnalysisModal } from "./components/modals/RelaunchAnalysisModal";
-import { WordpressUpdatedModal } from "./components/modals/WordpressUpdatedModal";
 import { Toasts } from "./components/ui/Toasts";
 import { useToasts } from "./hooks/useToasts";
 import { getVisibleReportCategoryNames } from "./utils/reportCategories";
@@ -26,6 +25,34 @@ function wait(ms) {
 	return new Promise((resolve) => {
 		window.setTimeout(resolve, ms);
 	});
+}
+
+function pickStepResponse(fulfilled) {
+	const withReport = fulfilled.filter((item) => item?.done && item?.report);
+	if (withReport.length > 0) {
+		return withReport[0];
+	}
+
+	const doneItems = fulfilled.filter((item) => item?.done);
+	if (doneItems.length > 0) {
+		const withoutError = doneItems.find((item) => !item?.error);
+		return withoutError || doneItems[0];
+	}
+
+	return fulfilled.reduce((best, current) =>
+		Number(current?.cursor || 0) > Number(best?.cursor || 0) ? current : best
+	);
+}
+
+async function loadPersistedReport() {
+	const data = await apiFetch({ path: "/akyos-updates/v1/report", method: "GET" });
+	if (data?.report?.results?.length) {
+		return data.report;
+	}
+	if (data?.results?.length) {
+		return data;
+	}
+	return null;
 }
 
 async function runWithConcurrencyLimit(taskFactories, concurrency) {
@@ -73,8 +100,6 @@ export function App() {
 		content: "",
 		installationType: "vanilla",
 	});
-	const [wordpressUpdatedModalOpen, setWordpressUpdatedModalOpen] = useState(false);
-
 	const [fixingKey, setFixingKey] = useState(null);
 	const { toasts, addToast } = useToasts();
 	const appNode = typeof document !== "undefined" ? document.getElementById("akyos-updates-admin-app") : null;
@@ -200,12 +225,8 @@ export function App() {
 				throw firstRejected?.reason || new Error("Aucune réponse step exploitable.");
 			}
 
-			const doneResponse = fulfilled.find((item) => item?.done);
-			const response =
-				doneResponse ||
-				fulfilled.reduce((best, current) =>
-					Number(current?.cursor || 0) > Number(best?.cursor || 0) ? current : best
-				);
+			const response = pickStepResponse(fulfilled);
+			const shouldRetry = fulfilled.some((item) => item?.retry === true);
 
 			const successToastMessage = pollOptions.successToast ?? "Analyse terminée.";
 			if (response.done) {
@@ -214,11 +235,25 @@ export function App() {
 				if (response.report) {
 					applyReport(response.report);
 					addToast(successToastMessage, "success");
+					return;
 				}
+
+				const persistedReport = await loadPersistedReport();
+				if (persistedReport) {
+					applyReport(persistedReport);
+					addToast(successToastMessage, "success");
+					return;
+				}
+
 				if (response.error) {
 					addToast(response.error, "error");
 				}
 				return;
+			}
+
+			if (shouldRetry) {
+				await wait(STEP_PARALLEL_DELAY_MS);
+				return pollStep(sessionId, pollOptions);
 			}
 
 			if (response.event) {
@@ -386,52 +421,6 @@ export function App() {
 
 		setFixingKey(fixKey);
 
-		if (result.actionId === "wordpress.change_version") {
-			setRunning(true);
-			setCurrentEvent({
-				checkId: result.id || "wordpress.version",
-				category: "WordPress",
-				title: "Mise à jour WordPress en cours…",
-				message: "Application de la version sélectionnée…",
-				nextCheck: null,
-			});
-			setCursor(0);
-			setTotal(1);
-
-			const restRoot =
-				(typeof window !== "undefined" && window.wpApiSettings?.root) ||
-				`${window.location.origin}/wp-json/`;
-			const nonce =
-				(typeof window !== "undefined" && window.AKYOS_UPDATES_BOOTSTRAP?.nonce) ||
-				(typeof window !== "undefined" && window.wpApiSettings?.nonce) ||
-				"";
-			const endpoint = `${String(restRoot).replace(/\/$/, "")}/akyos-updates/v1/fix`;
-			const body = JSON.stringify({
-				actionId: result.actionId,
-				checkId: result.id,
-				payload: payloadOverride && typeof payloadOverride === "object" ? payloadOverride : result.payload || {},
-			});
-
-			return fetch(endpoint, {
-				method: "POST",
-				credentials: "same-origin",
-				headers: {
-					"Content-Type": "application/json",
-					"X-WP-Nonce": nonce,
-				},
-				body,
-			})
-				.catch(() => { })
-				.finally(() => {
-					if (typeof window !== "undefined") {
-						try {
-							window.sessionStorage.setItem("akyos_updates_wordpress_updated", "1");
-						} catch { }
-						window.location.reload();
-					}
-				});
-		}
-
 		if (result.actionId === "plugins.generate_composer_json") {
 			return apiFetch({
 				path: "/akyos-updates/v1/fix",
@@ -596,19 +585,6 @@ export function App() {
 			})
 			.finally(finishFixing);
 	};
-
-	useEffect(() => {
-		if (typeof window === "undefined") {
-			return;
-		}
-		try {
-			const flag = window.sessionStorage.getItem("akyos_updates_wordpress_updated");
-			if (flag === "1") {
-				setWordpressUpdatedModalOpen(true);
-				window.sessionStorage.removeItem("akyos_updates_wordpress_updated");
-			}
-		} catch { }
-	}, []);
 
 	useEffect(() => {
 		apiFetch({ path: "/akyos-updates/v1/overview", method: "GET" }).then((data) => {
@@ -800,10 +776,6 @@ export function App() {
 				onCopy={copyGitignoreProposalsText}
 			/>
 			<Toasts items={toasts} />
-			<WordpressUpdatedModal
-				open={wordpressUpdatedModalOpen}
-				onClose={() => setWordpressUpdatedModalOpen(false)}
-			/>
 		</main>
 	);
 }

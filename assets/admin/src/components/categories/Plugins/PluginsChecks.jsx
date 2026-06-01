@@ -22,7 +22,7 @@ export function PluginsChecks({ categoryResults, visibleResults, isFixBusy, onFi
 	});
 	const composerAuditMissingKey =
 		categoryResults
-			.filter((r) => r.id === "plugins.composer_audit")
+			?.filter((r) => r.id === "plugins.composer_audit")
 			.map((r) => (Array.isArray(r.payload?.missingPlugins) ? r.payload.missingPlugins.join("\0") : ""))
 			.join("|") ?? "";
 
@@ -37,7 +37,16 @@ export function PluginsChecks({ categoryResults, visibleResults, isFixBusy, onFi
 					return <PluginsInventoryCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
 				}
 				if (result.id === "plugins.composer_audit" && Array.isArray(result.payload?.missingPlugins) && result.payload.missingPlugins.length > 0) {
-					return <PluginsComposerAuditCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} composerAuditBadgeDismissed={composerAuditBadgeDismissed} setComposerAuditBadgeDismissed={setComposerAuditBadgeDismissed} />;
+					return (
+						<PluginsComposerAuditCheck
+							key={result.id}
+							result={result}
+							isFixBusy={isFixBusy}
+							onFix={onFix}
+							composerAuditBadgeDismissed={composerAuditBadgeDismissed}
+							setComposerAuditBadgeDismissed={setComposerAuditBadgeDismissed}
+						/>
+					);
 				}
 				return (
 					<ReportCard

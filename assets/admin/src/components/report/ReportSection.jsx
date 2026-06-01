@@ -79,7 +79,6 @@ export function ReportSection({
 				</div>
 				<div className={safeStep === "WordPress" ? "" : "hidden"}>
 					<WordpressChecks
-						categoryResults={sliceCategory("WordPress")}
 						visibleResults={checksForCategory("WordPress")}
 						isFixBusy={isFixBusy}
 						onFix={onFix}

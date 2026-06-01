@@ -14,7 +14,7 @@ export function PluginsComposerAuditCheck({ result, isFixBusy, onFix, composerAu
 						))}
 					</div>
 					{result.actionable && result.actionId === "plugins.generate_composer_guidance" && hasSlugPayload ? (
-						<div className="mt-5 pt-5 flex flex-wrap gap-2">
+						<div className="mt-5 flex flex-wrap gap-2 pt-5">
 							{(result.payload.missingWpackagistSlugs || []).length > 0 ? (
 								<span className="relative inline-flex">
 									<button type="button" disabled={isFixBusy(result)} onClick={() => { setComposerAuditBadgeDismissed((d) => ({ ...d, composer: true })); onFix(result); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60">

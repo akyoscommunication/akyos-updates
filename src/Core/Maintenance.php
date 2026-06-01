@@ -12,6 +12,10 @@ use AkyosUpdates\Service\PluginService;
 final class Maintenance
 {
     public const SESSION_PREFIX = 'akyos_updates_session_';
+    public const LAST_COMPLETED_SESSION_OPTION = 'akyos_updates_last_completed_session_id';
+    private const SESSION_LOCK_PREFIX = 'akyos_updates_lock_';
+    /** Transient conservé après finalisation pour réponses step parallèles idempotentes. */
+    private const SESSION_FINALIZED_TTL = 300;
     public const ANALYSIS_MODE_FULL = 'full';
     public const ANALYSIS_MODE_QUICK = 'quick';
     public const ANALYSIS_MODE_CATEGORY = 'category';
@@ -195,60 +199,90 @@ final class Maintenance
     public function runNextStep(string $sessionId): array
     {
         $transientKey = self::SESSION_PREFIX . $sessionId;
-        $state = get_transient($transientKey);
+        $finalized = $this->readFinalizedStepResponse($transientKey);
+        if ($finalized !== null) {
+            return $finalized;
+        }
 
-        if (!is_array($state)) {
+        if (!$this->acquireSessionLock($sessionId)) {
+            $finalized = $this->readFinalizedStepResponse($transientKey);
+            if ($finalized !== null) {
+                return $finalized;
+            }
+
             return [
-                'done' => true,
-                'error' => 'Session expirée ou introuvable.',
+                'done' => false,
+                'retry' => true,
             ];
         }
 
-        $checkIds = array_values(array_filter(
-            is_array($state['checkIds'] ?? null) ? $state['checkIds'] : [],
-            static fn(mixed $id): bool => is_string($id) && $id !== ''
-        ));
-        $checksById = $this->indexChecksById();
-        $checksToRun = $this->resolveChecksFromIds($checkIds, $checksById);
+        try {
+            $finalized = $this->readFinalizedStepResponse($transientKey);
+            if ($finalized !== null) {
+                return $finalized;
+            }
 
-        $cursor = (int) ($state['cursor'] ?? 0);
-        if (!isset($checksToRun[$cursor])) {
-            return $this->finalizeAnalysisSession($transientKey, $state);
-        }
+            $state = get_transient($transientKey);
+            if (!is_array($state)) {
+                $fallback = $this->readPersistedReportStepResponse($sessionId);
+                if ($fallback !== null) {
+                    return $fallback;
+                }
 
-        $context = $this->detector->detect();
-        $check = $checksToRun[$cursor];
-        $lastResult = JsonService::mixed($check->run($context)->toArray());
-        $state['results'][] = $lastResult;
-        $cursor++;
+                return [
+                    'done' => true,
+                    'error' => 'Session expirée ou introuvable.',
+                ];
+            }
 
-        if (!isset($checksToRun[$cursor])) {
+            $checkIds = array_values(array_filter(
+                is_array($state['checkIds'] ?? null) ? $state['checkIds'] : [],
+                static fn(mixed $id): bool => is_string($id) && $id !== ''
+            ));
+            $checksById = $this->indexChecksById();
+            $checksToRun = $this->resolveChecksFromIds($checkIds, $checksById);
+
+            $cursor = (int) ($state['cursor'] ?? 0);
+            if (!isset($checksToRun[$cursor])) {
+                return $this->finalizeAnalysisSession($transientKey, $state);
+            }
+
+            $context = $this->detector->detect();
+            $check = $checksToRun[$cursor];
+            $lastResult = JsonService::mixed($check->run($context)->toArray());
+            $state['results'][] = $lastResult;
+            $cursor++;
+
+            if (!isset($checksToRun[$cursor])) {
+                $state['cursor'] = $cursor;
+                set_transient($transientKey, $state, HOUR_IN_SECONDS);
+
+                return $this->finalizeAnalysisSession($transientKey, $state);
+            }
+
             $state['cursor'] = $cursor;
             set_transient($transientKey, $state, HOUR_IN_SECONDS);
 
-            return $this->finalizeAnalysisSession($transientKey, $state);
+            $nextCheck = $checksToRun[$cursor] ?? null;
+
+            return [
+                'done' => false,
+                'cursor' => $cursor,
+                'totalChecks' => count($checksToRun),
+                'event' => [
+                    'checkId' => $check->getId(),
+                    'category' => $check->getCategory(),
+                    'title' => $check->getTitle(),
+                    'message' => $lastResult['message'] ?? '',
+                    'status' => $lastResult['status'] ?? '',
+                    'severity' => $lastResult['severity'] ?? '',
+                    'nextCheck' => $nextCheck instanceof CheckInterface ? self::toCheckMeta($nextCheck) : null,
+                ],
+                'result' => $lastResult,
+            ];
+        } finally {
+            $this->releaseSessionLock($sessionId);
         }
-
-        $state['cursor'] = $cursor;
-        set_transient($transientKey, $state, HOUR_IN_SECONDS);
-
-        $nextCheck = $checksToRun[$cursor] ?? null;
-
-        return [
-            'done' => false,
-            'cursor' => $cursor,
-            'totalChecks' => count($checksToRun),
-            'event' => [
-                'checkId' => $check->getId(),
-                'category' => $check->getCategory(),
-                'title' => $check->getTitle(),
-                'message' => $lastResult['message'] ?? '',
-                'status' => $lastResult['status'] ?? '',
-                'severity' => $lastResult['severity'] ?? '',
-                'nextCheck' => $nextCheck instanceof CheckInterface ? self::toCheckMeta($nextCheck) : null,
-            ],
-            'result' => $lastResult,
-        ];
     }
 
     private function finalizeAnalysisSession(string $transientKey, array $state): array
@@ -257,13 +291,94 @@ final class Maintenance
         $included = $this->resolveIncludedCategoriesForReport($state);
         $report = $this->buildReport($finalResults, true, $included);
         $context = $this->detector->detect();
+        $sessionId = substr($transientKey, strlen(self::SESSION_PREFIX));
+
         update_option('akyos_updates_last_report', [
             'updatedAt' => gmdate('c'),
             'overview' => JsonService::mixed($context->toArray()),
             'results' => JsonService::mixed($finalResults),
             'report' => $report,
         ], false);
-        delete_transient($transientKey);
+        update_option(self::LAST_COMPLETED_SESSION_OPTION, $sessionId, false);
+        set_transient($transientKey, [
+            'finalized' => true,
+            'report' => $report,
+            'finalizedAt' => gmdate('c'),
+        ], self::SESSION_FINALIZED_TTL);
+
+        return [
+            'done' => true,
+            'report' => $report,
+        ];
+    }
+
+    private function acquireSessionLock(string $sessionId): bool
+    {
+        global $wpdb;
+
+        $lockKey = self::SESSION_LOCK_PREFIX . substr(md5($sessionId), 0, 40);
+        $locked = $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, %d)', $lockKey, 15));
+
+        return (string) $locked === '1';
+    }
+
+    private function releaseSessionLock(string $sessionId): void
+    {
+        global $wpdb;
+
+        $lockKey = self::SESSION_LOCK_PREFIX . substr(md5($sessionId), 0, 40);
+        $wpdb->query($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lockKey));
+    }
+
+    /**
+     * @return array{done: true, report: array}|null
+     */
+    private function readFinalizedStepResponse(string $transientKey): ?array
+    {
+        $state = get_transient($transientKey);
+        if (!is_array($state) || empty($state['finalized'])) {
+            return null;
+        }
+
+        $report = $state['report'] ?? null;
+        if (!is_array($report)) {
+            return null;
+        }
+
+        return [
+            'done' => true,
+            'report' => $report,
+        ];
+    }
+
+    /**
+     * @return array{done: true, report: array}|null
+     */
+    private function readPersistedReportStepResponse(string $sessionId): ?array
+    {
+        $completedSessionId = get_option(self::LAST_COMPLETED_SESSION_OPTION, '');
+        if (!is_string($completedSessionId) || $completedSessionId === '' || $completedSessionId !== $sessionId) {
+            return null;
+        }
+
+        $last = get_option('akyos_updates_last_report', []);
+        if (!is_array($last)) {
+            return null;
+        }
+
+        $results = is_array($last['results'] ?? null) ? $last['results'] : [];
+        if ($results === [] || $this->isReportOutdatedForCurrentChecks($results)) {
+            return null;
+        }
+
+        $report = is_array($last['report'] ?? null) ? $last['report'] : null;
+        if (!is_array($report) || !is_array($report['results'] ?? null)) {
+            $report = $this->buildReport(
+                $this->normalizeResultsForDisplay($results),
+                true,
+                $this->readIncludedCategoriesFromStoredReport($last)
+            );
+        }
 
         return [
             'done' => true,
@@ -282,7 +397,19 @@ final class Maintenance
 
     public function getReport(string $sessionId): array
     {
-        $state = get_transient(self::SESSION_PREFIX . $sessionId);
+        $state = $sessionId !== '' ? get_transient(self::SESSION_PREFIX . $sessionId) : false;
+        if (is_array($state) && !empty($state['finalized']) && is_array($state['report'] ?? null)) {
+            $report = $state['report'];
+            $results = is_array($report['results'] ?? null) ? $report['results'] : [];
+
+            return [
+                'updatedAt' => is_string($report['generatedAt'] ?? null) ? $report['generatedAt'] : gmdate('c'),
+                'overview' => $this->getSiteOverview(),
+                'results' => $this->normalizeResultsForDisplay($results),
+                'report' => $report,
+            ];
+        }
+
         if (!is_array($state)) {
             $last = get_option('akyos_updates_last_report', []);
             if (!is_array($last)) {

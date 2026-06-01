@@ -64,8 +64,8 @@ final class WordPressVersionCheck implements CheckInterface
             $isLatest ? 'ok' : 'warn',
             $isLatest ? 'success' : 'warning',
             $message,
-            !$isBedrock,
-            !$isBedrock ? 'wordpress.change_version' : null,
+            false,
+            null,
             [
                 'currentVersion' => $currentVersion,
                 'latestVersion' => $latestVersion,

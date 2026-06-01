@@ -43,7 +43,8 @@ final class ComposerPluginsCheck implements CheckInterface
                 'composer.json absent à la racine.',
                 false,
                 null,
-                ['missingComposerJson' => true]
+                ['missingComposerJson' => true],
+                false
             );
         }
 
@@ -59,7 +60,8 @@ final class ComposerPluginsCheck implements CheckInterface
                 'composer.json invalide (JSON cassé).',
                 true,
                 'plugins.generate_composer_guidance',
-                ['invalidJson' => true]
+                ['invalidJson' => true],
+                false
             );
         }
 
@@ -96,7 +98,8 @@ final class ComposerPluginsCheck implements CheckInterface
                     'missingWpackagistSlugs' => [],
                     'missingGitignoreSlugs' => [],
                     'installationType' => $context->getInstallationType(),
-                ]
+                ],
+                false
             );
         }
 
@@ -126,7 +129,8 @@ final class ComposerPluginsCheck implements CheckInterface
                 'missingWpackagistSlugs' => $missingWpackagistSlugs,
                 'missingGitignoreSlugs' => $missingGitignoreSlugs,
                 'installationType' => $context->getInstallationType(),
-            ]
+            ],
+            false
         );
     }
 }
