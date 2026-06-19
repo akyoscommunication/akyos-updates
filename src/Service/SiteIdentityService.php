@@ -2,6 +2,8 @@
 
 namespace AkyosUpdates\Service;
 
+use AkyosUpdates\Plugin\AdminPage;
+
 final class SiteIdentityService
 {
     /** @return array<string, mixed> */
@@ -20,10 +22,10 @@ final class SiteIdentityService
             'adminUrl' => admin_url(),
             'loginUrl' => $loginUrl,
             'loginMasked' => $loginMasked,
-            'reportUrl' => admin_url('admin.php?page=akyos-updates'),
+            'reportUrl' => admin_url('admin.php?page=' . AdminPage::PAGE_MAINTENANCE),
             'panels' => [
-                'maintenance' => admin_url('admin.php?page=akyos-updates'),
-                'rgpd' => admin_url('admin.php?page=akyos-updates#rgpd'),
+                'maintenance' => admin_url('admin.php?page=' . AdminPage::PAGE_MAINTENANCE),
+                'rgpd' => admin_url('admin.php?page=' . AdminPage::PAGE_RGPD),
             ],
         ];
     }

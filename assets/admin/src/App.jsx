@@ -8,8 +8,7 @@ import { ComposerProposalsModal } from "./components/categories/Plugins/Composer
 import { GitignoreProposalsModal } from "./components/categories/Plugins/GitignoreProposalsModal";
 import { RelaunchAnalysisModal } from "./components/modals/RelaunchAnalysisModal";
 import { Toasts } from "./components/ui/Toasts";
-import { RgpdSettingsPanel } from "./components/rgpd/RgpdSettingsPanel";
-import { LinkSettingsPanel } from "./components/LinkSettingsPanel";
+import { LinkSettingsModal, useLinkSettings } from "./components/modals/LinkSettingsModal";
 import { useToasts } from "./hooks/useToasts";
 import { getVisibleReportCategoryNames } from "./utils/reportCategories";
 import { notifyRestFailure } from "./utils/restError";
@@ -18,7 +17,6 @@ import { useReportSummaryTotals } from "./hooks/useReportSummaryTotals";
 import { defaultCategorySelection, useCategorySelection } from "./hooks/useCategorySelection";
 
 const ACTIVE_CATEGORY_STORAGE_KEY = "akyos_updates_active_category";
-const ACTIVE_TAB_STORAGE_KEY = "akyos_updates_active_tab";
 
 const CATEGORY_FALLBACK = ["WordPress", "Images", "Plugins", "Performance", "Sécurité", "SEO", "Back-office", "RGPD"];
 const STEP_PARALLEL_LIMIT = 5;
@@ -104,13 +102,9 @@ export function App() {
 		installationType: "vanilla",
 	});
 	const [fixingKey, setFixingKey] = useState(null);
-	const [activeTab, setActiveTab] = useState(() => {
-		if (typeof window === "undefined") {
-			return "maintenance";
-		}
-		return window.localStorage.getItem(ACTIVE_TAB_STORAGE_KEY) || "maintenance";
-	});
 	const { toasts, addToast } = useToasts();
+	const { form: linkForm, setForm: setLinkForm, busy: linkBusy, save: saveLink, copyText: copyLinkText } =
+		useLinkSettings(addToast);
 	const appNode = typeof document !== "undefined" ? document.getElementById("akyos-updates-admin-app") : null;
 	const logoUrl =
 		window.AKYOS_UPDATES_BOOTSTRAP?.logoUrl ||
@@ -136,6 +130,7 @@ export function App() {
 	);
 
 	const [relaunchModalOpen, setRelaunchModalOpen] = useState(false);
+	const [linkModalOpen, setLinkModalOpen] = useState(false);
 	const {
 		selection: relaunchSelection,
 		setSelection: setRelaunchSelection,
@@ -614,13 +609,6 @@ export function App() {
 		window.localStorage.setItem(ACTIVE_CATEGORY_STORAGE_KEY, currentStep);
 	}, [currentStep]);
 
-	useEffect(() => {
-		if (typeof window === "undefined") {
-			return;
-		}
-		window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab);
-	}, [activeTab]);
-
 	const shellClass = useMemo(() => "akyos-updates-shell", []);
 
 	const reportSummaryTotals = useReportSummaryTotals(report);
@@ -668,31 +656,12 @@ export function App() {
 
 	return (
 		<main className={`${shellClass} relative min-h-screen overflow-hidden bg-slate-50 px-7 pb-16 pt-7 text-slate-900`}>
-			<div className="relative z-10 mb-5 flex flex-wrap items-center gap-2">
-				{[
-					{ id: "maintenance", label: "Maintenance" },
-					{ id: "rgpd", label: "RGPD" },
-				].map((tab) => (
-					<button
-						key={tab.id}
-						type="button"
-						onClick={() => setActiveTab(tab.id)}
-						className={`inline-flex min-h-9 items-center rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-							activeTab === tab.id
-								? "bg-[#0052FF] text-white shadow-sm"
-								: "border border-slate-200 bg-white text-slate-600 hover:border-[#0052FF4d]"
-						}`}
-					>
-						{tab.label}
-					</button>
-				))}
-			</div>
-			{activeTab === "rgpd" ? (
-				<RgpdSettingsPanel addToast={addToast} />
-			) : (
-				<>
-			<LinkSettingsPanel addToast={addToast} />
-			{report ? <DashboardInfos overview={overview} compact /> : null}
+			<DashboardInfos
+				overview={overview}
+				compact
+				mawLinked={Boolean(linkForm.linked)}
+				onOpenMawModal={() => setLinkModalOpen(true)}
+			/>
 
 			<div className="relative z-10 mb-3 flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
 				<div className="flex flex-wrap items-center gap-3">
@@ -768,6 +737,15 @@ export function App() {
 					onCategoryToggle={toggleDashCategory}
 				/>
 			) : null}
+			<LinkSettingsModal
+				open={linkModalOpen}
+				onClose={() => setLinkModalOpen(false)}
+				form={linkForm}
+				setForm={setLinkForm}
+				busy={linkBusy}
+				save={saveLink}
+				copyText={copyLinkText}
+			/>
 			<RelaunchAnalysisModal
 				open={relaunchModalOpen}
 				onClose={() => setRelaunchModalOpen(false)}
@@ -815,8 +793,6 @@ export function App() {
 				onClose={closeGitignoreProposalsModal}
 				onCopy={copyGitignoreProposalsText}
 			/>
-				</>
-			)}
 			<Toasts items={toasts} />
 		</main>
 	);

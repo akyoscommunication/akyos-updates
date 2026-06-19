@@ -8,7 +8,11 @@ use AkyosUpdates\Service\LinkSettingsService;
 
 final class AdminPage
 {
-    private string $hookSuffix = '';
+    public const PAGE_MAINTENANCE = 'akyos-updates';
+    public const PAGE_RGPD = 'akyos-updates-rgpd';
+
+    /** @var array<string, string> */
+    private array $pageByHook = [];
     /** @var array<string, bool> */
     private array $moduleHandles = [];
 
@@ -23,27 +27,61 @@ final class AdminPage
 
     public function register(): void
     {
-        $this->hookSuffix = add_menu_page(
+        $maintenanceHook = add_menu_page(
             'Akyos Updates',
             'Akyos Updates',
             'manage_options',
-            'akyos-updates',
-            [$this, 'render'],
+            self::PAGE_MAINTENANCE,
+            [$this, 'renderMaintenance'],
             'dashicons-superhero-alt',
             58
         );
+        $this->pageByHook[$maintenanceHook] = 'maintenance';
 
+        $rgpdHook = add_submenu_page(
+            self::PAGE_MAINTENANCE,
+            'RGPD',
+            'RGPD',
+            'manage_options',
+            self::PAGE_RGPD,
+            [$this, 'renderRgpd']
+        );
+        $this->pageByHook[$rgpdHook] = 'rgpd';
+
+        add_action('admin_menu', [$this, 'renameMaintenanceSubmenu'], 999);
         add_action('admin_print_footer_scripts', [$this, 'printReactRefreshPreamble'], 1);
     }
 
-    public function render(): void
+    public function renameMaintenanceSubmenu(): void
     {
-        echo '<div id="akyos-updates-admin-app" data-logo-url="' . esc_attr(AKYOS_UPDATES_PLUGIN_URL . 'assets/images/logo-akyos.png') . '"></div>';
+        global $submenu;
+
+        if (! isset($submenu[self::PAGE_MAINTENANCE][0][0])) {
+            return;
+        }
+
+        $submenu[self::PAGE_MAINTENANCE][0][0] = 'Maintenance';
+    }
+
+    public function renderMaintenance(): void
+    {
+        $this->renderApp('maintenance');
+    }
+
+    public function renderRgpd(): void
+    {
+        $this->renderApp('rgpd');
+    }
+
+    private function renderApp(string $page): void
+    {
+        echo '<div id="akyos-updates-admin-app" data-page="' . esc_attr($page) . '" data-logo-url="' . esc_attr(AKYOS_UPDATES_PLUGIN_URL . 'assets/images/logo-akyos.png') . '"></div>';
     }
 
     public function enqueue(string $hook): void
     {
-        if ($hook !== $this->hookSuffix) {
+        $page = $this->pageByHook[$hook] ?? null;
+        if ($page === null) {
             return;
         }
 
@@ -51,6 +89,7 @@ final class AdminPage
         wp_enqueue_script('wp-api-fetch');
 
         $bootstrap = [
+            'page' => $page,
             'restUrl' => esc_url_raw(rest_url('akyos-updates/v1/')),
             'nonce' => wp_create_nonce('wp_rest'),
             'overview' => $this->analyzer->getSiteOverview(),
@@ -116,7 +155,7 @@ final class AdminPage
 
     public function forceModuleScriptTag(string $tag, string $handle, string $src): string
     {
-        if (!isset($this->moduleHandles[$handle])) {
+        if (! isset($this->moduleHandles[$handle])) {
             return $tag;
         }
 
