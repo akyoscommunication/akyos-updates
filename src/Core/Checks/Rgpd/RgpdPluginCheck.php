@@ -6,6 +6,7 @@ use AkyosUpdates\Core\Checks\CheckInterface;
 use AkyosUpdates\Core\Checks\CheckResult;
 use AkyosUpdates\Core\Context\SiteContext;
 use AkyosUpdates\Service\PluginService;
+use AkyosUpdates\Service\RgpdSettingsService;
 
 final class RgpdPluginCheck implements CheckInterface
 {
@@ -31,17 +32,21 @@ final class RgpdPluginCheck implements CheckInterface
 
     public function run(SiteContext $context): CheckResult
     {
+        $internalActive = (new RgpdSettingsService())->isActiveOnFrontend();
         $active = self::collectMatchingPlugins();
-        $ok = $active !== [];
+        $ok = $internalActive || $active !== [];
 
         $labels = array_map(
             static fn(array $row): string => $row['label'],
             $active
         );
+        if ($internalActive) {
+            array_unshift($labels, 'Module RGPD Akyos Updates (intégré)');
+        }
 
         $message = $ok
-            ? 'Au moins une extension liée RGPD / cookies / consentement est active : ' . implode(', ', $labels) . '.'
-            : 'Aucune extension détectée.';
+            ? 'Au moins une solution RGPD / cookies / consentement est active : ' . implode(', ', $labels) . '.'
+            : 'Aucune extension détectée. Active le module RGPD intégré (onglet RGPD) ou une extension dédiée.';
 
         return new CheckResult(
             $this->getId(),
@@ -54,6 +59,7 @@ final class RgpdPluginCheck implements CheckInterface
             null,
             [
                 'matchedPlugins' => $active,
+                'internalModuleActive' => $internalActive,
             ]
         );
     }

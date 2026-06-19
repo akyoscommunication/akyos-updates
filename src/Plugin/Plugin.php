@@ -70,10 +70,19 @@ use AkyosUpdates\Service\BrandaService;
 use AkyosUpdates\Service\DefenderService;
 use AkyosUpdates\Service\HummingbirdService;
 use AkyosUpdates\Service\SmushService;
+use AkyosUpdates\Service\RgpdSettingsService;
+use AkyosUpdates\Service\CmpCatalogService;
+use AkyosUpdates\Service\CompanyLookupService;
+use AkyosUpdates\Service\HostLookupService;
+use AkyosUpdates\Service\TarteaucitronCatalogService;
+use AkyosUpdates\Service\RgpdLegalPagesService;
+use AkyosUpdates\Frontend\RgpdFrontend;
+use AkyosUpdates\Frontend\RgpdWooTracking;
 use AkyosUpdates\Controller\ApiController;
 use AkyosUpdates\Controller\PluginController;
 use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
+use AkyosUpdates\Controller\RgpdController;
 
 final class Plugin
 {
@@ -167,11 +176,22 @@ final class Plugin
         }
         $actions = new ActionRegistry($actionsList);
 
-        $adminPage = new AdminPage($analyzer);
+        $rgpdSettings = new RgpdSettingsService();
+        $legalPages = new RgpdLegalPagesService($rgpdSettings);
+
+        $adminPage = new AdminPage($analyzer, $rgpdSettings);
         $routeController = new RouteController($analyzer);
         $apiController = new ApiController($analyzer);
         $fixController = new FixRestController($actions, $detector, $checks);
         $pluginController = new PluginController();
+        $rgpdController = new RgpdController(
+            $rgpdSettings,
+            new CompanyLookupService(),
+            new HostLookupService(),
+            new TarteaucitronCatalogService(),
+            new CmpCatalogService(new TarteaucitronCatalogService()),
+            $legalPages
+        );
 
         add_action('admin_menu', [$adminPage, 'register']);
         add_action('admin_enqueue_scripts', [$adminPage, 'enqueue']);
@@ -179,6 +199,19 @@ final class Plugin
         add_action('rest_api_init', [$apiController, 'register']);
         add_action('rest_api_init', [$fixController, 'register']);
         add_action('rest_api_init', [$pluginController, 'register']);
+        add_action('rest_api_init', [$rgpdController, 'register']);
+
+        // Module RGPD : front (consentement + tags), tracking WooCommerce, widget dashboard.
+        (new RgpdFrontend($rgpdSettings))->register();
+        (new RgpdWooTracking($rgpdSettings))->register();
+        (new RgpdDashboardWidget($rgpdSettings))->register();
+
+        add_action('akyos_updates_tac_catalog_sync', static function (): void {
+            (new TarteaucitronCatalogService())->syncFromCdn(true);
+        });
+        if (! wp_next_scheduled('akyos_updates_tac_catalog_sync')) {
+            wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'akyos_updates_tac_catalog_sync');
+        }
     }
 
 }

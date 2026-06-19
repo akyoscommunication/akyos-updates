@@ -1,0 +1,769 @@
+/**
+ * Thème Akyos pour tarteaucitron — bannière consentement + panneau de gestion.
+ */
+:root {
+	--aky-rgpd-primary: #0052ff;
+	--aky-rgpd-primary-hover: #0041cc;
+	--aky-rgpd-primary-soft: rgba(0, 82, 255, 0.08);
+	--aky-rgpd-text: #0f172a;
+	--aky-rgpd-text-muted: #64748b;
+	--aky-rgpd-border: #e2e8f0;
+	--aky-rgpd-surface: #ffffff;
+	--aky-rgpd-overlay: rgba(15, 23, 42, 0.55);
+	--aky-rgpd-danger: #dc2626;
+	--aky-rgpd-danger-soft: rgba(220, 38, 38, 0.08);
+	--aky-rgpd-radius: 16px;
+	--aky-rgpd-radius-sm: 10px;
+	--aky-rgpd-shadow: 0 24px 48px rgba(15, 23, 42, 0.14), 0 8px 16px rgba(15, 23, 42, 0.06);
+	--aky-rgpd-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.tac_visually-hidden {
+	display: none !important;
+}
+
+@keyframes akyRgpdBannerIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes akyRgpdModalIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* ─── Root ─── */
+#tarteaucitronRoot {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 0;
+	z-index: 999999999;
+	font-family: var(--aky-rgpd-font);
+	-webkit-font-smoothing: antialiased;
+	pointer-events: none;
+}
+
+#tarteaucitronRoot > * {
+	pointer-events: auto;
+}
+
+html body #tarteaucitronRoot,
+html body #tarteaucitronRoot * {
+	box-sizing: border-box;
+}
+
+html body #tarteaucitronRoot {
+	position: fixed !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronIcon {
+	display: none !important;
+}
+
+/* ─── Bannière consentement — reset tarteaucitron (width:100% + translate = hors écran) ─── */
+html body #tarteaucitronRoot #tarteaucitronAlertBig,
+html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigBottom,
+html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigTop {
+	display: none;
+	box-sizing: border-box !important;
+	position: fixed !important;
+	top: auto !important;
+	bottom: 1.25rem !important;
+	left: 1rem !important;
+	right: 1rem !important;
+	width: auto !important;
+	max-width: 640px !important;
+	margin: 0 auto !important;
+	padding: 1.25rem 1.375rem 1.125rem !important;
+	background: var(--aky-rgpd-surface) !important;
+	color: var(--aky-rgpd-text) !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+	border-radius: var(--aky-rgpd-radius) !important;
+	box-shadow: var(--aky-rgpd-shadow) !important;
+	text-align: left !important;
+	z-index: 2147483645 !important;
+	font-size: 0.9375rem !important;
+	line-height: 1.55 !important;
+	transform: none !important;
+	overflow: visible !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitron-display-block,
+html body #tarteaucitronRoot #tarteaucitronAlertBig[style*="display: block"] {
+	display: block !important;
+	animation: akyRgpdBannerIn 0.35s ease-out;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig::before {
+	content: "Vos choix concernant les cookies";
+	display: block;
+	margin: 0 0 0.625rem;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--aky-rgpd-text);
+}
+
+html body #tarteaucitronRoot #tarteaucitronDisclaimerAlert {
+	display: block !important;
+	margin: 0 0 1rem !important;
+	padding: 0 !important;
+	font-size: 0.9375rem !important;
+	line-height: 1.6 !important;
+	color: var(--aky-rgpd-text-muted) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig #tarteaucitronPrivacyUrl {
+	display: inline-block !important;
+	margin: 0 0 1rem !important;
+	padding: 0 !important;
+	background: none !important;
+	border: none !important;
+	color: var(--aky-rgpd-primary) !important;
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	text-decoration: underline !important;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig #tarteaucitronPrivacyUrl:hover {
+	color: var(--aky-rgpd-primary-hover) !important;
+}
+
+/* Boutons bannière */
+html body #tarteaucitronRoot #tarteaucitronAlertBig .tarteaucitron-aky-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig .tarteaucitron-aky-actions #tarteaucitronPersonalize2 {
+	margin-left: auto !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig button {
+	box-sizing: border-box !important;
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem !important;
+	margin: 0 !important;
+	padding: 0.625rem 1.125rem !important;
+	border-radius: var(--aky-rgpd-radius-sm) !important;
+	font-family: inherit !important;
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	line-height: 1.2 !important;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAlertBig button:focus-visible {
+	outline: 2px solid var(--aky-rgpd-primary);
+	outline-offset: 2px;
+}
+
+html body #tarteaucitronRoot #tarteaucitronPersonalize2 {
+	background: var(--aky-rgpd-primary) !important;
+	color: #fff !important;
+	border: 1px solid var(--aky-rgpd-primary) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronPersonalize2:hover {
+	background: var(--aky-rgpd-primary-hover) !important;
+	border-color: var(--aky-rgpd-primary-hover) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronCloseAlert,
+html body #tarteaucitronRoot #tarteaucitronPersonalize {
+	background: var(--aky-rgpd-surface) !important;
+	color: var(--aky-rgpd-text) !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronCloseAlert:hover,
+html body #tarteaucitronRoot #tarteaucitronPersonalize:hover {
+	background: #f8fafc !important;
+	border-color: #cbd5e1 !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAllDenied2 {
+	background: var(--aky-rgpd-surface) !important;
+	color: var(--aky-rgpd-text-muted) !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronAllDenied2:hover {
+	background: var(--aky-rgpd-danger-soft) !important;
+	border-color: #fecaca !important;
+	color: var(--aky-rgpd-danger) !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronPercentage {
+	display: none !important;
+}
+
+/* ─── Panneau de personnalisation ─── */
+html body.tarteaucitron-modal-open #tarteaucitronAlertBig,
+html body #tarteaucitronRoot:has(#tarteaucitron[style*="display: block"]) #tarteaucitronAlertBig {
+	display: none !important;
+}
+
+/* Overlay plein écran (tarteaucitron utilise #tarteaucitronBack) */
+html body #tarteaucitronRoot #tarteaucitronBack {
+	display: none;
+	position: fixed !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	background: var(--aky-rgpd-overlay) !important;
+	opacity: 1 !important;
+	z-index: 2147483646 !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronBack[style*="display: block"] {
+	display: block !important;
+}
+
+/* Dialog centré — ne PAS mettre le fond sur #tarteaucitron (sinon bande grise) */
+html body #tarteaucitronRoot #tarteaucitron {
+	display: none;
+	position: fixed !important;
+	z-index: 2147483647 !important;
+	box-sizing: border-box !important;
+	background: transparent !important;
+	border: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	overflow: visible !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
+	display: block !important;
+	top: 50% !important;
+	left: 50% !important;
+	right: auto !important;
+	bottom: auto !important;
+	transform: translate(-50%, -50%) !important;
+	width: min(860px, calc(100vw - 2rem)) !important;
+	max-width: calc(100vw - 2rem) !important;
+	max-height: none !important;
+	height: auto !important;
+	margin: 0 !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
+	box-sizing: border-box !important;
+	width: 100% !important;
+	height: auto !important;
+	max-height: min(85vh, 900px) !important;
+	margin: 0 !important;
+	margin-top: 0 !important;
+	padding: 2rem 2rem 1.5rem !important;
+	background: var(--aky-rgpd-surface) !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+	border-radius: var(--aky-rgpd-radius) !important;
+	box-shadow: var(--aky-rgpd-shadow) !important;
+	overflow-x: hidden !important;
+	overflow-y: auto !important;
+	position: relative;
+	text-align: left;
+}
+
+html body #tarteaucitronRoot #tarteaucitron .tarteaucitronBorder {
+	background: transparent !important;
+	border: none !important;
+	height: auto !important;
+}
+
+html body #tarteaucitronRoot #tarteaucitronClosePanel {
+	position: absolute !important;
+	top: 0.75rem !important;
+	right: 0.75rem !important;
+	left: auto !important;
+	width: 2.25rem !important;
+	height: 2.25rem !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+	border-radius: 999px !important;
+	background: var(--aky-rgpd-surface) !important;
+	color: var(--aky-rgpd-text-muted) !important;
+	font-size: 0 !important;
+	line-height: 0 !important;
+	cursor: pointer;
+	z-index: 2;
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+#tarteaucitronRoot #tarteaucitronClosePanel::before {
+	content: "×";
+	font-size: 1.375rem;
+	line-height: 1;
+}
+
+#tarteaucitronRoot #tarteaucitronClosePanel:hover {
+	background: #f1f5f9;
+	color: var(--aky-rgpd-text);
+}
+
+/* ─── Header panneau (titre → préférences globales) ─── */
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-template-areas:
+		"title title"
+		"info info"
+		"prefs-label prefs-actions";
+	gap: 0.75rem 1rem;
+	padding: 0 0 1.5rem;
+	margin: 0 0 1rem;
+	border-bottom: 1px solid var(--aky-rgpd-border);
+	background: transparent;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset .tarteaucitronH1 {
+	grid-area: title;
+	font-size: 1.375rem;
+	font-weight: 700;
+	letter-spacing: -0.025em;
+	color: var(--aky-rgpd-text) !important;
+	margin: 0 0 1.25rem;
+	padding-right: 2.5rem;
+	text-align: left;
+	line-height: 1.25;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronInfo {
+	grid-area: info;
+	position: relative;
+	font-size: 0.9375rem;
+	line-height: 1.65;
+	color: var(--aky-rgpd-text-muted);
+	margin: 0;
+	padding: 1.125rem 1.25rem 1.125rem 1.5rem;
+	background: linear-gradient(135deg, rgba(0, 82, 255, 0.06) 0%, rgba(0, 82, 255, 0.02) 100%);
+	border: none;
+	border-radius: var(--aky-rgpd-radius-sm);
+	box-shadow:
+		inset 0 0 0 1px rgba(0, 82, 255, 0.12),
+		0 1px 2px rgba(15, 23, 42, 0.04);
+	text-align: left;
+	overflow: hidden;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronInfo::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.875rem;
+	bottom: 0.875rem;
+	width: 3px;
+	border-radius: 0 3px 3px 0;
+	background: linear-gradient(180deg, var(--aky-rgpd-primary) 0%, rgba(0, 82, 255, 0.45) 100%);
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset .tarteaucitronName {
+	grid-area: prefs-label;
+	align-self: center;
+	margin: 0.25rem 0 0;
+	padding: 0;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset .tarteaucitronName .tarteaucitronH2 {
+	display: block;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--aky-rgpd-text-muted) !important;
+	margin: 0;
+	line-height: 1.3;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronScrollbarAdjust {
+	grid-area: prefs-actions;
+	align-self: center;
+	justify-self: end;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin: 0.25rem 0 0;
+	width: auto;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronPrivacyUrlDialog {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 0.875rem;
+	padding: 0;
+	background: none !important;
+	border: none !important;
+	color: var(--aky-rgpd-primary) !important;
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronPrivacyUrlDialog:hover {
+	text-decoration: underline !important;
+	color: var(--aky-rgpd-primary-hover) !important;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllAllowed,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllDenied {
+	min-height: 2.5rem;
+	padding: 0.5rem 1.125rem !important;
+	font-size: 0.875rem !important;
+	white-space: nowrap;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllAllowed .tarteaucitronCheck,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllDenied .tarteaucitronCross {
+	display: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices > .tarteaucitronLine:not(#tarteaucitronMainLineOffset) {
+	border-bottom: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronH2,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronH3 {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--aky-rgpd-text);
+}
+
+html body #tarteaucitronRoot .tarteaucitronH2 {
+	color: var(--aky-rgpd-text) !important;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronServices_mandatory .tarteaucitronLine {
+	padding: 1rem 1.125rem;
+	background: #f8fafc;
+	border: 1px solid var(--aky-rgpd-border);
+	border-radius: var(--aky-rgpd-radius-sm);
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronServices_mandatory .tarteaucitronH3 {
+	font-size: 0.875rem;
+	line-height: 1.55;
+	color: var(--aky-rgpd-text-muted);
+}
+
+#tarteaucitronRoot #tarteaucitronAllAllowed,
+#tarteaucitronRoot #tarteaucitronAllDenied,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices button {
+	border-radius: var(--aky-rgpd-radius-sm);
+	font-family: inherit;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+#tarteaucitronRoot #tarteaucitronAllAllowed {
+	background: var(--aky-rgpd-primary) !important;
+	color: #fff !important;
+	border: 1px solid var(--aky-rgpd-primary) !important;
+	padding: 0.5rem 1rem;
+}
+
+#tarteaucitronRoot #tarteaucitronAllAllowed:hover,
+#tarteaucitronRoot #tarteaucitronAllAllowed[aria-pressed="true"] {
+	background: var(--aky-rgpd-primary-hover) !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAllDenied,
+#tarteaucitronRoot .tarteaucitronDeny {
+	background: var(--aky-rgpd-surface) !important;
+	color: var(--aky-rgpd-text-muted) !important;
+	border: 1px solid var(--aky-rgpd-border) !important;
+	padding: 0.5rem 1rem;
+}
+
+#tarteaucitronRoot #tarteaucitronAllDenied:hover,
+#tarteaucitronRoot .tarteaucitronDeny:hover {
+	background: var(--aky-rgpd-danger-soft) !important;
+	border-color: #fecaca !important;
+	color: var(--aky-rgpd-danger) !important;
+}
+
+#tarteaucitronRoot .tarteaucitronAllow {
+	background: var(--aky-rgpd-primary-soft) !important;
+	color: var(--aky-rgpd-primary) !important;
+	border: 1px solid rgba(0, 82, 255, 0.25) !important;
+	padding: 0.375rem 0.75rem;
+}
+
+#tarteaucitronRoot .tarteaucitronAllow:hover,
+#tarteaucitronRoot .tarteaucitronIsAllowed .tarteaucitronAllow {
+	background: var(--aky-rgpd-primary) !important;
+	color: #fff !important;
+}
+
+/* Catégories & services */
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices > .tarteaucitronBorder {
+	padding-top: 0.5rem;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices > .tarteaucitronBorder > ul {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronTitle button,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .catToggleBtn {
+	width: 100%;
+	text-align: left;
+	padding: 0.875rem 1rem;
+	margin-top: 0.5rem;
+	background: #f8fafc;
+	border: 1px solid var(--aky-rgpd-border);
+	border-radius: var(--aky-rgpd-radius-sm);
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--aky-rgpd-text);
+	cursor: pointer;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronTitle button:hover {
+	background: var(--aky-rgpd-primary-soft);
+	border-color: rgba(0, 82, 255, 0.2);
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronHidden {
+	display: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronDetailsInline,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronInfoBox {
+	margin: 0.5rem 0 0.75rem;
+	padding: 0.75rem 1rem;
+	background: #f8fafc;
+	border-radius: var(--aky-rgpd-radius-sm);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: var(--aky-rgpd-text-muted);
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronBorder > ul > li > ul > li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.875rem 1rem;
+	margin-bottom: 0.375rem;
+	background: var(--aky-rgpd-surface);
+	border: 1px solid var(--aky-rgpd-border);
+	border-radius: var(--aky-rgpd-radius-sm);
+	list-style: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronBorder > ul > li > ul > li::after {
+	display: none;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronAsk {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+	min-width: auto;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronLine .tarteaucitronName {
+	flex: 1 1 12rem;
+	min-width: 0;
+	padding-right: 0.5rem;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronLine .tarteaucitronName a {
+	color: var(--aky-rgpd-primary);
+	font-size: 0.8125rem;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronMainLine .tarteaucitronName button,
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronLine .tarteaucitronName .tarteaucitronListCookies {
+	font-size: 0.8125rem;
+	color: var(--aky-rgpd-text-muted);
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronBorder,
+#tarteaucitronRoot #tarteaucitron .tarteaucitronBorder {
+	border-color: var(--aky-rgpd-border) !important;
+}
+
+#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronMainLine {
+	border: none !important;
+}
+
+/* ─── Bouton flottant « Gérer les cookies » ─── */
+#akyCookiesGestion {
+	cursor: pointer;
+	position: fixed;
+	bottom: -5rem;
+	left: 1.25rem;
+	z-index: 999999998;
+	background: var(--aky-rgpd-surface);
+	border: 1px solid var(--aky-rgpd-border);
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+	transition: bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#akyCookiesGestion:hover {
+	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+	transform: translateY(-2px);
+}
+
+#akyCookiesGestion:focus-visible {
+	outline: 2px solid var(--aky-rgpd-primary);
+	outline-offset: 3px;
+}
+
+#akyCookiesGestion.aky-cookies-logo {
+	border-radius: 999px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 3rem;
+	width: 3rem;
+	padding: 0.625rem;
+}
+
+#akyCookiesGestion.aky-cookies-logo img {
+	width: 1.375rem;
+	height: auto;
+}
+
+#akyCookiesGestion.aky-cookies-text {
+	padding: 0.625rem 1rem;
+	border-radius: 999px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--aky-rgpd-text);
+}
+
+#akyCookiesGestion.active {
+	bottom: 1.25rem;
+}
+
+/* ─── Mobile ─── */
+@media screen and (max-width: 640px) {
+	html body #tarteaucitronRoot #tarteaucitronAlertBig,
+	html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigBottom,
+	html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigTop {
+		left: 0.75rem !important;
+		right: 0.75rem !important;
+		bottom: 0.75rem !important;
+		max-width: none !important;
+		padding: 1.125rem 1.125rem 1rem !important;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitronAlertBig .tarteaucitron-aky-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitronAlertBig .tarteaucitron-aky-actions #tarteaucitronPersonalize2 {
+		margin-left: 0 !important;
+		order: -1;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitronAlertBig button {
+		flex: none;
+		width: 100%;
+		min-width: 0;
+	}
+
+	/* Panneau : bottom sheet mobile */
+	html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
+		top: auto !important;
+		left: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		transform: none !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
+		width: 100% !important;
+		max-height: 92vh !important;
+		border-radius: var(--aky-rgpd-radius) var(--aky-rgpd-radius) 0 0 !important;
+		padding: 1.5rem 1.25rem 1.25rem !important;
+		box-shadow: none !important;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"title"
+			"info"
+			"prefs-label"
+			"prefs-actions";
+	}
+
+	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronScrollbarAdjust {
+		justify-self: stretch;
+		justify-content: stretch;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllAllowed,
+	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices #tarteaucitronMainLineOffset #tarteaucitronAllDenied {
+		flex: 1;
+		min-width: 0;
+	}
+
+	html body #tarteaucitronRoot #tarteaucitronClosePanel {
+		top: 0.5rem;
+		right: 0.5rem;
+	}
+
+	#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronBorder > ul > li > ul > li {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronAsk {
+		justify-content: stretch;
+	}
+
+	#tarteaucitronRoot #tarteaucitron #tarteaucitronServices .tarteaucitronAsk button {
+		flex: 1;
+	}
+
+	#akyCookiesGestion.active {
+		bottom: 1rem;
+		left: 1rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitron-display-block,
+	#tarteaucitronRoot #tarteaucitronAlertBig[style*="display: block"],
+	#tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
+		animation: none;
+	}
+
+	#akyCookiesGestion {
+		transition: bottom 0.15s ease;
+	}
+}

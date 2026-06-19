@@ -3,6 +3,7 @@
 namespace AkyosUpdates\Plugin;
 
 use AkyosUpdates\Core\Maintenance;
+use AkyosUpdates\Service\RgpdSettingsService;
 
 final class AdminPage
 {
@@ -12,8 +13,10 @@ final class AdminPage
 
     private ?string $reactRefreshPreambleBase = null;
 
-    public function __construct(private Maintenance $analyzer)
-    {
+    public function __construct(
+        private Maintenance $analyzer,
+        private ?RgpdSettingsService $rgpdSettings = null
+    ) {
     }
 
     public function register(): void
@@ -56,6 +59,10 @@ final class AdminPage
             'i18n' => [
                 'startAnalysis' => 'Lancer l’analyse',
                 'analyzing' => 'Analyse en cours',
+            ],
+            'rgpd' => [
+                'settings' => $this->rgpdSettings ? $this->rgpdSettings->get() : RgpdSettingsService::defaults(),
+                'serviceTypes' => RgpdSettingsService::serviceTypes(),
             ],
         ];
 
