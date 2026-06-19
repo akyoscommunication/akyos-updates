@@ -72,6 +72,10 @@ use AkyosUpdates\Service\HummingbirdService;
 use AkyosUpdates\Service\SmushService;
 use AkyosUpdates\Service\RgpdSettingsService;
 use AkyosUpdates\Service\CmpCatalogService;
+use AkyosUpdates\Service\FixRunnerService;
+use AkyosUpdates\Service\LinkSettingsService;
+use AkyosUpdates\Service\LoginTokenService;
+use AkyosUpdates\Service\MawRegistrationService;
 use AkyosUpdates\Service\CompanyLookupService;
 use AkyosUpdates\Service\HostLookupService;
 use AkyosUpdates\Service\TarteaucitronCatalogService;
@@ -83,6 +87,7 @@ use AkyosUpdates\Controller\PluginController;
 use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
 use AkyosUpdates\Controller\RgpdController;
+use AkyosUpdates\Controller\LinkController;
 
 final class Plugin
 {
@@ -175,15 +180,19 @@ final class Plugin
             $actionsList[] = new SmushApplyResizeLargeAction();
         }
         $actions = new ActionRegistry($actionsList);
+        $fixRunner = new FixRunnerService($actions, $detector, $checks);
 
         $rgpdSettings = new RgpdSettingsService();
         $legalPages = new RgpdLegalPagesService($rgpdSettings);
+        $linkSettings = new LinkSettingsService();
+        $loginToken = new LoginTokenService();
 
-        $adminPage = new AdminPage($analyzer, $rgpdSettings);
+        $adminPage = new AdminPage($analyzer, $rgpdSettings, $linkSettings);
         $routeController = new RouteController($analyzer);
-        $apiController = new ApiController($analyzer);
-        $fixController = new FixRestController($actions, $detector, $checks);
+        $apiController = new ApiController($analyzer, $fixRunner, $linkSettings, $loginToken);
+        $fixController = new FixRestController($fixRunner);
         $pluginController = new PluginController();
+        $linkController = new LinkController($linkSettings, new MawRegistrationService($linkSettings));
         $rgpdController = new RgpdController(
             $rgpdSettings,
             new CompanyLookupService(),
@@ -201,10 +210,14 @@ final class Plugin
         add_action('rest_api_init', [$pluginController, 'register']);
         add_action('rest_api_init', [$rgpdController, 'register']);
 
+        add_action('rest_api_init', [$linkController, 'register']);
+
+        $loginToken->register();
+
         // Module RGPD : front (consentement + tags), tracking WooCommerce, widget dashboard.
         (new RgpdFrontend($rgpdSettings))->register();
         (new RgpdWooTracking($rgpdSettings))->register();
-        (new RgpdDashboardWidget($rgpdSettings))->register();
+        (new RgpdDashboardWidget($linkSettings))->register();
 
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
             (new TarteaucitronCatalogService())->syncFromCdn(true);

@@ -100,7 +100,6 @@ final class RgpdSettingsService
             'mail' => '',
             'address' => '',
             'contact_url' => '',
-            'id_client' => '',
 
             'legal_company_name' => '',
             'legal_form' => '',
@@ -208,7 +207,6 @@ final class RgpdSettingsService
             'rgpd_mail' => 'mail',
             'rgpd_address' => 'address',
             'rgpd_contact' => 'contact_url',
-            'rgpd_id_client' => 'id_client',
             'rgpd_legal_company_name' => 'legal_company_name',
             'rgpd_legal_legal_form' => 'legal_form',
             'rgpd_legal_capital' => 'legal_capital',
@@ -294,7 +292,7 @@ final class RgpdSettingsService
         }
 
         $textKeys = [
-            'site_name', 'address', 'id_client',
+            'site_name', 'address',
             'legal_company_name', 'legal_form', 'legal_capital', 'legal_rcs', 'legal_siret',
             'legal_tva', 'legal_publication_director', 'legal_host_name', 'legal_host_address', 'legal_host_phone',
             'gtm', 'pixel_fb', 'matomo_site_id', 'sirdata_user', 'sirdata_site', 'cookie_button_content',

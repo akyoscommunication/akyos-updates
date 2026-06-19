@@ -2,18 +2,15 @@
 
 namespace AkyosUpdates\Plugin;
 
-use AkyosUpdates\Service\RgpdSettingsService;
+use AkyosUpdates\Service\LinkSettingsService;
 
 /**
  * Widget « Support Akyos » du tableau de bord WordPress, affichant la consommation
- * du forfait de maintenance. Port de aky-gdpr/admin/inc/aky-widget-maintenance.php
- * (file_get_contents remplacé par wp_remote_get, identifiant client lu dans la nouvelle option).
+ * du forfait de maintenance via MAW (site lié par clé API).
  */
 final class RgpdDashboardWidget
 {
-    private const ENDPOINT = 'https://mon-agence-web.io/api/getMaintenance/5bc46cc7828a97000f885600/';
-
-    public function __construct(private RgpdSettingsService $settings)
+    public function __construct(private LinkSettingsService $link)
     {
     }
 
@@ -33,9 +30,8 @@ final class RgpdDashboardWidget
 
     public function render(): void
     {
-        $idClient = (string) ($this->settings->get()['id_client'] ?? '');
-
-        $data = $this->fetchMaintenance($idClient);
+        $link = $this->link->publicView();
+        $data = $link['linked'] ? $this->fetchMaintenance((string) ($link['api_key'] ?? '')) : null;
         $remainingHours = is_array($data) && isset($data['remaining_hours']) ? (float) $data['remaining_hours'] : null;
         $remainingTime = is_array($data) && isset($data['remaining_time']) ? (string) $data['remaining_time'] : '';
 
@@ -50,7 +46,7 @@ final class RgpdDashboardWidget
         ?>
         <div class="plan">
             <h3>Consommation de votre forfait de maintenance</h3>
-            <?php if ($idClient !== '' && $remainingHours !== null) : ?>
+            <?php if ($link['linked'] && $remainingHours !== null) : ?>
                 <div class="progress">
                     <div class="progress-bar progress-bar-<?php echo esc_attr($status); ?>" role="progressbar"
                          aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
@@ -58,7 +54,7 @@ final class RgpdDashboardWidget
                     </div>
                 </div>
             <?php else : ?>
-                <b><em>Veuillez renseigner votre identifiant client (onglet RGPD) afin de recevoir vos informations de suivi.</em></b>
+                <b><em>Liez ce site à MAW depuis Akyos Updates (onglet Maintenance → Connexion MAW) pour afficher le suivi forfait.</em></b>
             <?php endif; ?>
         </div>
         <div class="footer">
@@ -72,13 +68,23 @@ final class RgpdDashboardWidget
     }
 
     /** @return array<string, mixed>|null */
-    private function fetchMaintenance(string $idClient): ?array
+    private function fetchMaintenance(string $apiKey): ?array
     {
-        if ($idClient === '') {
+        if ($apiKey === '') {
             return null;
         }
 
-        $response = wp_remote_get(self::ENDPOINT . rawurlencode($idClient), ['timeout' => 5]);
+        $url = (string) apply_filters(
+            'akyos_updates_maw_maintenance_url',
+            'https://mon-agence-web.io/api/akyos-updates/maintenance'
+        );
+
+        $response = wp_remote_get($url, [
+            'timeout' => 5,
+            'headers' => [
+                'X-Akyos-Api-Key' => $apiKey,
+            ],
+        ]);
         if (is_wp_error($response)) {
             return null;
         }

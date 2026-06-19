@@ -530,12 +530,6 @@ export function RgpdSettingsPanel({ addToast }) {
 										placeholder="https://…/contact"
 									/>
 								</FieldGrid>
-								<TextField
-									label="Identifiant client (widget maintenance)"
-									value={form.id_client}
-									onChange={(v) => set("id_client", v)}
-									hint="Optionnel — utilisé par le widget de maintenance Akyos."
-								/>
 							</CollapsibleFieldGroup>
 
 							<CollapsibleFieldGroup

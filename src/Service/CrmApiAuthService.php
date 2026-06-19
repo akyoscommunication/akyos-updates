@@ -16,13 +16,19 @@ final class CrmApiAuthService
 
     public static function getConfiguredKey(): string
     {
-        if (!defined('AKYOS_UPDATES_MAW_KEY')) {
-            return '';
+        if (defined('AKYOS_UPDATES_MAW_KEY')) {
+            $key = constant('AKYOS_UPDATES_MAW_KEY');
+            if (is_string($key) && trim($key) !== '') {
+                return trim($key);
+            }
         }
 
-        $key = constant('AKYOS_UPDATES_MAW_KEY');
+        static $linkService = null;
+        if ($linkService === null) {
+            $linkService = new LinkSettingsService();
+        }
 
-        return is_string($key) ? trim($key) : '';
+        return $linkService->getApiKey();
     }
 
     /** @return true|WP_Error */
@@ -32,7 +38,7 @@ final class CrmApiAuthService
         if ($expected === '') {
             return new WP_Error(
                 'akyos_updates_unauthorized',
-                'Clé API CRM non configurée (AKYOS_UPDATES_MAW_KEY dans wp-config.php).',
+                'Clé API CRM non configurée (Connexion MAW ou AKYOS_UPDATES_MAW_KEY dans wp-config.php).',
                 ['status' => 401]
             );
         }

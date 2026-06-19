@@ -4,6 +4,7 @@ namespace AkyosUpdates\Plugin;
 
 use AkyosUpdates\Core\Maintenance;
 use AkyosUpdates\Service\RgpdSettingsService;
+use AkyosUpdates\Service\LinkSettingsService;
 
 final class AdminPage
 {
@@ -15,7 +16,8 @@ final class AdminPage
 
     public function __construct(
         private Maintenance $analyzer,
-        private ?RgpdSettingsService $rgpdSettings = null
+        private ?RgpdSettingsService $rgpdSettings = null,
+        private ?LinkSettingsService $linkSettings = null
     ) {
     }
 
@@ -64,6 +66,9 @@ final class AdminPage
                 'settings' => $this->rgpdSettings ? $this->rgpdSettings->get() : RgpdSettingsService::defaults(),
                 'serviceTypes' => RgpdSettingsService::serviceTypes(),
             ],
+            'link' => $this->linkSettings
+                ? $this->linkSettings->publicView()
+                : (new LinkSettingsService())->publicView(),
         ];
 
         $devServer = 'http://127.0.0.1:5173';

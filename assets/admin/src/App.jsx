@@ -9,6 +9,7 @@ import { GitignoreProposalsModal } from "./components/categories/Plugins/Gitigno
 import { RelaunchAnalysisModal } from "./components/modals/RelaunchAnalysisModal";
 import { Toasts } from "./components/ui/Toasts";
 import { RgpdSettingsPanel } from "./components/rgpd/RgpdSettingsPanel";
+import { LinkSettingsPanel } from "./components/LinkSettingsPanel";
 import { useToasts } from "./hooks/useToasts";
 import { getVisibleReportCategoryNames } from "./utils/reportCategories";
 import { notifyRestFailure } from "./utils/restError";
@@ -690,6 +691,7 @@ export function App() {
 				<RgpdSettingsPanel addToast={addToast} />
 			) : (
 				<>
+			<LinkSettingsPanel addToast={addToast} />
 			{report ? <DashboardInfos overview={overview} compact /> : null}
 
 			<div className="relative z-10 mb-3 flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">

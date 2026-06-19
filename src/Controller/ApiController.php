@@ -4,7 +4,11 @@ namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Core\Maintenance;
 use AkyosUpdates\Service\CrmApiAuthService;
+use AkyosUpdates\Service\FixRunnerService;
 use AkyosUpdates\Service\JsonService;
+use AkyosUpdates\Service\LinkSettingsService;
+use AkyosUpdates\Service\LoginTokenService;
+use AkyosUpdates\Service\SiteIdentityService;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -12,6 +16,7 @@ use WP_REST_Response;
 final class ApiController
 {
     private const RATE_LIMIT_SECONDS = 300;
+    private const FIX_RATE_LIMIT_SECONDS = 60;
 
     /** @var list<string> */
     private const CRM_SITE_FIELDS = [
@@ -23,8 +28,12 @@ final class ApiController
         'composerAvailable',
     ];
 
-    public function __construct(private Maintenance $analyzer)
-    {
+    public function __construct(
+        private Maintenance $analyzer,
+        private FixRunnerService $fixRunner,
+        private LinkSettingsService $link,
+        private LoginTokenService $loginToken
+    ) {
     }
 
     public function register(): void
@@ -53,12 +62,38 @@ final class ApiController
                 ],
             ],
         ]);
+
+        register_rest_route('akyos-updates/v1', '/crm/site-identity', [
+            'methods' => 'GET',
+            'callback' => [$this, 'getSiteIdentity'],
+            'permission_callback' => [CrmApiAuthService::class, 'permissionCallback'],
+        ]);
+
+        register_rest_route('akyos-updates/v1', '/crm/fix', [
+            'methods' => 'POST',
+            'callback' => [$this, 'runFix'],
+            'permission_callback' => [CrmApiAuthService::class, 'permissionCallback'],
+            'args' => [
+                'actionId' => ['required' => true, 'type' => 'string'],
+                'checkId' => ['required' => false, 'type' => 'string'],
+                'payload' => ['required' => false, 'type' => 'object'],
+            ],
+        ]);
+
+        register_rest_route('akyos-updates/v1', '/crm/login-link', [
+            'methods' => 'POST',
+            'callback' => [$this, 'createLoginLink'],
+            'permission_callback' => [CrmApiAuthService::class, 'permissionCallback'],
+            'args' => [
+                'redirect' => ['required' => false, 'type' => 'string'],
+            ],
+        ]);
     }
 
     public function runAnalysis(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
         $force = (bool) $request->get_param('force');
-        $rateCheck = $this->checkRateLimit($force);
+        $rateCheck = $this->checkRateLimit('analysis', self::RATE_LIMIT_SECONDS, $force);
         if ($rateCheck instanceof WP_Error) {
             return $rateCheck;
         }
@@ -90,7 +125,7 @@ final class ApiController
         return JsonService::wrap(function () use ($request, $fullCategories, $force): array {
             $payload = $this->analyzer->runFullAnalysis($fullCategories);
             if (!$force) {
-                $this->markRateLimited();
+                $this->markRateLimited('analysis', self::RATE_LIMIT_SECONDS);
             }
 
             return $this->formatCrmResponse($payload, $this->isSummaryOnly($request));
@@ -124,6 +159,41 @@ final class ApiController
         });
     }
 
+    public function getSiteIdentity(): WP_REST_Response
+    {
+        return JsonService::wrap(fn (): array => $this->buildIdentityPayload());
+    }
+
+    public function runFix(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
+        $rateCheck = $this->checkRateLimit('fix', self::FIX_RATE_LIMIT_SECONDS, false);
+        if ($rateCheck instanceof WP_Error) {
+            return $rateCheck;
+        }
+
+        return JsonService::wrap(function () use ($request): array {
+            $actionId = (string) $request->get_param('actionId');
+            $checkId = (string) $request->get_param('checkId');
+            $payload = $request->get_param('payload');
+            $payload = is_array($payload) ? $payload : [];
+
+            $result = $this->fixRunner->run($actionId, $payload, $checkId);
+            $this->markRateLimited('fix', self::FIX_RATE_LIMIT_SECONDS);
+
+            return $result;
+        });
+    }
+
+    public function createLoginLink(WP_REST_Request $request): WP_REST_Response
+    {
+        return JsonService::wrap(function () use ($request): array {
+            $redirect = $request->get_param('redirect');
+            $redirect = is_string($redirect) ? $redirect : null;
+
+            return $this->loginToken->createLoginLink($redirect);
+        });
+    }
+
     /**
      * @param array{updatedAt?: string, overview?: array, summary?: array, categories?: array, checks?: array, pluginPresence?: mixed} $payload
      *
@@ -133,14 +203,16 @@ final class ApiController
     {
         $overview = is_array($payload['overview'] ?? null) ? $payload['overview'] : [];
         $summary = is_array($payload['summary'] ?? null) ? $payload['summary'] : ['total' => 0, 'ok' => 0, 'warn' => 0, 'fail' => 0];
+        $identity = SiteIdentityService::collect();
 
         $response = [
-            'site' => $this->filterSiteOverview($overview),
+            'site' => array_merge($this->filterSiteOverview($overview), $identity),
+            'link' => $this->link->publicView(),
             'summary' => $summary,
             'health' => $this->computeHealth($summary),
             'categories' => is_array($payload['categories'] ?? null) ? $payload['categories'] : [],
             'updatedAt' => is_string($payload['updatedAt'] ?? null) ? $payload['updatedAt'] : gmdate('c'),
-            'reportUrl' => admin_url('admin.php?page=akyos-updates'),
+            'reportUrl' => (string) ($identity['reportUrl'] ?? admin_url('admin.php?page=akyos-updates')),
         ];
 
         if (!$summaryOnly) {
@@ -149,6 +221,18 @@ final class ApiController
         }
 
         return JsonService::mixed($response);
+    }
+
+    /** @return array<string, mixed> */
+    private function buildIdentityPayload(): array
+    {
+        return [
+            'site' => array_merge(
+                $this->filterSiteOverview($this->analyzer->getSiteOverview()),
+                SiteIdentityService::collect()
+            ),
+            'link' => $this->link->publicView(),
+        ];
     }
 
     /**
@@ -198,21 +282,21 @@ final class ApiController
         return trim((string) $request->get_param('detail')) === 'summary';
     }
 
-    private function rateLimitTransientKey(): string
+    private function rateLimitTransientKey(string $scope): string
     {
-        return 'akyos_updates_crm_rate_' . md5(CrmApiAuthService::getConfiguredKey());
+        return 'akyos_updates_crm_rate_' . $scope . '_' . md5(CrmApiAuthService::getConfiguredKey());
     }
 
-    private function checkRateLimit(bool $force): true|WP_Error
+    private function checkRateLimit(string $scope, int $seconds, bool $force): true|WP_Error
     {
         if ($force) {
             return true;
         }
 
-        if (get_transient($this->rateLimitTransientKey()) !== false) {
+        if (get_transient($this->rateLimitTransientKey($scope)) !== false) {
             return new WP_Error(
                 'akyos_updates_rate_limited',
-                'Analyse récente : réessaie dans quelques minutes ou utilise ?force=1.',
+                'Action récente : réessaie dans quelques instants.',
                 ['status' => 429]
             );
         }
@@ -220,8 +304,8 @@ final class ApiController
         return true;
     }
 
-    private function markRateLimited(): void
+    private function markRateLimited(string $scope, int $seconds): void
     {
-        set_transient($this->rateLimitTransientKey(), 1, self::RATE_LIMIT_SECONDS);
+        set_transient($this->rateLimitTransientKey($scope), 1, $seconds);
     }
 }
