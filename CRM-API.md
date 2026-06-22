@@ -6,7 +6,7 @@ Routes REST pour lier un site WordPress à MAW, remonter l’état de maintenanc
 
 ### Option A — Interface admin (recommandée)
 
-1. Ouvrir **Akyos Updates → Maintenance → Connexion MAW**
+1. Ouvrir **Akyos Updates → Réglages → Connexion MAW**
 2. Coller la **clé de liaison** fournie par MAW
 3. Cliquer **Enregistrer et lier à MAW**
 
@@ -127,11 +127,18 @@ Le lien utilise l’URL de connexion réelle (Defender Mask Login si actif). Con
 
 Lors de **Enregistrer et lier**, le plugin appelle :
 
-`POST https://mon-agence-web.io/api/akyos-updates/link`
+`POST {URL_MAW}/api/akyos-updates/link`
+
+Configuration de l’URL MAW (par ordre de priorité) :
+
+1. Constante `AKYOS_UPDATES_MAW_URL` dans `wp-config.php` (URL de base, ex. `https://app.mon-agence-web.io`)
+2. Filtre `akyos_updates_maw_url` (URL de base)
+3. Valeur par défaut (`http://maw.wip` en dev)
 
 Filtres WordPress :
 
-- `akyos_updates_maw_register_url` — URL d’enregistrement
+- `akyos_updates_maw_url` — URL **de base** de MAW (recommandé)
+- `akyos_updates_maw_register_url` — surcharge de l’URL **complète** d’enregistrement (compat)
 - `akyos_updates_maw_maintenance_url` — URL du widget forfait maintenance
 
 Corps envoyé : `pairingKey`, `apiKey`, `homeUrl`, `loginUrl`, `adminUrl`, `siteName`, versions.

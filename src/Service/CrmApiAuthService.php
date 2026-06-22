@@ -38,7 +38,7 @@ final class CrmApiAuthService
         if ($expected === '') {
             return new WP_Error(
                 'akyos_updates_unauthorized',
-                'Clé API CRM non configurée (Connexion MAW ou AKYOS_UPDATES_MAW_KEY dans wp-config.php).',
+                'Clé API CRM non configurée (Réglages → Connexion MAW ou AKYOS_UPDATES_MAW_KEY dans wp-config.php).',
                 ['status' => 401]
             );
         }

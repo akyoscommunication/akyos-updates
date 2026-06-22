@@ -18,7 +18,7 @@ export function DashboardInfos({
 	onCategoryToggle,
 	compact = false,
 	mawLinked,
-	onOpenMawModal,
+	mawSettingsUrl,
 }) {
 	const items = buildOverviewItems(overview);
 
@@ -55,17 +55,18 @@ export function DashboardInfos({
 							</span>
 						))}
 						<span className="inline-flex items-center gap-1.5 border-l border-slate-200 pl-2.5 ml-2 sm:pl-3 sm:ml-3">
-							<button
-								type="button"
-								onClick={onOpenMawModal}
-								className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#0052FF]/30 bg-[#0052FF]/10 text-[#0052FF] shadow-sm transition hover:-translate-y-px hover:border-[#0052FF]/50 hover:bg-[#0052FF] hover:text-white hover:shadow-md"
-								title="Connexion MAW"
-								aria-label="Connexion MAW"
-							>
-								<svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
-									<path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
-								</svg>
-							</button>
+							{mawSettingsUrl ? (
+								<a
+									href={mawSettingsUrl}
+									className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#0052FF]/30 bg-[#0052FF]/10 text-[#0052FF] shadow-sm transition hover:-translate-y-px hover:border-[#0052FF]/50 hover:bg-[#0052FF] hover:text-white hover:shadow-md"
+									title="Connexion MAW"
+									aria-label="Connexion MAW"
+								>
+									<svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
+										<path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
+									</svg>
+								</a>
+							) : null}
 							<span className="shrink-0 font-mono uppercase tracking-[0.06em] text-slate-500">MAW</span>
 							<span className={`shrink-0 font-semibold ${mawLinked ? "text-emerald-600" : "text-red-600"}`}>
 								{mawLinked ? "OK" : "NOK"}

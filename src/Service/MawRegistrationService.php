@@ -23,10 +23,7 @@ final class MawRegistrationService
         }
 
         $apiKey = $this->link->ensureApiKey();
-        $url = (string) apply_filters(
-            'akyos_updates_maw_register_url',
-            'https://mon-agence-web.io/api/akyos-updates/link'
-        );
+        $url = $this->resolveRegisterUrl();
 
         $body = array_merge(
             SiteIdentityService::collect(),
@@ -80,5 +77,34 @@ final class MawRegistrationService
             'success' => true,
             'message' => $remoteMessage !== '' ? $remoteMessage : 'Site lié à MAW.',
         ];
+    }
+
+    /**
+     * URL d'enregistrement MAW, dérivée de l'URL de base configurable.
+     */
+    private function resolveRegisterUrl(): string
+    {
+        $url = rtrim($this->resolveMawBaseUrl(), '/') . '/api/akyos-updates/link';
+
+        // Compat : le filtre historique peut surcharger l'URL complète.
+        return (string) apply_filters('akyos_updates_maw_register_url', $url);
+    }
+
+    /**
+     * URL de base de l'outil MAW. Priorité :
+     *  1. constante AKYOS_UPDATES_MAW_URL (wp-config.php) ;
+     *  2. filtre akyos_updates_maw_url ;
+     *  3. valeur par défaut (dev local).
+     */
+    private function resolveMawBaseUrl(): string
+    {
+        if (defined('AKYOS_UPDATES_MAW_URL')) {
+            $constant = trim((string) constant('AKYOS_UPDATES_MAW_URL'));
+            if ($constant !== '') {
+                return $constant;
+            }
+        }
+
+        return (string) apply_filters('akyos_updates_maw_url', 'https://maw.akyos.com');
     }
 }

@@ -54,7 +54,7 @@ final class RgpdDashboardWidget
                     </div>
                 </div>
             <?php else : ?>
-                <b><em>Liez ce site à MAW depuis Akyos Updates (Maintenance → Connexion MAW) pour afficher le suivi forfait.</em></b>
+                <b><em>Liez ce site à MAW depuis Akyos Updates (Réglages → Connexion MAW) pour afficher le suivi forfait.</em></b>
             <?php endif; ?>
         </div>
         <div class="footer">

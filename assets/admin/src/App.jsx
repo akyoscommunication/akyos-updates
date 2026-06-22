@@ -8,7 +8,6 @@ import { ComposerProposalsModal } from "./components/categories/Plugins/Composer
 import { GitignoreProposalsModal } from "./components/categories/Plugins/GitignoreProposalsModal";
 import { RelaunchAnalysisModal } from "./components/modals/RelaunchAnalysisModal";
 import { Toasts } from "./components/ui/Toasts";
-import { LinkSettingsModal, useLinkSettings } from "./components/modals/LinkSettingsModal";
 import { useToasts } from "./hooks/useToasts";
 import { getVisibleReportCategoryNames } from "./utils/reportCategories";
 import { notifyRestFailure } from "./utils/restError";
@@ -103,8 +102,8 @@ export function App() {
 	});
 	const [fixingKey, setFixingKey] = useState(null);
 	const { toasts, addToast } = useToasts();
-	const { form: linkForm, setForm: setLinkForm, busy: linkBusy, save: saveLink, copyText: copyLinkText } =
-		useLinkSettings(addToast);
+	const mawSettingsUrl = window.AKYOS_UPDATES_BOOTSTRAP?.pages?.settings || null;
+	const [mawLinked, setMawLinked] = useState(Boolean(window.AKYOS_UPDATES_BOOTSTRAP?.link?.linked));
 	const appNode = typeof document !== "undefined" ? document.getElementById("akyos-updates-admin-app") : null;
 	const logoUrl =
 		window.AKYOS_UPDATES_BOOTSTRAP?.logoUrl ||
@@ -130,7 +129,6 @@ export function App() {
 	);
 
 	const [relaunchModalOpen, setRelaunchModalOpen] = useState(false);
-	const [linkModalOpen, setLinkModalOpen] = useState(false);
 	const {
 		selection: relaunchSelection,
 		setSelection: setRelaunchSelection,
@@ -600,6 +598,9 @@ export function App() {
 				applyReport(maybeReport);
 			}
 		});
+		apiFetch({ path: "/akyos-updates/v1/link", method: "GET" })
+			.then((data) => setMawLinked(Boolean(data?.link?.linked)))
+			.catch(() => {});
 	}, []);
 
 	useEffect(() => {
@@ -659,8 +660,8 @@ export function App() {
 			<DashboardInfos
 				overview={overview}
 				compact
-				mawLinked={Boolean(linkForm.linked)}
-				onOpenMawModal={() => setLinkModalOpen(true)}
+				mawLinked={mawLinked}
+				mawSettingsUrl={mawSettingsUrl}
 			/>
 
 			<div className="relative z-10 mb-3 flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
@@ -737,15 +738,6 @@ export function App() {
 					onCategoryToggle={toggleDashCategory}
 				/>
 			) : null}
-			<LinkSettingsModal
-				open={linkModalOpen}
-				onClose={() => setLinkModalOpen(false)}
-				form={linkForm}
-				setForm={setLinkForm}
-				busy={linkBusy}
-				save={saveLink}
-				copyText={copyLinkText}
-			/>
 			<RelaunchAnalysisModal
 				open={relaunchModalOpen}
 				onClose={() => setRelaunchModalOpen(false)}

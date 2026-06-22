@@ -10,6 +10,7 @@ final class AdminPage
 {
     public const PAGE_MAINTENANCE = 'akyos-updates';
     public const PAGE_RGPD = 'akyos-updates-rgpd';
+    public const PAGE_SETTINGS = 'akyos-updates-settings';
 
     /** @var array<string, string> */
     private array $pageByHook = [];
@@ -48,6 +49,16 @@ final class AdminPage
         );
         $this->pageByHook[$rgpdHook] = 'rgpd';
 
+        $settingsHook = add_submenu_page(
+            self::PAGE_MAINTENANCE,
+            'Réglages',
+            'Réglages',
+            'manage_options',
+            self::PAGE_SETTINGS,
+            [$this, 'renderSettings']
+        );
+        $this->pageByHook[$settingsHook] = 'settings';
+
         add_action('admin_menu', [$this, 'renameMaintenanceSubmenu'], 999);
         add_action('admin_print_footer_scripts', [$this, 'printReactRefreshPreamble'], 1);
     }
@@ -71,6 +82,11 @@ final class AdminPage
     public function renderRgpd(): void
     {
         $this->renderApp('rgpd');
+    }
+
+    public function renderSettings(): void
+    {
+        $this->renderApp('settings');
     }
 
     private function renderApp(string $page): void
@@ -108,6 +124,11 @@ final class AdminPage
             'link' => $this->linkSettings
                 ? $this->linkSettings->publicView()
                 : (new LinkSettingsService())->publicView(),
+            'pages' => [
+                'maintenance' => admin_url('admin.php?page=' . self::PAGE_MAINTENANCE),
+                'rgpd' => admin_url('admin.php?page=' . self::PAGE_RGPD),
+                'settings' => admin_url('admin.php?page=' . self::PAGE_SETTINGS),
+            ],
         ];
 
         $devServer = 'http://127.0.0.1:5173';

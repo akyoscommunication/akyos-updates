@@ -26,6 +26,7 @@ final class SiteIdentityService
             'panels' => [
                 'maintenance' => admin_url('admin.php?page=' . AdminPage::PAGE_MAINTENANCE),
                 'rgpd' => admin_url('admin.php?page=' . AdminPage::PAGE_RGPD),
+                'settings' => admin_url('admin.php?page=' . AdminPage::PAGE_SETTINGS),
             ],
         ];
     }
