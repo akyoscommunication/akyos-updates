@@ -6,7 +6,7 @@
 	var scrollOpts = { passive: false, capture: true };
 	var active = false;
 	var savedScrollY = 0;
-	var pollId = null;
+	var syncPending = false;
 
 	function setEarlyActive(locked) {
 		if (window.__akyRgpdScroll) {
@@ -53,10 +53,7 @@
 	}
 
 	function blockScrollEvent(event) {
-		if (!active) {
-			return;
-		}
-		if (isPanelScrollTarget(event.target)) {
+		if (!active || isPanelScrollTarget(event.target)) {
 			return;
 		}
 		event.preventDefault();
@@ -66,56 +63,48 @@
 	}
 
 	function ensureShield() {
-		var shield = document.getElementById(SHIELD_ID);
-		if (shield) {
-			return shield;
+		if (document.getElementById(SHIELD_ID)) {
+			return;
 		}
-		shield = document.createElement("div");
+		var shield = document.createElement("div");
 		shield.id = SHIELD_ID;
 		shield.setAttribute("aria-hidden", "true");
 		shield.hidden = true;
 		var tacRoot = document.getElementById("tarteaucitronRoot");
 		if (tacRoot) {
 			tacRoot.insertBefore(shield, tacRoot.firstChild);
-		} else {
-			document.body.appendChild(shield);
 		}
-		return shield;
 	}
 
-	function showShield() {
-		var panel = document.getElementById("tarteaucitron");
-		var shield = ensureShield();
-		shield.hidden = !!(panel && (panel.style.display === "block" || isVisible(panel)));
-	}
-
-	function hideShield() {
+	function updateShieldVisibility() {
 		var shield = document.getElementById(SHIELD_ID);
-		if (shield) {
-			shield.hidden = true;
+		if (!shield || !active) {
+			return;
+		}
+		var panel = document.getElementById("tarteaucitron");
+		var hide = !!(panel && (panel.style.display === "block" || isVisible(panel)));
+		if (shield.hidden !== hide) {
+			shield.hidden = hide;
 		}
 	}
 
 	function lockPage() {
-		if (active) {
-			showShield();
-			return;
-		}
 		active = true;
 		setEarlyActive(true);
 		savedScrollY = window.scrollY || window.pageYOffset || 0;
 		document.documentElement.classList.add("aky-rgpd-scroll-lock");
 		document.body.classList.add("aky-rgpd-scroll-lock");
-		showShield();
+		ensureShield();
+		updateShieldVisibility();
 	}
 
 	function unlockPage() {
-		if (!active) {
-			return;
-		}
 		active = false;
 		setEarlyActive(false);
-		hideShield();
+		var shield = document.getElementById(SHIELD_ID);
+		if (shield && !shield.hidden) {
+			shield.hidden = true;
+		}
 		document.documentElement.classList.remove("aky-rgpd-scroll-lock");
 		document.body.classList.remove("aky-rgpd-scroll-lock");
 		var y = savedScrollY;
@@ -125,8 +114,14 @@
 		});
 	}
 
-	function setActive(locked) {
-		if (locked) {
+	function applyLockState(open) {
+		if (open === active) {
+			if (open) {
+				updateShieldVisibility();
+			}
+			return;
+		}
+		if (open) {
 			lockPage();
 			return;
 		}
@@ -134,32 +129,14 @@
 	}
 
 	function syncFromDom() {
-		setActive(isCmpOpen());
-	}
-
-	function startPolling() {
-		if (pollId !== null) {
+		if (syncPending) {
 			return;
 		}
-		pollId = window.setInterval(syncFromDom, 250);
-	}
-
-	function watchTacRoot() {
-		var root = document.getElementById("tarteaucitronRoot");
-		if (!root || root.__akyRgpdObserved) {
-			return;
-		}
-		root.__akyRgpdObserved = true;
-		ensureShield();
-		if (typeof MutationObserver !== "undefined") {
-			new MutationObserver(syncFromDom).observe(root, {
-				attributes: true,
-				childList: true,
-				subtree: true,
-				attributeFilter: ["style", "class", "hidden"],
-			});
-		}
-		syncFromDom();
+		syncPending = true;
+		window.requestAnimationFrame(function () {
+			syncPending = false;
+			applyLockState(isCmpOpen());
+		});
 	}
 
 	window.addEventListener("wheel", blockScrollEvent, scrollOpts);
@@ -168,10 +145,7 @@
 	window.addEventListener(
 		"keydown",
 		function (event) {
-			if (!active) {
-				return;
-			}
-			if (isPanelScrollTarget(event.target)) {
+			if (!active || isPanelScrollTarget(event.target)) {
 				return;
 			}
 			var keys = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
@@ -193,24 +167,15 @@
 		}
 	);
 
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", function () {
-			watchTacRoot();
-			startPolling();
-		});
-	} else {
-		watchTacRoot();
-		startPolling();
-	}
+	window.addEventListener("tac.root_available", ensureShield);
 
-	if (typeof MutationObserver !== "undefined") {
-		new MutationObserver(function () {
-			watchTacRoot();
-		}).observe(document.documentElement, { childList: true, subtree: true });
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", syncFromDom);
+	} else {
+		syncFromDom();
 	}
 
 	window.akyRgpdScrollLock = {
-		setActive: setActive,
 		syncFromDom: syncFromDom,
 		isActive: function () {
 			return active;
