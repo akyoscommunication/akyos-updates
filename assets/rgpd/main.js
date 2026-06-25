@@ -3,6 +3,119 @@
  */
 (function () {
 	var scrollThreshold = 100;
+	var cmpScrollLockActive = false;
+
+	function isTacPanelOpen() {
+		var panel = document.getElementById("tarteaucitron");
+		return !!panel && panel.style.display === "block";
+	}
+
+	function isTacAlertOpen() {
+		var banner = document.getElementById("tarteaucitronAlertBig");
+		if (!banner) {
+			return false;
+		}
+		return (
+			banner.classList.contains("tarteaucitron-display-block") ||
+			banner.style.display === "block"
+		);
+	}
+
+	function isCmpOpen() {
+		return isTacPanelOpen() || isTacAlertOpen();
+	}
+
+	function canScrollElement(el, deltaY) {
+		if (!el || el.scrollHeight <= el.clientHeight) {
+			return false;
+		}
+		if (deltaY < 0) {
+			return el.scrollTop > 0;
+		}
+		if (deltaY > 0) {
+			return el.scrollTop + el.clientHeight < el.scrollHeight;
+		}
+		return false;
+	}
+
+	function findScrollableInTac(target, deltaY) {
+		var el = target;
+		while (el && el !== document.documentElement) {
+			if (el.id === "tarteaucitronRoot" || !el.closest || !el.closest("#tarteaucitronRoot")) {
+				break;
+			}
+			if (canScrollElement(el, deltaY)) {
+				return el;
+			}
+			el = el.parentElement;
+		}
+		return null;
+	}
+
+	function markTacRootScrollHints() {
+		var root = document.getElementById("tarteaucitronRoot");
+		if (!root) {
+			return;
+		}
+		root.setAttribute("data-lenis-prevent", "");
+	}
+
+	function hasScrollableAncestorInTac(target) {
+		var el = target;
+		while (el && el !== document.documentElement) {
+			if (el.id === "tarteaucitronRoot") {
+				break;
+			}
+			if (el.closest && el.closest("#tarteaucitronRoot") && el.scrollHeight > el.clientHeight + 1) {
+				return true;
+			}
+			el = el.parentElement;
+		}
+		return false;
+	}
+
+	function blockBackgroundScroll(event) {
+		if (!cmpScrollLockActive) {
+			return;
+		}
+
+		if (event.type === "wheel") {
+			if (findScrollableInTac(event.target, event.deltaY)) {
+				return;
+			}
+		} else if (event.type === "touchmove" && hasScrollableAncestorInTac(event.target)) {
+			return;
+		}
+
+		event.preventDefault();
+	}
+
+	function syncScrollLock() {
+		cmpScrollLockActive = isCmpOpen();
+		document.documentElement.classList.toggle("aky-rgpd-scroll-lock", cmpScrollLockActive);
+		markTacRootScrollHints();
+	}
+
+	document.addEventListener("wheel", blockBackgroundScroll, { passive: false, capture: true });
+	document.addEventListener("touchmove", blockBackgroundScroll, { passive: false, capture: true });
+	document.addEventListener(
+		"keydown",
+		function (event) {
+			if (!cmpScrollLockActive) {
+				return;
+			}
+			var keys = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
+			if (keys.indexOf(event.key) === -1) {
+				return;
+			}
+			var root = document.getElementById("tarteaucitronRoot");
+			if (root && root.contains(document.activeElement)) {
+				return;
+			}
+			event.preventDefault();
+		},
+		true
+	);
 
 	function updateCookieButton() {
 		var el = document.getElementById("akyCookiesGestion");
@@ -76,8 +189,12 @@
 		}
 		wrapBannerButtons();
 		adjustCookieButtonForBanner();
+		syncScrollLock();
 		if (typeof MutationObserver !== "undefined") {
-			new MutationObserver(adjustCookieButtonForBanner).observe(banner, {
+			new MutationObserver(function () {
+				adjustCookieButtonForBanner();
+				syncScrollLock();
+			}).observe(banner, {
 				attributes: true,
 				attributeFilter: ["style", "class"],
 				childList: true,
@@ -91,9 +208,13 @@
 		watchBanner();
 	}
 
-	document.addEventListener("tac.open_alert", wrapBannerButtons);
-
+	document.addEventListener("tac.open_alert", function () {
+		wrapBannerButtons();
+		syncScrollLock();
+	});
+	document.addEventListener("tac.close_alert", syncScrollLock);
 	document.addEventListener("tac.open_panel", function () {
+		syncScrollLock();
 		var banner = document.getElementById("tarteaucitronAlertBig");
 		if (banner) {
 			banner.style.display = "none";
@@ -107,5 +228,8 @@
 
 	document.addEventListener("tac.close_panel", function () {
 		adjustCookieButtonForBanner();
+		syncScrollLock();
 	});
+
+	window.addEventListener("tac.root_available", syncScrollLock);
 })();

@@ -22,6 +22,13 @@
 	display: none !important;
 }
 
+/* Bloque le scroll page (Lenis, Locomotive, etc.) sans les connaître — complété par main.js */
+html.aky-rgpd-scroll-lock,
+html.aky-rgpd-scroll-lock body {
+	overflow: hidden !important;
+	overscroll-behavior: none;
+}
+
 @keyframes akyRgpdBannerIn {
 	from {
 		opacity: 0;
