@@ -1,36 +1,58 @@
 /**
  * Verrou scroll page pendant bannière / panneau cookies (lib-agnostic).
- * Gère scroll natif + conteneurs animés via transform (smooth scroll courant).
  */
 (function (window, document) {
 	var SHIELD_ID = "aky-rgpd-scroll-shield";
-	var SKIP_IDS = { tarteaucitronRoot: 1, akyCookiesGestion: 1 };
-	var DEFAULT_ROOT_SELECTORS = [
-		"html",
-		"body",
-		"main",
-		"#page",
-		"#content",
-		"#main",
-		"#wrapper",
-		"#app",
-		"[data-scroll-container]",
-		"[data-scroll-root]",
-		"[data-scroll]",
-		".scroll-container",
-		".smooth-scroll",
-	].join(", ");
 	var scrollOpts = { passive: false, capture: true };
 	var active = false;
 	var applied = false;
 	var savedScrollY = 0;
 	var clampId = null;
+	var pollId = null;
 	var motionFreeze = [];
+	var inertSaved = [];
 
 	function setEarlyActive(locked) {
 		if (window.__akyRgpdScroll) {
 			window.__akyRgpdScroll.active = locked ? 1 : 0;
 		}
+	}
+
+	function isVisible(el) {
+		if (!el) {
+			return false;
+		}
+		var style = window.getComputedStyle(el);
+		return style.display !== "none" && style.visibility !== "hidden" && el.offsetHeight > 0;
+	}
+
+	function isCmpOpen() {
+		if (document.body.classList.contains("tarteaucitron-modal-open")) {
+			return true;
+		}
+		var root = document.getElementById("tarteaucitronRoot");
+		if (root && root.classList.contains("tarteaucitronBeforeVisible")) {
+			return true;
+		}
+		var panel = document.getElementById("tarteaucitron");
+		if (panel && (panel.style.display === "block" || isVisible(panel))) {
+			return true;
+		}
+		var back = document.getElementById("tarteaucitronBack");
+		if (back && (back.style.display === "block" || isVisible(back))) {
+			return true;
+		}
+		var banner = document.getElementById("tarteaucitronAlertBig");
+		if (!banner) {
+			return false;
+		}
+		if (banner.classList.contains("tarteaucitron-display-block")) {
+			return true;
+		}
+		if (banner.style.display === "block") {
+			return true;
+		}
+		return isVisible(banner);
 	}
 
 	function isInsideTac(target) {
@@ -64,26 +86,21 @@
 		return null;
 	}
 
-	function hasScrollableAncestorInTac(target) {
-		var el = target;
-		while (el && el !== document.documentElement) {
-			if (el.id === "tarteaucitronRoot") {
-				break;
-			}
-			if (isInsideTac(el) && el.scrollHeight > el.clientHeight + 1) {
-				return true;
-			}
-			el = el.parentElement;
-		}
-		return false;
-	}
-
 	function shouldAllowCmpScroll(event) {
 		if (event.type === "wheel") {
 			return !!findScrollableInTac(event.target, event.deltaY);
 		}
 		if (event.type === "touchmove") {
-			return hasScrollableAncestorInTac(event.target);
+			var el = event.target;
+			while (el && el !== document.documentElement) {
+				if (el.id === "tarteaucitronRoot") {
+					break;
+				}
+				if (isInsideTac(el) && el.scrollHeight > el.clientHeight + 1) {
+					return true;
+				}
+				el = el.parentElement;
+			}
 		}
 		return false;
 	}
@@ -97,79 +114,72 @@
 		if (typeof event.stopImmediatePropagation === "function") {
 			event.stopImmediatePropagation();
 		}
+		return false;
 	}
 
-	function blockScrollKeys(event) {
-		if (!active) {
-			return;
-		}
-		var keys = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
-		if (keys.indexOf(event.key) === -1) {
-			return;
-		}
-		var root = document.getElementById("tarteaucitronRoot");
-		if (root && root.contains(document.activeElement)) {
-			return;
-		}
-		event.preventDefault();
-		if (typeof event.stopImmediatePropagation === "function") {
-			event.stopImmediatePropagation();
-		}
-	}
-
-	function shouldSkipElement(el) {
+	function shouldSkipMotionEl(el) {
 		if (!el || el.nodeType !== 1) {
 			return true;
 		}
-		if (SKIP_IDS[el.id] || el.id === SHIELD_ID) {
+		if (el.id === SHIELD_ID || el.id === "tarteaucitronRoot" || el.id === "akyCookiesGestion") {
 			return true;
 		}
-		return isInsideTac(el) && el.id !== "tarteaucitronServices";
+		return isInsideTac(el);
 	}
 
-	function getMotionRoots() {
-		var seen = Object.create(null);
+	function collectMotionRoots() {
 		var roots = [];
+		var seen = new Set();
+		var extra = window.__akyRgpdScrollRoots;
 
 		function add(el) {
-			if (shouldSkipElement(el) || seen[el.id || el.tagName + roots.length]) {
+			if (!el || shouldSkipMotionEl(el) || seen.has(el)) {
 				return;
 			}
-			seen[el.id || el.tagName + roots.length] = true;
+			seen.add(el);
 			roots.push(el);
 		}
 
-		var extra = window.__akyRgpdScrollRoots;
-		var selector = DEFAULT_ROOT_SELECTORS;
-		if (Array.isArray(extra) && extra.length) {
-			selector += ", " + extra.join(", ");
-		}
-
-		try {
-			document.querySelectorAll(selector).forEach(add);
-		} catch (e) {
-			/* ponytail: sélecteur invalide ignoré */
-		}
-
-		Array.from(document.body.children).forEach(function (el) {
-			if (shouldSkipElement(el)) {
-				return;
-			}
-			var style = window.getComputedStyle(el);
-			if (el.offsetHeight >= window.innerHeight * 0.85) {
-				add(el);
-			}
-			if (style.transform !== "none" || style.willChange.indexOf("transform") !== -1) {
-				add(el);
+		["html", "body", "main", "#page", "#content", "#main", "#wrapper", "#app"].forEach(function (sel) {
+			try {
+				document.querySelectorAll(sel).forEach(add);
+			} catch (e) {
+				/* ponytail: ignore */
 			}
 		});
+
+		if (Array.isArray(extra)) {
+			extra.forEach(function (sel) {
+				try {
+					document.querySelectorAll(sel).forEach(add);
+				} catch (e) {
+					/* ponytail: ignore */
+				}
+			});
+		}
+
+		Array.from(document.body.children).forEach(add);
+
+		try {
+			document.body.querySelectorAll("*").forEach(function (el) {
+				if (shouldSkipMotionEl(el)) {
+					return;
+				}
+				var style = window.getComputedStyle(el);
+				if (style.transform !== "none" || style.willChange.indexOf("transform") !== -1) {
+					add(el);
+				}
+			});
+		} catch (e) {
+			/* ponytail: ignore */
+		}
 
 		return roots;
 	}
 
 	function captureMotionState() {
 		releaseMotionState();
-		motionFreeze = getMotionRoots().map(function (el) {
+		motionFreeze = collectMotionRoots().map(function (el) {
 			var style = window.getComputedStyle(el);
 			return {
 				el: el,
@@ -218,6 +228,24 @@
 		motionFreeze = [];
 	}
 
+	function applyInert() {
+		releaseInert();
+		Array.from(document.body.children).forEach(function (el) {
+			if (el.id === "tarteaucitronRoot" || el.id === "akyCookiesGestion") {
+				return;
+			}
+			inertSaved.push({ el: el, inert: el.inert });
+			el.inert = true;
+		});
+	}
+
+	function releaseInert() {
+		inertSaved.forEach(function (entry) {
+			entry.el.inert = entry.inert;
+		});
+		inertSaved = [];
+	}
+
 	function resetScrollPosition() {
 		if (!active || !applied) {
 			return;
@@ -232,17 +260,6 @@
 			document.body.scrollTop = 0;
 		}
 		enforceMotionFreeze();
-	}
-
-	function onScrollWhileLocked(event) {
-		if (!active) {
-			return;
-		}
-		resetScrollPosition();
-		event.preventDefault();
-		if (typeof event.stopImmediatePropagation === "function") {
-			event.stopImmediatePropagation();
-		}
 	}
 
 	function startScrollClamp() {
@@ -267,7 +284,7 @@
 		}
 	}
 
-	function getShield() {
+	function ensureShield() {
 		var shield = document.getElementById(SHIELD_ID);
 		if (shield) {
 			return shield;
@@ -276,9 +293,11 @@
 		shield.id = SHIELD_ID;
 		shield.setAttribute("aria-hidden", "true");
 		shield.hidden = true;
+		shield.addEventListener("wheel", blockScrollEvent, scrollOpts);
+		shield.addEventListener("touchmove", blockScrollEvent, scrollOpts);
 		var tacRoot = document.getElementById("tarteaucitronRoot");
-		if (tacRoot && tacRoot.parentNode) {
-			tacRoot.parentNode.insertBefore(shield, tacRoot);
+		if (tacRoot) {
+			tacRoot.insertBefore(shield, tacRoot.firstChild);
 		} else {
 			document.body.appendChild(shield);
 		}
@@ -286,7 +305,7 @@
 	}
 
 	function showShield() {
-		getShield().hidden = false;
+		ensureShield().hidden = false;
 	}
 
 	function hideShield() {
@@ -297,20 +316,19 @@
 	}
 
 	function lockPage() {
-		if (applied) {
-			captureMotionState();
-			return;
+		if (!applied) {
+			applied = true;
+			savedScrollY = window.scrollY || window.pageYOffset || 0;
+			document.documentElement.classList.add("aky-rgpd-scroll-lock");
+			document.body.classList.add("aky-rgpd-scroll-lock");
+			document.documentElement.style.setProperty("top", "-" + savedScrollY + "px");
+			document.documentElement.style.setProperty("position", "fixed");
+			document.documentElement.style.setProperty("left", "0");
+			document.documentElement.style.setProperty("right", "0");
+			document.documentElement.style.setProperty("width", "100%");
 		}
-		applied = true;
-		savedScrollY = window.scrollY || window.pageYOffset || 0;
-		document.documentElement.classList.add("aky-rgpd-scroll-lock");
-		document.body.classList.add("aky-rgpd-scroll-lock");
-		document.documentElement.style.setProperty("top", "-" + savedScrollY + "px");
-		document.documentElement.style.setProperty("position", "fixed");
-		document.documentElement.style.setProperty("left", "0");
-		document.documentElement.style.setProperty("right", "0");
-		document.documentElement.style.setProperty("width", "100%");
 		captureMotionState();
+		applyInert();
 		showShield();
 		startScrollClamp();
 		resetScrollPosition();
@@ -323,6 +341,7 @@
 		applied = false;
 		stopScrollClamp();
 		hideShield();
+		releaseInert();
 		releaseMotionState();
 		document.documentElement.classList.remove("aky-rgpd-scroll-lock");
 		document.body.classList.remove("aky-rgpd-scroll-lock");
@@ -335,6 +354,12 @@
 	}
 
 	function setActive(locked) {
+		if (locked === active) {
+			if (locked) {
+				captureMotionState();
+			}
+			return;
+		}
 		active = locked;
 		setEarlyActive(locked);
 		if (locked) {
@@ -344,16 +369,101 @@
 		unlockPage();
 	}
 
+	function syncFromDom() {
+		setActive(isCmpOpen());
+	}
+
+	function startPolling() {
+		if (pollId !== null) {
+			return;
+		}
+		// ponytail: filet de sécurité si tarteaucitron ouvre sans event
+		pollId = window.setInterval(syncFromDom, 200);
+	}
+
+	function watchTacRoot() {
+		var root = document.getElementById("tarteaucitronRoot");
+		if (!root || root.__akyRgpdObserved) {
+			return;
+		}
+		root.__akyRgpdObserved = true;
+		ensureShield();
+		if (typeof MutationObserver !== "undefined") {
+			new MutationObserver(syncFromDom).observe(root, {
+				attributes: true,
+				childList: true,
+				subtree: true,
+				attributeFilter: ["style", "class", "hidden"],
+			});
+		}
+		syncFromDom();
+	}
+
 	window.addEventListener("wheel", blockScrollEvent, scrollOpts);
 	window.addEventListener("touchmove", blockScrollEvent, scrollOpts);
 	document.addEventListener("wheel", blockScrollEvent, scrollOpts);
 	document.addEventListener("touchmove", blockScrollEvent, scrollOpts);
-	window.addEventListener("scroll", onScrollWhileLocked, scrollOpts);
-	document.addEventListener("scroll", onScrollWhileLocked, scrollOpts);
-	window.addEventListener("keydown", blockScrollKeys, true);
+	window.addEventListener(
+		"scroll",
+		function (event) {
+			if (!active) {
+				return;
+			}
+			resetScrollPosition();
+			event.preventDefault();
+			if (typeof event.stopImmediatePropagation === "function") {
+				event.stopImmediatePropagation();
+			}
+		},
+		scrollOpts
+	);
+	window.addEventListener(
+		"keydown",
+		function (event) {
+			if (!active) {
+				return;
+			}
+			var keys = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
+			if (keys.indexOf(event.key) === -1) {
+				return;
+			}
+			var root = document.getElementById("tarteaucitronRoot");
+			if (root && root.contains(document.activeElement)) {
+				return;
+			}
+			event.preventDefault();
+			if (typeof event.stopImmediatePropagation === "function") {
+				event.stopImmediatePropagation();
+			}
+		},
+		true
+	);
+
+	["tac.open_alert", "tac.close_alert", "tac.open_panel", "tac.close_panel", "tac.root_available"].forEach(
+		function (name) {
+			window.addEventListener(name, syncFromDom);
+		}
+	);
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", function () {
+			watchTacRoot();
+			startPolling();
+		});
+	} else {
+		watchTacRoot();
+		startPolling();
+	}
+
+	if (typeof MutationObserver !== "undefined") {
+		new MutationObserver(function () {
+			watchTacRoot();
+		}).observe(document.documentElement, { childList: true, subtree: true });
+	}
 
 	window.akyRgpdScrollLock = {
 		setActive: setActive,
+		syncFromDom: syncFromDom,
 		isActive: function () {
 			return active;
 		},

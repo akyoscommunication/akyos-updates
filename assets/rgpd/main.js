@@ -4,25 +4,10 @@
 (function () {
 	var scrollThreshold = 100;
 
-	function isTacPanelOpen() {
-		var panel = document.getElementById("tarteaucitron");
-		return !!panel && panel.style.display === "block";
-	}
-
-	function isTacAlertOpen() {
-		var banner = document.getElementById("tarteaucitronAlertBig");
-		if (!banner) {
-			return false;
-		}
-		return (
-			banner.classList.contains("tarteaucitron-display-block") ||
-			banner.style.display === "block"
-		);
-	}
-
+	// Verrou scroll géré par scroll-lock.js (syncFromDom auto)
 	function syncScrollLock() {
-		if (window.akyRgpdScrollLock) {
-			window.akyRgpdScrollLock.setActive(isTacPanelOpen() || isTacAlertOpen());
+		if (window.akyRgpdScrollLock && window.akyRgpdScrollLock.syncFromDom) {
+			window.akyRgpdScrollLock.syncFromDom();
 		}
 	}
 

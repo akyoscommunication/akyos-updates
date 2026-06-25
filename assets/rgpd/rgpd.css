@@ -39,22 +39,23 @@ html.aky-rgpd-scroll-lock body {
 	height: 100%;
 }
 
-/* Voile transparent — intercepte wheel / touch avant le contenu du site */
-#aky-rgpd-scroll-shield {
+/* Voile dans tarteaucitronRoot — capte wheel/touch sur toute la page */
+#tarteaucitronRoot #aky-rgpd-scroll-shield {
 	display: block;
 	position: fixed;
 	inset: 0;
-	z-index: 999999998;
+	z-index: 1;
 	touch-action: none;
 	overscroll-behavior: none;
 	background: transparent;
+	pointer-events: auto;
 }
 
-#aky-rgpd-scroll-shield[hidden] {
+#tarteaucitronRoot #aky-rgpd-scroll-shield[hidden] {
 	display: none !important;
 }
 
-html.aky-rgpd-scroll-lock body > *:not(#tarteaucitronRoot):not(#aky-rgpd-scroll-shield):not(#akyCookiesGestion) {
+html.aky-rgpd-scroll-lock body > *:not(#tarteaucitronRoot):not(#akyCookiesGestion) {
 	pointer-events: none !important;
 }
 
@@ -126,7 +127,7 @@ html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigTop {
 	border-radius: var(--aky-rgpd-radius) !important;
 	box-shadow: var(--aky-rgpd-shadow) !important;
 	text-align: left !important;
-	z-index: 2147483645 !important;
+	z-index: 5 !important;
 	font-size: 0.9375rem !important;
 	line-height: 1.55 !important;
 	transform: none !important;
