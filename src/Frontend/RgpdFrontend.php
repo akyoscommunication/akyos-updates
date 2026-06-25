@@ -52,7 +52,7 @@ final class RgpdFrontend
             return;
         }
 
-        echo '<script id="aky-rgpd-scroll-lock-bootstrap">(function(w,d){w.__akyRgpdScroll={active:0};function b(e){if(!w.__akyRgpdScroll.active)return;var t=e.target;if(t&&t.closest){var s=t.closest("#tarteaucitronServices");if(s&&s.scrollHeight>s.clientHeight+1)return;}e.preventDefault();e.stopImmediatePropagation();}w.addEventListener("wheel",b,{passive:!1,capture:!0});w.addEventListener("touchmove",b,{passive:!1,capture:!0});})(window,document);</script>';
+        echo '<script id="aky-rgpd-scroll-lock-bootstrap">(function(w,d){w.__akyRgpdScroll={active:0};function b(e){if(!w.__akyRgpdScroll.active)return;if(e.target&&e.target.closest&&e.target.closest("#tarteaucitronServices"))return;e.preventDefault();e.stopImmediatePropagation();}w.addEventListener("wheel",b,{passive:!1,capture:!0});w.addEventListener("touchmove",b,{passive:!1,capture:!0});})(window,document);</script>';
     }
 
     public function enqueueScrollLock(): void
