@@ -22,28 +22,6 @@
 	display: none !important;
 }
 
-/* Bloque le scroll page pendant bannière / panneau cookies */
-html.aky-rgpd-scroll-lock,
-html.aky-rgpd-scroll-lock body {
-	overflow: hidden !important;
-	overscroll-behavior: none;
-}
-
-/* Voile dans tarteaucitronRoot — capte wheel/touch sur la page (pas le panneau) */
-#tarteaucitronRoot #aky-rgpd-scroll-shield {
-	display: block;
-	position: fixed;
-	inset: 0;
-	z-index: 1;
-	touch-action: none;
-	background: transparent;
-	pointer-events: auto;
-}
-
-#tarteaucitronRoot #aky-rgpd-scroll-shield[hidden] {
-	display: none !important;
-}
-
 @keyframes akyRgpdBannerIn {
 	from {
 		opacity: 0;
@@ -112,7 +90,7 @@ html body #tarteaucitronRoot #tarteaucitronAlertBig.tarteaucitronAlertBigTop {
 	border-radius: var(--aky-rgpd-radius) !important;
 	box-shadow: var(--aky-rgpd-shadow) !important;
 	text-align: left !important;
-	z-index: 5 !important;
+	z-index: 2147483645 !important;
 	font-size: 0.9375rem !important;
 	line-height: 1.55 !important;
 	transform: none !important;
@@ -273,7 +251,8 @@ html body #tarteaucitronRoot #tarteaucitron {
 }
 
 html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
-	display: block !important;
+	display: flex !important;
+	flex-direction: column !important;
 	top: 50% !important;
 	left: 50% !important;
 	right: auto !important;
@@ -281,7 +260,7 @@ html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
 	transform: translate(-50%, -50%) !important;
 	width: min(860px, calc(100vw - 2rem)) !important;
 	max-width: calc(100vw - 2rem) !important;
-	max-height: none !important;
+	max-height: min(90vh, 920px) !important;
 	height: auto !important;
 	margin: 0 !important;
 }
@@ -289,8 +268,9 @@ html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
 html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
 	box-sizing: border-box !important;
 	width: 100% !important;
-	height: auto !important;
-	max-height: min(85vh, 900px) !important;
+	flex: 1 1 auto !important;
+	min-height: 0 !important;
+	max-height: min(75vh, 780px) !important;
 	margin: 0 !important;
 	margin-top: 0 !important;
 	padding: 2rem 2rem 1.5rem !important;
@@ -299,13 +279,23 @@ html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
 	border-radius: var(--aky-rgpd-radius) !important;
 	box-shadow: var(--aky-rgpd-shadow) !important;
 	overflow-x: hidden !important;
-	overflow-y: scroll !important;
+	overflow-y: auto !important;
+	overscroll-behavior: contain;
+	touch-action: pan-y;
 	scrollbar-gutter: stable;
 	scrollbar-width: thin;
 	scrollbar-color: var(--aky-rgpd-text-muted) var(--aky-rgpd-border);
 	position: relative;
 	text-align: left;
 	-webkit-overflow-scrolling: touch;
+	outline: none;
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices:focus-visible {
+	box-shadow:
+		var(--aky-rgpd-shadow),
+		0 0 0 2px var(--aky-rgpd-primary-soft),
+		inset 0 0 0 1px var(--aky-rgpd-primary) !important;
 }
 
 html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices::-webkit-scrollbar {
@@ -739,6 +729,8 @@ html body #tarteaucitronRoot .tarteaucitronH2 {
 
 	/* Panneau : bottom sheet mobile */
 	html body #tarteaucitronRoot #tarteaucitron[style*="display: block"] {
+		display: flex !important;
+		flex-direction: column !important;
 		top: auto !important;
 		left: 0 !important;
 		right: 0 !important;
@@ -746,12 +738,15 @@ html body #tarteaucitronRoot .tarteaucitronH2 {
 		transform: none !important;
 		width: 100% !important;
 		max-width: 100% !important;
+		max-height: 92vh !important;
 		margin: 0 !important;
 	}
 
 	html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
 		width: 100% !important;
-		max-height: 92vh !important;
+		max-height: none !important;
 		border-radius: var(--aky-rgpd-radius) var(--aky-rgpd-radius) 0 0 !important;
 		padding: 1.5rem 1.25rem 1.25rem !important;
 		box-shadow: none !important;

@@ -4,13 +4,6 @@
 (function () {
 	var scrollThreshold = 100;
 
-	// Verrou scroll géré par scroll-lock.js (syncFromDom auto)
-	function syncScrollLock() {
-		if (window.akyRgpdScrollLock && window.akyRgpdScrollLock.syncFromDom) {
-			window.akyRgpdScrollLock.syncFromDom();
-		}
-	}
-
 	function updateCookieButton() {
 		var el = document.getElementById("akyCookiesGestion");
 		if (!el) {
@@ -76,6 +69,37 @@
 		}
 	}
 
+	function setupPanelScroll() {
+		var services = document.getElementById("tarteaucitronServices");
+		if (!services || services.__akyPanelScrollReady) {
+			return;
+		}
+		services.__akyPanelScrollReady = true;
+		services.setAttribute("tabindex", "-1");
+		services.addEventListener(
+			"wheel",
+			function (event) {
+				event.stopPropagation();
+			},
+			{ passive: true }
+		);
+		services.addEventListener(
+			"touchmove",
+			function (event) {
+				event.stopPropagation();
+			},
+			{ passive: true }
+		);
+	}
+
+	function focusPanelScroll() {
+		setupPanelScroll();
+		var services = document.getElementById("tarteaucitronServices");
+		if (services && typeof services.focus === "function") {
+			services.focus({ preventScroll: true });
+		}
+	}
+
 	function watchBanner() {
 		var banner = document.getElementById("tarteaucitronAlertBig");
 		if (!banner) {
@@ -83,12 +107,8 @@
 		}
 		wrapBannerButtons();
 		adjustCookieButtonForBanner();
-		syncScrollLock();
 		if (typeof MutationObserver !== "undefined") {
-			new MutationObserver(function () {
-				adjustCookieButtonForBanner();
-				syncScrollLock();
-			}).observe(banner, {
+			new MutationObserver(adjustCookieButtonForBanner).observe(banner, {
 				attributes: true,
 				attributeFilter: ["style", "class"],
 				childList: true,
@@ -102,13 +122,9 @@
 		watchBanner();
 	}
 
-	document.addEventListener("tac.open_alert", function () {
-		wrapBannerButtons();
-		syncScrollLock();
-	});
-	document.addEventListener("tac.close_alert", syncScrollLock);
+	document.addEventListener("tac.open_alert", wrapBannerButtons);
+
 	document.addEventListener("tac.open_panel", function () {
-		syncScrollLock();
 		var banner = document.getElementById("tarteaucitronAlertBig");
 		if (banner) {
 			banner.style.display = "none";
@@ -118,12 +134,13 @@
 			btn.style.opacity = "0";
 			btn.style.pointerEvents = "none";
 		}
+		focusPanelScroll();
 	});
 
-	document.addEventListener("tac.close_panel", function () {
-		adjustCookieButtonForBanner();
-		syncScrollLock();
-	});
+	document.addEventListener("tac.close_panel", adjustCookieButtonForBanner);
 
-	window.addEventListener("tac.root_available", syncScrollLock);
+	window.addEventListener("tac.root_available", function () {
+		setupPanelScroll();
+		watchBanner();
+	});
 })();

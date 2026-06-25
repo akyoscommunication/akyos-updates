@@ -17,7 +17,6 @@ final class RgpdFrontend
     public const STYLE_HANDLE = 'akyos-updates-rgpd';
     public const TAC_STYLE_HANDLE = 'akyos-updates-rgpd-tac';
     public const TAC_HANDLE = 'akyos-updates-rgpd-tac';
-    public const SCROLL_LOCK_HANDLE = 'akyos-updates-rgpd-scroll-lock';
     public const SCRIPT_HANDLE = 'akyos-updates-rgpd-main';
 
     private const VENDOR_BASE = AKYOS_UPDATES_PLUGIN_URL . 'assets/rgpd/vendor/tarteaucitronjs/';
@@ -34,45 +33,9 @@ final class RgpdFrontend
             return;
         }
 
-        add_action('wp_head', [$this, 'renderScrollLockBootstrap'], 0);
-        add_action('wp_enqueue_scripts', [$this, 'enqueueScrollLock'], 1);
         add_action('wp_enqueue_scripts', [$this, 'enqueueAssets'], 99999);
         add_action('wp_head', [$this, 'renderHead'], PHP_INT_MAX);
         add_action('wp_footer', [$this, 'renderFooter']);
-    }
-
-    public function renderScrollLockBootstrap(): void
-    {
-        if (! $this->settings->isActiveOnFrontend()) {
-            return;
-        }
-
-        $settings = $this->settings->get();
-        if (($settings['service_type'] ?? '') !== RgpdSettingsService::SERVICE_TARTEAUCITRON) {
-            return;
-        }
-
-        echo '<script id="aky-rgpd-scroll-lock-bootstrap">(function(w,d){w.__akyRgpdScroll={active:0};function b(e){if(!w.__akyRgpdScroll.active)return;if(e.target&&e.target.closest&&e.target.closest("#tarteaucitronServices"))return;e.preventDefault();e.stopImmediatePropagation();}w.addEventListener("wheel",b,{passive:!1,capture:!0});w.addEventListener("touchmove",b,{passive:!1,capture:!0});})(window,document);</script>';
-    }
-
-    public function enqueueScrollLock(): void
-    {
-        if (! $this->settings->isActiveOnFrontend()) {
-            return;
-        }
-
-        $settings = $this->settings->get();
-        if (($settings['service_type'] ?? '') !== RgpdSettingsService::SERVICE_TARTEAUCITRON) {
-            return;
-        }
-
-        wp_enqueue_script(
-            self::SCROLL_LOCK_HANDLE,
-            AKYOS_UPDATES_PLUGIN_URL . 'assets/rgpd/scroll-lock.js',
-            [],
-            AKYOS_UPDATES_VERSION,
-            false
-        );
     }
 
     public function enqueueAssets(): void
@@ -142,7 +105,7 @@ final class RgpdFrontend
         wp_enqueue_script(
             self::SCRIPT_HANDLE,
             AKYOS_UPDATES_PLUGIN_URL . 'assets/rgpd/main.js',
-            [self::TAC_HANDLE, self::SCROLL_LOCK_HANDLE],
+            [self::TAC_HANDLE],
             AKYOS_UPDATES_VERSION,
             false
         );
