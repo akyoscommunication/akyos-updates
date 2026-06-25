@@ -4,6 +4,64 @@
 (function () {
 	var scrollThreshold = 100;
 	var cmpScrollLockActive = false;
+	var savedScrollY = 0;
+	var bodyPositionLocked = false;
+	var scrollLockApplied = false;
+	var scrollClampId = null;
+	var scrollOpts = { passive: false, capture: true };
+
+	function lockBodyPosition() {
+		if (bodyPositionLocked) {
+			return;
+		}
+		bodyPositionLocked = true;
+		savedScrollY = window.scrollY || window.pageYOffset || 0;
+		document.body.style.position = "fixed";
+		document.body.style.top = "-" + savedScrollY + "px";
+		document.body.style.left = "0";
+		document.body.style.right = "0";
+		document.body.style.width = "100%";
+	}
+
+	function unlockBodyPosition() {
+		if (!bodyPositionLocked) {
+			return;
+		}
+		bodyPositionLocked = false;
+		document.body.style.position = "";
+		document.body.style.top = "";
+		document.body.style.left = "";
+		document.body.style.right = "";
+		document.body.style.width = "";
+		window.scrollTo(0, savedScrollY);
+	}
+
+	function startScrollClamp() {
+		if (scrollClampId !== null) {
+			return;
+		}
+		function clamp() {
+			if (!cmpScrollLockActive) {
+				scrollClampId = null;
+				return;
+			}
+			if (document.documentElement.scrollTop !== 0) {
+				document.documentElement.scrollTop = 0;
+			}
+			if (document.body.scrollTop !== 0) {
+				document.body.scrollTop = 0;
+			}
+			scrollClampId = window.requestAnimationFrame(clamp);
+		}
+		scrollClampId = window.requestAnimationFrame(clamp);
+	}
+
+	function stopScrollClamp() {
+		if (scrollClampId !== null) {
+			window.cancelAnimationFrame(scrollClampId);
+			scrollClampId = null;
+		}
+	}
 
 	function isTacPanelOpen() {
 		var panel = document.getElementById("tarteaucitron");
@@ -52,14 +110,6 @@
 		return null;
 	}
 
-	function markTacRootScrollHints() {
-		var root = document.getElementById("tarteaucitronRoot");
-		if (!root) {
-			return;
-		}
-		root.setAttribute("data-lenis-prevent", "");
-	}
-
 	function hasScrollableAncestorInTac(target) {
 		var el = target;
 		while (el && el !== document.documentElement) {
@@ -74,31 +124,64 @@
 		return false;
 	}
 
+	function shouldAllowCmpScroll(event) {
+		if (event.type === "wheel") {
+			return !!findScrollableInTac(event.target, event.deltaY);
+		}
+		if (event.type === "touchmove") {
+			return hasScrollableAncestorInTac(event.target);
+		}
+		return false;
+	}
+
 	function blockBackgroundScroll(event) {
 		if (!cmpScrollLockActive) {
 			return;
 		}
 
-		if (event.type === "wheel") {
-			if (findScrollableInTac(event.target, event.deltaY)) {
-				return;
-			}
-		} else if (event.type === "touchmove" && hasScrollableAncestorInTac(event.target)) {
+		if (shouldAllowCmpScroll(event)) {
 			return;
 		}
 
 		event.preventDefault();
+		event.stopPropagation();
+		if (typeof event.stopImmediatePropagation === "function") {
+			event.stopImmediatePropagation();
+		}
+	}
+
+	function applyScrollLock(locked) {
+		cmpScrollLockActive = locked;
+		document.documentElement.classList.toggle("aky-rgpd-scroll-lock", locked);
+
+		if (locked) {
+			if (!scrollLockApplied) {
+				savedScrollY = window.scrollY || window.pageYOffset || 0;
+				lockBodyPosition();
+				scrollLockApplied = true;
+			}
+			startScrollClamp();
+			return;
+		}
+
+		if (!scrollLockApplied) {
+			return;
+		}
+
+		stopScrollClamp();
+		unlockBodyPosition();
+		scrollLockApplied = false;
 	}
 
 	function syncScrollLock() {
-		cmpScrollLockActive = isCmpOpen();
-		document.documentElement.classList.toggle("aky-rgpd-scroll-lock", cmpScrollLockActive);
-		markTacRootScrollHints();
+		applyScrollLock(isCmpOpen());
 	}
 
-	document.addEventListener("wheel", blockBackgroundScroll, { passive: false, capture: true });
-	document.addEventListener("touchmove", blockBackgroundScroll, { passive: false, capture: true });
-	document.addEventListener(
+	window.addEventListener("wheel", blockBackgroundScroll, scrollOpts);
+	window.addEventListener("touchmove", blockBackgroundScroll, scrollOpts);
+	document.addEventListener("wheel", blockBackgroundScroll, scrollOpts);
+	document.addEventListener("touchmove", blockBackgroundScroll, scrollOpts);
+	window.addEventListener(
 		"keydown",
 		function (event) {
 			if (!cmpScrollLockActive) {
@@ -113,6 +196,9 @@
 				return;
 			}
 			event.preventDefault();
+			if (typeof event.stopImmediatePropagation === "function") {
+				event.stopImmediatePropagation();
+			}
 		},
 		true
 	);

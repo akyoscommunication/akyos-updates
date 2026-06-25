@@ -22,7 +22,7 @@
 	display: none !important;
 }
 
-/* Bloque le scroll page (Lenis, Locomotive, etc.) sans les connaître — complété par main.js */
+/* Bloque le scroll page pendant bannière / panneau cookies */
 html.aky-rgpd-scroll-lock,
 html.aky-rgpd-scroll-lock body {
 	overflow: hidden !important;
@@ -284,9 +284,32 @@ html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices {
 	border-radius: var(--aky-rgpd-radius) !important;
 	box-shadow: var(--aky-rgpd-shadow) !important;
 	overflow-x: hidden !important;
-	overflow-y: auto !important;
+	overflow-y: scroll !important;
+	scrollbar-gutter: stable;
+	scrollbar-width: thin;
+	scrollbar-color: var(--aky-rgpd-text-muted) var(--aky-rgpd-border);
 	position: relative;
 	text-align: left;
+	-webkit-overflow-scrolling: touch;
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices::-webkit-scrollbar {
+	width: 10px;
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices::-webkit-scrollbar-track {
+	background: var(--aky-rgpd-border);
+	border-radius: 999px;
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices::-webkit-scrollbar-thumb {
+	background: var(--aky-rgpd-text-muted);
+	border-radius: 999px;
+	border: 2px solid var(--aky-rgpd-surface);
+}
+
+html body #tarteaucitronRoot #tarteaucitron #tarteaucitronServices::-webkit-scrollbar-thumb:hover {
+	background: var(--aky-rgpd-text);
 }
 
 html body #tarteaucitronRoot #tarteaucitron .tarteaucitronBorder {
