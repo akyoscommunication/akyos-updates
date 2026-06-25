@@ -34,10 +34,25 @@ final class RgpdFrontend
             return;
         }
 
+        add_action('wp_head', [$this, 'renderScrollLockBootstrap'], 0);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScrollLock'], 1);
         add_action('wp_enqueue_scripts', [$this, 'enqueueAssets'], 99999);
         add_action('wp_head', [$this, 'renderHead'], PHP_INT_MAX);
         add_action('wp_footer', [$this, 'renderFooter']);
+    }
+
+    public function renderScrollLockBootstrap(): void
+    {
+        if (! $this->settings->isActiveOnFrontend()) {
+            return;
+        }
+
+        $settings = $this->settings->get();
+        if (($settings['service_type'] ?? '') !== RgpdSettingsService::SERVICE_TARTEAUCITRON) {
+            return;
+        }
+
+        echo '<script id="aky-rgpd-scroll-lock-bootstrap">(function(w,d){w.__akyRgpdScroll={active:0};function b(e){if(!w.__akyRgpdScroll.active)return;var t=e.target;if(t&&t.closest){var s=t.closest("#tarteaucitronServices");if(s&&s.scrollHeight>s.clientHeight+1)return;}e.preventDefault();e.stopImmediatePropagation();}w.addEventListener("wheel",b,{passive:!1,capture:!0});w.addEventListener("touchmove",b,{passive:!1,capture:!0});})(window,document);</script>';
     }
 
     public function enqueueScrollLock(): void

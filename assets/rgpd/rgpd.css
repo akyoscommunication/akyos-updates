@@ -44,7 +44,7 @@ html.aky-rgpd-scroll-lock body {
 	display: block;
 	position: fixed;
 	inset: 0;
-	z-index: 2147483644;
+	z-index: 999999998;
 	touch-action: none;
 	overscroll-behavior: none;
 	background: transparent;
@@ -52,6 +52,10 @@ html.aky-rgpd-scroll-lock body {
 
 #aky-rgpd-scroll-shield[hidden] {
 	display: none !important;
+}
+
+html.aky-rgpd-scroll-lock body > *:not(#tarteaucitronRoot):not(#aky-rgpd-scroll-shield):not(#akyCookiesGestion) {
+	pointer-events: none !important;
 }
 
 @keyframes akyRgpdBannerIn {
