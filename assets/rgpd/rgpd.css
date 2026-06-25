@@ -23,10 +23,35 @@
 }
 
 /* Bloque le scroll page pendant bannière / panneau cookies */
-html.aky-rgpd-scroll-lock,
+html.aky-rgpd-scroll-lock {
+	position: fixed !important;
+	width: 100% !important;
+	height: 100% !important;
+	overflow: hidden !important;
+	overscroll-behavior: none !important;
+	touch-action: none;
+}
+
 html.aky-rgpd-scroll-lock body {
 	overflow: hidden !important;
+	overscroll-behavior: none !important;
+	touch-action: none;
+	height: 100%;
+}
+
+/* Voile transparent — intercepte wheel / touch avant le contenu du site */
+#aky-rgpd-scroll-shield {
+	display: block;
+	position: fixed;
+	inset: 0;
+	z-index: 2147483644;
+	touch-action: none;
 	overscroll-behavior: none;
+	background: transparent;
+}
+
+#aky-rgpd-scroll-shield[hidden] {
+	display: none !important;
 }
 
 @keyframes akyRgpdBannerIn {
