@@ -103,14 +103,20 @@ final class TarteaucitronTagService
      * Rend les blocs <script> tarteaucitron pour le footer.
      *
      * @param list<array{id: string, params: array<string, string>}> $tags
+     * @param list<string> $gcmJobsEnabled
      * @return list<string>
      */
-    public function renderScripts(array $tags): array
+    public function renderScripts(array $tags, array $gcmJobsEnabled = []): array
     {
         $scripts = [];
         $pushedJobs = [];
+        $needsGcm = false;
 
         foreach ($tags as $tag) {
+            if (in_array($tag['id'], TarteaucitronCatalogService::GCM_TRIGGER_TAG_IDS, true)) {
+                $needsGcm = true;
+            }
+
             $def = $this->catalog->get($tag['id']);
             if ($def === null) {
                 continue;
@@ -130,9 +136,6 @@ final class TarteaucitronTagService
             }
 
             $jobs = is_array($def['jobs'] ?? null) ? $def['jobs'] : [$tag['id']];
-            if (in_array($tag['id'], ['googletagmanager', 'multiplegoogletagmanager'], true)) {
-                $jobs = array_merge($jobs, TarteaucitronCatalogService::GTM_GCM_JOBS);
-            }
 
             foreach ($jobs as $job) {
                 $job = (string) $job;
@@ -145,6 +148,20 @@ final class TarteaucitronTagService
 
             if ($lines !== []) {
                 $scripts[] = implode("\n            ", $lines);
+            }
+        }
+
+        if ($needsGcm && $gcmJobsEnabled !== []) {
+            $gcmLines = [];
+            foreach ($gcmJobsEnabled as $job) {
+                if (! in_array($job, TarteaucitronCatalogService::GTM_GCM_JOBS, true) || isset($pushedJobs[$job])) {
+                    continue;
+                }
+                $gcmLines[] = "(tarteaucitron.job = tarteaucitron.job || []).push('" . esc_js($job) . "');";
+                $pushedJobs[$job] = true;
+            }
+            if ($gcmLines !== []) {
+                $scripts[] = implode("\n            ", $gcmLines);
             }
         }
 

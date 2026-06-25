@@ -20,7 +20,7 @@ export function CategorySwitches({ names, value, onToggle, disabled }) {
 							disabled={disabled}
 							onClick={() => onToggle(name, !on)}
 							className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-								on ? "bg-[#0052FF]" : "bg-slate-300"
+								on ? "bg-[var(--au-primary)]" : "bg-slate-300"
 							} ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
 						>
 							<span

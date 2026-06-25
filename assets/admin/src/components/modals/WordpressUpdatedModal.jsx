@@ -24,7 +24,7 @@ export function WordpressUpdatedModal({ open, onClose }) {
 				<div className="flex justify-end">
 					<button
 						type="button"
-						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#0052FF] bg-[#0052FF] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0047db]"
+						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--au-primary-hover)]"
 						onClick={onClose}
 					>
 						Fermer

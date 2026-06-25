@@ -671,7 +671,7 @@ export function App() {
 					</h1>
 					{report ? (
 						<div className="flex flex-col gap-2">
-							<span className="inline-flex w-fit items-center rounded-full border border-[#0052FF3d] bg-[#0052FF0d] px-3 py-1 font-mono text-[12px] uppercase tracking-[0.15em] text-[#0052FF]">
+							<span className="inline-flex w-fit items-center rounded-full border border-[rgb(var(--au-primary-rgb)/0.24)] bg-[rgb(var(--au-primary-rgb)/0.05)] px-3 py-1 font-mono text-[12px] uppercase tracking-[0.15em] text-[var(--au-primary)]">
 								Rapport
 							</span>
 							<div className="flex flex-wrap items-center gap-2">
@@ -703,7 +703,7 @@ export function App() {
 				{report ? (
 					<div className="flex flex-wrap items-center gap-2">
 						<button
-							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#0052FF] bg-[#0052FF] px-5 py-2.5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0047db]"
+							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-5 py-2.5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--au-primary-hover)]"
 							onClick={() => startAnalysis("quick")}
 							disabled={running}
 						>
@@ -713,7 +713,7 @@ export function App() {
 							Analyse rapide
 						</button>
 						<button
-							className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d]"
+							className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)]"
 							onClick={openRelaunchModal}
 							disabled={running}
 						>

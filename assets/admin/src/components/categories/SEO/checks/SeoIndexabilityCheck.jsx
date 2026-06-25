@@ -35,7 +35,7 @@ export function SeoIndexabilityCheck({ result, isFixBusy, onFix }) {
 										<button
 											type="button"
 											disabled={isFixBusy({ id: "seo.indexability", actionId: "seo.toggle_indexing" })}
-											className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm transition hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60"
+											className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60"
 											onClick={() => onFix(result, { kind: row.kind, name: row.name, indexable: !row.indexable })}
 										>
 											{isFixBusy({ id: "seo.indexability", actionId: "seo.toggle_indexing" }) ? <span className="inline-block h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" aria-hidden /> : null}

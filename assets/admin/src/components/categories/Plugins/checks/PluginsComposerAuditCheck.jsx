@@ -17,16 +17,16 @@ export function PluginsComposerAuditCheck({ result, isFixBusy, onFix, composerAu
 						<div className="mt-5 flex flex-wrap gap-2 pt-5">
 							{(result.payload.missingWpackagistSlugs || []).length > 0 ? (
 								<span className="relative inline-flex">
-									<button type="button" disabled={isFixBusy(result)} onClick={() => { setComposerAuditBadgeDismissed((d) => ({ ...d, composer: true })); onFix(result); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60">
+									<button type="button" disabled={isFixBusy(result)} onClick={() => { setComposerAuditBadgeDismissed((d) => ({ ...d, composer: true })); onFix(result); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60">
 										{isFixBusy(result) ? <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" aria-hidden /> : null}
 										Mettre à jour composer.json
 									</button>
-									{!composerAuditBadgeDismissed.composer && (result.payload.missingWpackagistSlugs || []).length > 0 ? <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#0052FF] px-1 text-[10px] font-bold leading-none text-white shadow-sm">{(result.payload.missingWpackagistSlugs || []).length}</span> : null}
+									{!composerAuditBadgeDismissed.composer && (result.payload.missingWpackagistSlugs || []).length > 0 ? <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--au-primary)] px-1 text-[10px] font-bold leading-none text-white shadow-sm">{(result.payload.missingWpackagistSlugs || []).length}</span> : null}
 								</span>
 							) : null}
 							{(result.payload.missingGitignoreSlugs || []).length > 0 ? (
 								<span className="relative inline-flex">
-									<button type="button" disabled={isFixBusy({ ...result, actionId: "plugins.generate_gitignore_exceptions" })} onClick={() => { setComposerAuditBadgeDismissed((d) => ({ ...d, gitignore: true })); onFix({ ...result, actionId: "plugins.generate_gitignore_exceptions" }); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60">
+									<button type="button" disabled={isFixBusy({ ...result, actionId: "plugins.generate_gitignore_exceptions" })} onClick={() => { setComposerAuditBadgeDismissed((d) => ({ ...d, gitignore: true })); onFix({ ...result, actionId: "plugins.generate_gitignore_exceptions" }); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60">
 										{isFixBusy({ ...result, actionId: "plugins.generate_gitignore_exceptions" }) ? <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" aria-hidden /> : null}
 										Mettre à jour .gitignore
 									</button>

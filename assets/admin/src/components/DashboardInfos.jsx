@@ -58,7 +58,7 @@ export function DashboardInfos({
 							{mawSettingsUrl ? (
 								<a
 									href={mawSettingsUrl}
-									className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#0052FF]/30 bg-[#0052FF]/10 text-[#0052FF] shadow-sm transition hover:-translate-y-px hover:border-[#0052FF]/50 hover:bg-[#0052FF] hover:text-white hover:shadow-md"
+									className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[rgb(var(--au-primary-rgb)/0.3) bg-[rgb(var(--au-primary-rgb)/0.1) text-[var(--au-primary)] shadow-sm transition hover:-translate-y-px hover:border-[rgb(var(--au-primary-rgb)/0.5) hover:bg-[var(--au-primary)] hover:text-white hover:shadow-md"
 									title="Connexion MAW"
 									aria-label="Connexion MAW"
 								>
@@ -102,7 +102,7 @@ export function DashboardInfos({
 				/>
 			</div>
 			<button
-				className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0052FF] to-[#4D7CFF] px-6 py-3 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,82,255,0.35)] disabled:cursor-wait disabled:opacity-80"
+				className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--au-primary)] to-[var(--au-primary-light)] px-6 py-3 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgb(var(--au-primary-rgb)/0.35)] disabled:cursor-wait disabled:opacity-80"
 				onClick={onStart}
 				disabled={running}
 			>

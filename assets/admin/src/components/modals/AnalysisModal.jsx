@@ -11,11 +11,11 @@ function resolveStepTitle(event) {
 function AnalysisLoader() {
 	return (
 		<div className="relative mx-auto h-16 w-16" aria-hidden="true">
-			<div className="absolute inset-0 rounded-full border-2 border-[#0052FF]/15" />
-			<div className="au-analysis-loader-ring absolute inset-0 rounded-full border-2 border-transparent border-t-[#0052FF] border-r-[#4D7CFF]/70" />
-			<div className="absolute inset-[18px] rounded-full bg-[#0052FF]/10" />
+			<div className="absolute inset-0 rounded-full border-2 border-[rgb(var(--au-primary-rgb)/0.15)" />
+			<div className="au-analysis-loader-ring absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--au-primary)] border-r-[var(--au-primary-light)/0.7" />
+			<div className="absolute inset-[18px] rounded-full bg-[rgb(var(--au-primary-rgb)/0.1)" />
 			<div className="absolute inset-0 grid place-items-center">
-				<svg viewBox="0 0 24 24" className="h-5 w-5 fill-[#0052FF]" aria-hidden="true">
+				<svg viewBox="0 0 24 24" className="h-5 w-5 fill-[var(--au-primary)]" aria-hidden="true">
 					<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
 				</svg>
 			</div>
@@ -43,12 +43,12 @@ export function AnalysisModal({ open, event, cursor, total }) {
 			aria-labelledby="akyos-analysis-title"
 			aria-busy="true"
 		>
-			<div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-[#0052FF]/10">
-				<div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#0052FF]/[0.07] au-float" />
-				<div className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-[#4D7CFF]/10 au-float [animation-delay:-3s]" />
+			<div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-[rgb(var(--au-primary-rgb)/0.1)">
+				<div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[rgb(var(--au-primary-rgb)/0.07) au-float" />
+				<div className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-[rgb(var(--au-primary-rgb)/0.1) au-float [animation-delay:-3s]" />
 
-				<div className="relative border-b border-slate-100 bg-gradient-to-br from-[#0052FF]/[0.06] via-white to-white px-6 pb-5 pt-6">
-					<span className="mb-3 inline-flex items-center rounded-full border border-[#0052FF]/25 bg-[#0052FF]/[0.08] px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-[#0052FF]">
+				<div className="relative border-b border-slate-100 bg-gradient-to-br from-[rgb(var(--au-primary-rgb)/0.06) via-white to-white px-6 pb-5 pt-6">
+					<span className="mb-3 inline-flex items-center rounded-full border border-[rgb(var(--au-primary-rgb)/0.25) bg-[rgb(var(--au-primary-rgb)/0.08) px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--au-primary)]">
 						Analyse
 					</span>
 					<h2
@@ -84,10 +84,10 @@ export function AnalysisModal({ open, event, cursor, total }) {
 						aria-label="Progression de l'analyse"
 					>
 						{indeterminate ? (
-							<div className="au-analysis-progress-indeterminate absolute inset-y-0 left-0 w-2/5 min-w-[4.5rem] rounded-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF]" />
+							<div className="au-analysis-progress-indeterminate absolute inset-y-0 left-0 w-2/5 min-w-[4.5rem] rounded-full bg-gradient-to-r from-[var(--au-primary)] to-[var(--au-primary-light)]" />
 						) : (
 							<div
-								className={`au-analysis-progress-fill relative h-full rounded-full bg-gradient-to-r from-[#0052FF] via-[#2563EB] to-[#4D7CFF] shadow-[0_0_12px_rgba(0,82,255,0.35)] transition-[width] duration-500 ease-out ${progress > 0 ? "au-analysis-progress-shimmer" : ""}`}
+								className={`au-analysis-progress-fill relative h-full rounded-full bg-gradient-to-r from-[var(--au-primary)] via-[var(--au-primary-light)] to-[var(--au-primary-light)] shadow-[0_0_12px_rgb(var(--au-primary-rgb)/0.35)] transition-[width] duration-500 ease-out ${progress > 0 ? "au-analysis-progress-shimmer" : ""}`}
 								style={{ width: `${Math.max(progress, progress > 0 ? 4 : 0)}%` }}
 							/>
 						)}
@@ -100,7 +100,7 @@ export function AnalysisModal({ open, event, cursor, total }) {
 							{event ? (
 								<div className="space-y-2 text-center">
 									{category ? (
-										<span className="inline-flex items-center rounded-full border border-[#0052FF]/20 bg-white px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#0052FF]">
+										<span className="inline-flex items-center rounded-full border border-[rgb(var(--au-primary-rgb)/0.2) bg-white px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--au-primary)]">
 											{category}
 										</span>
 									) : null}

@@ -2,13 +2,25 @@ import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../services/api";
 import { notifyRestFailure } from "../../utils/restError";
 
+const GTM_TAG_IDS = new Set(["googletagmanager", "multiplegoogletagmanager"]);
+
+function allGcmJobIds(catalog) {
+	return catalog?.googleConsentMode?.jobs?.length
+		? catalog.googleConsentMode.jobs
+		: ["gcmadsuserdata", "gcmadstorage", "gcmanalyticsstorage", "gcmpersonalization", "gcmfunctionality", "gcmsecurity"];
+}
+
+function isGtmTag(id) {
+	return GTM_TAG_IDS.has(id);
+}
+
 function CodeBlock({ label, code, onCopy }) {
 	if (!code) return null;
 	return (
 		<div className="grid gap-1">
 			<div className="flex items-center justify-between gap-2">
 				<span className="text-xs font-medium text-slate-600">{label}</span>
-				<button type="button" onClick={() => onCopy(code)} className="text-xs font-semibold text-[#0052FF] hover:underline">
+				<button type="button" onClick={() => onCopy(code)} className="text-xs font-semibold text-[var(--au-primary)] hover:underline">
 					Copier
 				</button>
 			</div>
@@ -44,7 +56,7 @@ function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<button type="button" onClick={() => setOpen((v) => !v)} className="text-xs font-semibold text-slate-600 hover:text-[#0052FF]">
+					<button type="button" onClick={() => setOpen((v) => !v)} className="text-xs font-semibold text-slate-600 hover:text-[var(--au-primary)]">
 						{open ? "Masquer le code" : "Voir le code"}
 					</button>
 					<button type="button" onClick={onRemove} className="text-xs font-semibold text-red-600 hover:underline">
@@ -86,7 +98,33 @@ function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
 	);
 }
 
-export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteaucitron" }) {
+function GcmSignalCard({ id, def, onRemove, onCopy }) {
+	return (
+		<div className="ml-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm sm:ml-6">
+			<div className="flex flex-wrap items-start justify-between gap-2">
+				<div>
+					<p className="m-0 text-sm font-semibold text-slate-900">{def?.name || id}</p>
+					<p className="m-0 mt-0.5 text-xs text-slate-500">
+						Google Consent Mode v2 · tarteaucitron.job · {id}
+					</p>
+					<p className="m-0 mt-1 text-xs font-medium text-emerald-700">Ajouté automatiquement avec le GTM</p>
+				</div>
+				<div className="flex gap-2">
+					{def?.addCode ? (
+						<button type="button" onClick={() => onCopy(def.addCode)} className="text-xs font-semibold text-slate-600 hover:text-[var(--au-primary)]">
+							Copier le code
+						</button>
+					) : null}
+					<button type="button" onClick={onRemove} className="text-xs font-semibold text-red-600 hover:underline">
+						Retirer
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteaucitron", gcmJobsEnabled, onGcmJobsChange }) {
 	const [catalog, setCatalog] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [syncing, setSyncing] = useState(false);
@@ -113,6 +151,22 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- recharge quand le CMP change
 	}, [effectiveType]);
 
+	const allGcmJobs = useMemo(() => allGcmJobIds(catalog), [catalog]);
+	const enabledGcmJobs = useMemo(
+		() => (Array.isArray(gcmJobsEnabled) ? gcmJobsEnabled.filter((id) => allGcmJobs.includes(id)) : []),
+		[gcmJobsEnabled, allGcmJobs]
+	);
+	const hasGtm = useMemo(() => (tags || []).some((t) => isGtmTag(t.id)), [tags]);
+
+	useEffect(() => {
+		if (!hasGtm || !onGcmJobsChange || allGcmJobs.length === 0) {
+			return;
+		}
+		if (enabledGcmJobs.length === 0) {
+			onGcmJobsChange(allGcmJobs);
+		}
+	}, [hasGtm, enabledGcmJobs.length, allGcmJobs, onGcmJobsChange]);
+
 	const syncCatalog = () => {
 		if (!isTac) {
 			loadCatalog();
@@ -138,16 +192,20 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 	}, [services]);
 
 	const configuredIds = useMemo(() => new Set((tags || []).map((t) => t.id)), [tags]);
+	const gcmJobs = useMemo(() => new Set(catalog?.googleConsentMode?.jobs || []), [catalog]);
 
 	const filtered = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		return services.filter((s) => {
+			if (gcmJobs.has(s.id)) {
+				return false;
+			}
 			if (category && s.category !== category) return false;
 			if (configuredIds.has(s.id)) return false;
 			if (!q) return true;
 			return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q) || s.category.toLowerCase().includes(q);
 		});
-	}, [services, query, category, configuredIds]);
+	}, [services, query, category, configuredIds, gcmJobs]);
 
 	const copy = async (text) => {
 		try {
@@ -160,15 +218,27 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 
 	const addTag = (service) => {
 		onChange([...(tags || []), { id: service.id, params: {} }]);
+		if (isGtmTag(service.id)) {
+			onGcmJobsChange?.(allGcmJobIds(catalog));
+		}
 		setPickerOpen(false);
 		setQuery("");
-		addToast(`Service « ${service.name} » ajouté.`, "success");
+		const gcmHint = isGtmTag(service.id) ? " Consent Mode v2 activé (modifiable ci-dessus)." : "";
+		addToast(`Service « ${service.name} » ajouté.${gcmHint}`, "success");
 	};
 
 	const updateTag = (index, next) => {
 		const list = [...(tags || [])];
 		list[index] = next;
 		onChange(list);
+	};
+
+	const removeGcmJob = (id) => {
+		onGcmJobsChange?.(enabledGcmJobs.filter((jobId) => jobId !== id));
+	};
+
+	const addAllGcmJobs = () => {
+		onGcmJobsChange?.(allGcmJobs);
 	};
 
 	const removeTag = (index) => {
@@ -187,7 +257,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 				<p className="m-0 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">{catalog.hint}</p>
 			) : null}
 
-			<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#0052FF33] bg-[#0052FF08] px-4 py-3">
+			<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[rgb(var(--au-primary-rgb)/0.2)] bg-[rgb(var(--au-primary-rgb)/0.031)] px-4 py-3">
 				<div className="text-sm text-slate-600">
 					<p className="m-0">
 						Catalogue <strong className="text-slate-800">{services.length} services</strong>
@@ -210,7 +280,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 						type="button"
 						onClick={syncCatalog}
 						disabled={syncing}
-						className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-[#0052FF] bg-white px-3 py-1.5 text-xs font-semibold text-[#0052FF] hover:bg-[#0052FF08] disabled:opacity-50"
+						className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-[var(--au-primary)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--au-primary)] hover:bg-[rgb(var(--au-primary-rgb)/0.031)] disabled:opacity-50"
 					>
 						{syncing ? "Sync…" : "Synchroniser depuis CDN"}
 					</button>
@@ -232,15 +302,37 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 			) : (
 				<div className="grid gap-3">
 					{(tags || []).map((tag, index) => (
-						<TagCard
-							key={`${tag.id}-${index}`}
-							tag={tag}
-							def={byId.get(tag.id)}
-							tagMode={tagMode}
-							onChange={(next) => updateTag(index, next)}
-							onRemove={() => removeTag(index)}
-							onCopy={copy}
-						/>
+						<div key={`${tag.id}-${index}`} className="grid gap-2">
+							<TagCard
+								tag={tag}
+								def={byId.get(tag.id)}
+								tagMode={tagMode}
+								onChange={(next) => updateTag(index, next)}
+								onRemove={() => removeTag(index)}
+								onCopy={copy}
+							/>
+							{isGtmTag(tag.id)
+								? enabledGcmJobs.map((gcmId) => (
+										<GcmSignalCard
+											key={`gcm-${gcmId}`}
+											id={gcmId}
+											def={byId.get(gcmId)}
+											onRemove={() => removeGcmJob(gcmId)}
+											onCopy={copy}
+										/>
+									))
+								: null}
+							{isGtmTag(tag.id) && enabledGcmJobs.length < allGcmJobs.length ? (
+								<button
+									type="button"
+									onClick={addAllGcmJobs}
+									className="ml-3 text-left text-xs font-semibold text-[var(--au-primary)] hover:underline sm:ml-6"
+								>
+									Réactiver tous les signaux Consent Mode v2 ({allGcmJobs.length - enabledGcmJobs.length} manquant
+									{allGcmJobs.length - enabledGcmJobs.length > 1 ? "s" : ""})
+								</button>
+							) : null}
+						</div>
 					))}
 				</div>
 			)}
@@ -249,7 +341,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 				<button
 					type="button"
 					onClick={() => setPickerOpen((v) => !v)}
-					className="inline-flex min-h-10 items-center rounded-xl border border-[#0052FF] bg-white px-4 py-2 text-sm font-semibold text-[#0052FF] shadow-sm transition hover:bg-[#0052FF08]"
+					className="inline-flex min-h-10 items-center rounded-xl border border-[var(--au-primary)] bg-white px-4 py-2 text-sm font-semibold text-[var(--au-primary)] shadow-sm transition hover:bg-[rgb(var(--au-primary-rgb)/0.031)]"
 				>
 					{pickerOpen ? "Fermer le catalogue" : "+ Ajouter un service"}
 				</button>
@@ -324,7 +416,7 @@ export function ServiceTypePicker({ value, onChange, meta = {} }) {
 						type="button"
 						onClick={() => onChange(id)}
 						className={`rounded-xl border p-4 text-left transition ${
-							active ? "border-[#0052FF] bg-[#0052FF08] shadow-sm" : "border-slate-200 hover:border-[#0052FF33]"
+							active ? "border-[var(--au-primary)] bg-[rgb(var(--au-primary-rgb)/0.031)] shadow-sm" : "border-slate-200 hover:border-[rgb(var(--au-primary-rgb)/0.2)]"
 						}`}
 					>
 						<p className="m-0 text-sm font-semibold text-slate-900">{info.label || id}</p>
@@ -335,7 +427,7 @@ export function ServiceTypePicker({ value, onChange, meta = {} }) {
 								target="_blank"
 								rel="noopener noreferrer"
 								onClick={(e) => e.stopPropagation()}
-								className="mt-2 inline-block text-xs font-semibold text-[#0052FF] hover:underline"
+								className="mt-2 inline-block text-xs font-semibold text-[var(--au-primary)] hover:underline"
 							>
 								Documentation →
 							</a>

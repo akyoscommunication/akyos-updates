@@ -10,7 +10,7 @@ export function SeoSitemapSection({ sitemapUrl }) {
 				href={sitemapUrl}
 				target="_blank"
 				rel="noreferrer"
-				className="ml-3 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d]"
+				className="ml-3 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)]"
 			>
 				Ouvrir le sitemap
 			</a>

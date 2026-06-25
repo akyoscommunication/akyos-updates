@@ -26,7 +26,7 @@ export function ReportCategoryTabs({ orderedCategories, categories, safeStep, on
 				const tabRightPadding = categoryAllClear || hasPluginWarnings ? "pr-14" : "";
 				return (
 					<button
-						className={`relative mb-2 w-full rounded-xl border p-3 text-left ${tabRightPadding} ${safeStep === name ? "border-[#0052FF]" : "border-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+						className={`relative mb-2 w-full rounded-xl border p-3 text-left ${tabRightPadding} ${safeStep === name ? "border-[var(--au-primary)]" : "border-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
 							}`}
 						key={name}
 						onClick={() => onStepChange(name)}
@@ -50,7 +50,7 @@ export function ReportCategoryTabs({ orderedCategories, categories, safeStep, on
 							</span>
 						) : null}
 						<div className="mb-2 flex items-center gap-2">
-							<span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#0052FF14] font-mono text-[11px] text-[#0052FF]">{String(index + 1).padStart(2, "0")}</span>
+							<span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[rgb(var(--au-primary-rgb)/0.08)] font-mono text-[11px] text-[var(--au-primary)]">{String(index + 1).padStart(2, "0")}</span>
 							<span className="text-[15px] font-semibold text-slate-900">{name}</span>
 						</div>
 						<div className="flex flex-wrap gap-1.5">

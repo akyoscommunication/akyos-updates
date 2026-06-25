@@ -21,7 +21,7 @@ export function buildDefaultAction(result, isFixBusy, onFix, label, onBeforeClic
 		<button
 			type="button"
 			disabled={isFixBusy(result)}
-			className="mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60"
+			className="mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60"
 			onClick={() => {
 				if (typeof onBeforeClick === "function") {
 					onBeforeClick();

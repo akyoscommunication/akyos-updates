@@ -13,7 +13,7 @@ export function DefenderRecaptchaCheck({ result, recaptchaSiteKey, setRecaptchaS
 				<input type="text" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900" value={recaptchaSecretKey} onChange={(event) => setRecaptchaSecretKey(event.target.value)} placeholder="Secret key" />
 				<button
 					type="button"
-					className="mt-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60"
+					className="mt-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60"
 					onClick={() => onFix(result, { ...(result.payload || {}), siteKey: recaptchaSiteKey, secretKey: recaptchaSecretKey })}
 					disabled={!recaptchaSiteKey.trim() || !recaptchaSecretKey.trim() || isFixBusy(result)}
 				>

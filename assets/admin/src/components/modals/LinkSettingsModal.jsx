@@ -101,7 +101,7 @@ export function LinkSettingsForm({ form, setForm, busy, save, copyText }) {
 					</div>
 					<button
 						type="button"
-						className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[#0052FF4d] disabled:opacity-60"
+						className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:opacity-60"
 						disabled={!form.api_key || busy !== ""}
 						onClick={() => copyText(form.api_key || "", "Clé API copiée.")}
 					>
@@ -122,7 +122,7 @@ export function LinkSettingsForm({ form, setForm, busy, save, copyText }) {
 					type="button"
 					disabled={busy !== ""}
 					onClick={() => save({ register: true })}
-					className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#0052FF] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0047db] disabled:opacity-60"
+					className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--au-primary)] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--au-primary-hover)] disabled:opacity-60"
 				>
 					{busy === "link" ? "Liaison…" : "Enregistrer et lier à MAW"}
 				</button>
@@ -130,7 +130,7 @@ export function LinkSettingsForm({ form, setForm, busy, save, copyText }) {
 					type="button"
 					disabled={busy !== ""}
 					onClick={() => save({ regenerateApiKey: true })}
-					className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[#0052FF4d] disabled:opacity-60"
+					className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:opacity-60"
 				>
 					{busy === "regen" ? "Régénération…" : "Régénérer la clé API"}
 				</button>

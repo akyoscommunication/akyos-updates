@@ -3,12 +3,12 @@
 namespace AkyosUpdates\Controller;
 
 use AkyosUpdates\Service\CmpCatalogService;
+use AkyosUpdates\Service\TarteaucitronCatalogService;
 use AkyosUpdates\Service\CompanyLookupService;
 use AkyosUpdates\Service\HostLookupService;
 use AkyosUpdates\Service\JsonService;
 use AkyosUpdates\Service\RgpdLegalPagesService;
 use AkyosUpdates\Service\RgpdSettingsService;
-use AkyosUpdates\Service\TarteaucitronCatalogService;
 use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -194,6 +194,7 @@ final class RgpdController
                 'cdnBase' => $all['cdnBase'],
                 'categories' => $all['categories'],
                 'services' => $this->cmpCatalog->forUi($type),
+                'googleConsentMode' => TarteaucitronCatalogService::googleConsentModeMeta(),
             ];
         });
     }
@@ -216,6 +217,7 @@ final class RgpdController
                 'cdnBase' => $all['cdnBase'],
                 'categories' => $all['categories'],
                 'services' => $this->cmpCatalog->forUi(RgpdSettingsService::SERVICE_TARTEAUCITRON),
+                'googleConsentMode' => TarteaucitronCatalogService::googleConsentModeMeta(),
             ];
         });
     }

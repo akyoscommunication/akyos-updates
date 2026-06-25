@@ -12,7 +12,7 @@ export function SmushNextGenCheck({ result, nextGenEnabled, setNextGenEnabled, n
 					<button
 						type="button"
 						onClick={() => setNextGenEnabled((previous) => !previous)}
-						className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${nextGenEnabled ? "bg-[#0052FF]" : "bg-slate-300"}`}
+						className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${nextGenEnabled ? "bg-[var(--au-primary)]" : "bg-slate-300"}`}
 					>
 						<span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${nextGenEnabled ? "translate-x-5" : "translate-x-1"}`} />
 					</button>
@@ -34,7 +34,7 @@ export function SmushNextGenCheck({ result, nextGenEnabled, setNextGenEnabled, n
 					<button
 						type="button"
 						disabled={isFixBusy(result)}
-						className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60"
+						className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60"
 						onClick={() => onFix(result, { ...(result.payload || {}), nextGenEnabled, activeFormat: nextGenFormat })}
 					>
 						{isFixBusy(result) ? <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" aria-hidden /> : null}

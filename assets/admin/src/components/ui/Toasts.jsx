@@ -5,7 +5,7 @@ export function Toasts({ items }) {
 				<div
 					key={item.id}
 					className={`min-w-[280px] rounded-xl px-4 py-3 text-white shadow-lg ${
-						item.kind === "error" ? "bg-gradient-to-br from-red-500 to-rose-400" : "bg-gradient-to-br from-[#0052FF] to-[#4D7CFF]"
+						item.kind === "error" ? "bg-gradient-to-br from-red-500 to-rose-400" : "bg-gradient-to-br from-[var(--au-primary)] to-[var(--au-primary-light)]"
 					}`}
 				>
 					{item.message}

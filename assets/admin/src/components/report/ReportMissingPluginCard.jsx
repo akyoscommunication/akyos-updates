@@ -20,7 +20,7 @@ export function ReportMissingPluginCard({ title, description, activateFile, acti
 							type="button"
 							disabled={activating}
 							onClick={() => onActivate(activateFile)}
-							className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#0052FF] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0047db] disabled:opacity-50"
+							className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--au-primary)] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--au-primary-hover)] disabled:opacity-50"
 						>
 							{activating ? "Activation…" : activateButtonLabel || "Activer le plugin"}
 						</button>

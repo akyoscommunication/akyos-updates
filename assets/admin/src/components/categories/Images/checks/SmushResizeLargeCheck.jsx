@@ -27,7 +27,7 @@ export function SmushResizeLargeCheck({
 					<button
 						type="button"
 						onClick={() => setResizeLargeEnabled((previous) => !previous)}
-						className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${resizeLargeEnabled ? "bg-[#0052FF]" : "bg-slate-300"
+						className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${resizeLargeEnabled ? "bg-[var(--au-primary)]" : "bg-slate-300"
 							}`}
 						aria-pressed={resizeLargeEnabled}
 					>
@@ -64,7 +64,7 @@ export function SmushResizeLargeCheck({
 					<button
 						type="button"
 						disabled={isFixBusy({ id: "images.smush_resize_large", actionId: "images.smush_apply_resize_large" })}
-						className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60"
+						className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60"
 						onClick={() =>
 							onFix(
 								{ id: "images.smush_resize_large", actionId: "images.smush_apply_resize_large" },

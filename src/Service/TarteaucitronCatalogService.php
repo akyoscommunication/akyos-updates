@@ -15,7 +15,7 @@ final class TarteaucitronCatalogService
     private const CACHE_TTL = DAY_IN_SECONDS;
     private const CDN_PACKAGE = 'tarteaucitronjs';
 
-    /** Jobs Google Consent Mode poussés avec GTM. */
+    /** Jobs Google Consent Mode v2 (signaux tarteaucitron). */
     public const GTM_GCM_JOBS = [
         'gcmadsuserdata',
         'gcmadstorage',
@@ -24,6 +24,22 @@ final class TarteaucitronCatalogService
         'gcmfunctionality',
         'gcmsecurity',
     ];
+
+    /** Présence d'un conteneur GTM → injection possible des jobs GCM cochés. */
+    public const GCM_TRIGGER_TAG_IDS = [
+        'googletagmanager',
+        'multiplegoogletagmanager',
+    ];
+
+    /** @return array{autoInject: bool, jobs: list<string>, triggerTagIds: list<string>} */
+    public static function googleConsentModeMeta(): array
+    {
+        return [
+            'autoInject' => true,
+            'jobs' => self::GTM_GCM_JOBS,
+            'triggerTagIds' => self::GCM_TRIGGER_TAG_IDS,
+        ];
+    }
 
     /** @var array<string, string> */
     private const TYPE_LABELS = [

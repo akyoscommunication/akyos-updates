@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../services/api";
 import { notifyRestFailure } from "../../utils/restError";
 import { ServiceTypePicker, CmpTagsEditor } from "./TarteaucitronTagsEditor";
+import { RgpdThemeFields } from "./RgpdThemeFields";
 
 const ACTIVE_RGPD_SECTION_STORAGE_KEY = "akyos_updates_rgpd_section";
 
@@ -49,7 +50,7 @@ function FieldGroup({ title, description, children, accent = false }) {
 	return (
 		<div
 			className={`rounded-xl border p-4 sm:p-5 ${
-				accent ? "border-[#0052FF33] bg-[#0052FF08]" : "border-slate-200 bg-slate-50/60"
+				accent ? "border-[rgb(var(--au-primary-rgb)/0.2)] bg-[rgb(var(--au-primary-rgb)/0.031)]" : "border-slate-200 bg-slate-50/60"
 			}`}
 		>
 			{title ? (
@@ -69,7 +70,7 @@ function CollapsibleFieldGroup({ title, description, accent = false, defaultOpen
 	return (
 		<div
 			className={`rounded-xl border ${
-				accent ? "border-[#0052FF33] bg-[#0052FF08]" : "border-slate-200 bg-slate-50/60"
+				accent ? "border-[rgb(var(--au-primary-rgb)/0.2)] bg-[rgb(var(--au-primary-rgb)/0.031)]" : "border-slate-200 bg-slate-50/60"
 			}`}
 		>
 			<button
@@ -131,7 +132,7 @@ function TextField({ label, value, onChange, placeholder, hint, type = "text", o
 			<span className="text-sm font-medium text-slate-700">{label}</span>
 			<input
 				type={type}
-				className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#0052FF] focus:outline-none focus:ring-1 focus:ring-[#0052FF]"
+				className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[var(--au-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--au-primary)]"
 				value={value ?? ""}
 				placeholder={placeholder || ""}
 				onChange={(e) => onChange(e.target.value)}
@@ -154,7 +155,7 @@ function SwitchField({ label, checked, onChange, hint }) {
 				role="switch"
 				aria-checked={Boolean(checked)}
 				onClick={() => onChange(!checked)}
-				className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition ${checked ? "bg-[#0052FF]" : "bg-slate-300"}`}
+				className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition ${checked ? "bg-[var(--au-primary)]" : "bg-slate-300"}`}
 			>
 				<span
 					className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
@@ -171,7 +172,7 @@ function SelectField({ label, value, onChange, options, hint }) {
 		<label className="grid gap-1.5">
 			<span className="text-sm font-medium text-slate-700">{label}</span>
 			<select
-				className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#0052FF] focus:outline-none focus:ring-1 focus:ring-[#0052FF]"
+				className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[var(--au-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--au-primary)]"
 				value={value ?? ""}
 				onChange={(e) => onChange(e.target.value)}
 			>
@@ -217,7 +218,7 @@ function StatusBanner({ form }) {
 				</span>
 			) : null}
 			{form.service_type ? (
-				<span className="inline-flex items-center rounded-full bg-[#0052FF0d] px-3 py-1 text-xs font-medium text-[#0052FF]">
+				<span className="inline-flex items-center rounded-full bg-[rgb(var(--au-primary-rgb)/0.05)] px-3 py-1 text-xs font-medium text-[var(--au-primary)]">
 					{SERVICE_LABELS[form.service_type] || form.service_type}
 				</span>
 			) : null}
@@ -389,7 +390,7 @@ export function RgpdSettingsPanel({ addToast }) {
 					type="button"
 					onClick={migrate}
 					disabled={busy !== ""}
-					className="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#0052FF4d] disabled:opacity-50"
+					className="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:opacity-50"
 				>
 					{busy === "migrate" ? "Migration…" : "Migrer depuis aky-gdpr"}
 				</button>
@@ -407,14 +408,14 @@ export function RgpdSettingsPanel({ addToast }) {
 							onClick={() => setActiveSection(s.id)}
 							className={`relative mb-2 flex w-full flex-col gap-0.5 rounded-xl border p-3 text-left transition ${
 								activeSection === s.id
-									? "border-[#0052FF] bg-[#0052FF08] shadow-sm"
-									: "border-slate-200 hover:-translate-y-0.5 hover:border-[#0052FF33] hover:shadow-md"
+									? "border-[var(--au-primary)] bg-[rgb(var(--au-primary-rgb)/0.031)] shadow-sm"
+									: "border-slate-200 hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.2)] hover:shadow-md"
 							}`}
 						>
 							<span className="flex items-center gap-2">
 								<span
 									className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] ${
-										activeSection === s.id ? "bg-[#0052FF] text-white" : "bg-[#0052FF14] text-[#0052FF]"
+										activeSection === s.id ? "bg-[var(--au-primary)] text-white" : "bg-[rgb(var(--au-primary-rgb)/0.08)] text-[var(--au-primary)]"
 									}`}
 								>
 									{String(index + 1).padStart(2, "0")}
@@ -471,6 +472,8 @@ export function RgpdSettingsPanel({ addToast }) {
 								/>
 							</FieldGroup>
 
+							<RgpdThemeFields form={form} set={set} />
+
 							{form.service_type === "tarteaucitron" || form.service_type === "" ? (
 								<FieldGroup title="Mise à jour tarteaucitron" description="jsDelivr sert la dernière 1.x ; le catalogue admin se sync depuis le CDN.">
 									<SwitchField
@@ -508,7 +511,7 @@ export function RgpdSettingsPanel({ addToast }) {
 										type="button"
 										onClick={lookup}
 										disabled={busy !== ""}
-										className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[#0052FF] bg-[#0052FF] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0047db] disabled:opacity-50"
+										className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--au-primary-hover)] disabled:opacity-50"
 									>
 										{busy === "lookup" ? "Recherche…" : "Récupérer"}
 									</button>
@@ -565,7 +568,7 @@ export function RgpdSettingsPanel({ addToast }) {
 								title="Hébergeur"
 								description="Détection automatique depuis ce site WordPress — ouvrir pour corriger les champs."
 								toolbar={
-									<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#0052FF33] bg-[#0052FF08] px-4 py-3">
+									<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[rgb(var(--au-primary-rgb)/0.2)] bg-[rgb(var(--au-primary-rgb)/0.031)] px-4 py-3">
 										<p className="m-0 text-sm text-slate-600">
 											Identifie OVH, o2switch, IONOS, Gandi, Scaleway et autres hébergeurs courants.
 										</p>
@@ -573,7 +576,7 @@ export function RgpdSettingsPanel({ addToast }) {
 											type="button"
 											onClick={hostLookup}
 											disabled={busy !== ""}
-											className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[#0052FF] bg-[#0052FF] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0047db] disabled:opacity-50"
+											className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--au-primary-hover)] disabled:opacity-50"
 										>
 											{busy === "host-lookup" ? "Détection…" : "Détecter l'hébergeur"}
 										</button>
@@ -629,12 +632,17 @@ export function RgpdSettingsPanel({ addToast }) {
 							title="Mesure & e-commerce"
 							description="Tags injectés après consentement (TarteAuCitron) ou directement (Matomo sans cookie)."
 						>
-							<FieldGroup title="Analytics & tags">
+							<FieldGroup
+								title="Analytics & tags"
+								description="Services chargés après consentement. Ajouter un GTM coche automatiquement le Consent Mode v2 (décochable)."
+							>
 								<CmpTagsEditor
 									tags={tacTags}
 									onChange={setTags}
 									addToast={addToast}
 									serviceType={form.service_type || "tarteaucitron"}
+									gcmJobsEnabled={Array.isArray(form.gcm_jobs_enabled) ? form.gcm_jobs_enabled : []}
+									onGcmJobsChange={(jobs) => set("gcm_jobs_enabled", jobs)}
 								/>
 							</FieldGroup>
 
@@ -674,7 +682,7 @@ export function RgpdSettingsPanel({ addToast }) {
 					type="button"
 					onClick={save}
 					disabled={busy !== ""}
-					className="ml-auto inline-flex min-h-11 items-center rounded-xl border border-[#0052FF] bg-[#0052FF] px-6 py-2.5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0047db] disabled:opacity-50"
+					className="ml-auto inline-flex min-h-11 items-center rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-6 py-2.5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--au-primary-hover)] disabled:opacity-50"
 				>
 					{busy === "save" ? "Enregistrement…" : "Enregistrer les réglages"}
 				</button>

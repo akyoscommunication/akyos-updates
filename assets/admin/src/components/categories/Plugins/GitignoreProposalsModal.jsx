@@ -19,7 +19,7 @@ export function GitignoreProposalsModal({ open, content, installationType, onClo
 					</div>
 					<button
 						type="button"
-						className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[#0052FF4d]"
+						className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)]"
 						onClick={onClose}
 					>
 						Fermer
@@ -41,7 +41,7 @@ export function GitignoreProposalsModal({ open, content, installationType, onClo
 					<button
 						type="button"
 						disabled={!hasLines}
-						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#0052FF] bg-[#0052FF] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0047db] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-200 disabled:text-slate-500"
+						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--au-primary)] bg-[var(--au-primary)] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--au-primary-hover)] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-200 disabled:text-slate-500"
 						onClick={onCopy}
 					>
 						Copier le texte

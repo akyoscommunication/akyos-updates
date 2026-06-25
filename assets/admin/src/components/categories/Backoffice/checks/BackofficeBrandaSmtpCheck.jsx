@@ -32,7 +32,7 @@ export function BackofficeBrandaSmtpCheck({ result, ctx }) {
 									<div className="min-w-0"><label className="mb-1 block text-xs font-semibold text-slate-600">SMTP Password</label><input type="password" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900" value={smtpPassword} onChange={(e) => setSmtpPassword(e.target.value)} placeholder={payload.passwordSet ? "Laisser vide pour conserver" : ""} autoComplete="new-password" /></div>
 								</div>
 							</div>
-							<button type="button" className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60" disabled={!smtpFromEmail.trim() || !smtpHost.trim() || isFixBusy(result)} onClick={() => onFix(result, { fromEmail: smtpFromEmail.trim(), fromName: smtpFromName.trim(), smtpHost: smtpHost.trim(), smtpPort: smtpPort.trim(), smtpUsername: smtpUser.trim(), smtpPassword, smtpEncryption })}>
+							<button type="button" className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60" disabled={!smtpFromEmail.trim() || !smtpHost.trim() || isFixBusy(result)} onClick={() => onFix(result, { fromEmail: smtpFromEmail.trim(), fromName: smtpFromName.trim(), smtpHost: smtpHost.trim(), smtpPort: smtpPort.trim(), smtpUsername: smtpUser.trim(), smtpPassword, smtpEncryption })}>
 								{isFixBusy(result) ? <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" aria-hidden /> : null}
 								Enregistrer SMTP
 							</button>
@@ -41,7 +41,7 @@ export function BackofficeBrandaSmtpCheck({ result, ctx }) {
 							<div className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Email de test</div>
 							<label className="mb-1 block text-xs font-semibold text-slate-600">Destinataire</label>
 							<input type="email" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900" value={smtpTestTo} onChange={(e) => setSmtpTestTo(e.target.value)} placeholder="email@exemple.com" />
-							<button type="button" className="mt-2 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d] disabled:cursor-not-allowed disabled:opacity-60" disabled={!smtpTestTo.trim()} onClick={() => onFix({ id: "backoffice.branda_smtp", actionId: "backoffice.branda_send_test_email" }, { to: smtpTestTo.trim() })}>
+							<button type="button" className="mt-2 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)] disabled:cursor-not-allowed disabled:opacity-60" disabled={!smtpTestTo.trim()} onClick={() => onFix({ id: "backoffice.branda_smtp", actionId: "backoffice.branda_send_test_email" }, { to: smtpTestTo.trim() })}>
 								Envoyer un email de test
 							</button>
 						</div>

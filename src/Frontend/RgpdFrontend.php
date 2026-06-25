@@ -50,6 +50,7 @@ final class RgpdFrontend
             [self::TAC_STYLE_HANDLE],
             AKYOS_UPDATES_VERSION
         );
+        wp_add_inline_style(self::STYLE_HANDLE, $this->settings->themeCssBlock());
 
         $settings = $this->settings->get();
         if (($settings['service_type'] ?? '') !== RgpdSettingsService::SERVICE_TARTEAUCITRON) {
@@ -83,7 +84,10 @@ final class RgpdFrontend
         );
 
         $tags = $this->tagRenderer()->resolveTags($settings);
-        $tagScripts = $this->tagRenderer()->renderFooterScripts(RgpdSettingsService::SERVICE_TARTEAUCITRON, $tags);
+        $gcmJobs = is_array($settings['gcm_jobs_enabled'] ?? null)
+            ? $settings['gcm_jobs_enabled']
+            : RgpdSettingsService::defaultGcmJobsEnabled();
+        $tagScripts = $this->tagRenderer()->renderFooterScripts(RgpdSettingsService::SERVICE_TARTEAUCITRON, $tags, $gcmJobs);
         if ($tagScripts !== []) {
             wp_add_inline_script(
                 self::TAC_HANDLE,

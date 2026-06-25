@@ -13,7 +13,7 @@ export function ComposerJsonModal({ open, content, targetPath, onClose, onCopy }
 					</div>
 					<button
 						type="button"
-						className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[#0052FF4d]"
+						className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[rgb(var(--au-primary-rgb)/0.3)]"
 						onClick={onClose}
 					>
 						Fermer
@@ -25,7 +25,7 @@ export function ComposerJsonModal({ open, content, targetPath, onClose, onCopy }
 				<div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-5 py-4">
 					<button
 						type="button"
-						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0052FF4d]"
+						className="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:border-[rgb(var(--au-primary-rgb)/0.3)]"
 						onClick={onCopy}
 					>
 						Copier le fichier

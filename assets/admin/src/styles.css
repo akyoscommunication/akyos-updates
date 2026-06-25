@@ -7,6 +7,13 @@
 	body {
 		font-family: "Inter", sans-serif;
 	}
+
+	.akyos-updates-shell {
+		--au-primary: #0052ff;
+		--au-primary-hover: #0047db;
+		--au-primary-light: #4d7cff;
+		--au-primary-rgb: 0, 82, 255;
+	}
 }
 
 @layer utilities {

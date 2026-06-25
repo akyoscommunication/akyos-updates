@@ -64,10 +64,10 @@ final class CmpTagRenderer
      * @param list<array{id: string, params: array<string, string>}> $tags
      * @return list<string>
      */
-    public function renderFooterScripts(string $serviceType, array $tags): array
+    public function renderFooterScripts(string $serviceType, array $tags, array $gcmJobsEnabled = []): array
     {
         if ($serviceType === RgpdSettingsService::SERVICE_TARTEAUCITRON) {
-            return $this->tacTags->renderScripts($tags);
+            return $this->tacTags->renderScripts($tags, $gcmJobsEnabled);
         }
 
         if ($serviceType === RgpdSettingsService::SERVICE_MATOMO_NO_COOKIE) {

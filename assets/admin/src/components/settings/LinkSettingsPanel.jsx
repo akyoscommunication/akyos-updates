@@ -7,7 +7,7 @@ export function LinkSettingsPanel({ addToast }) {
 		<div className="mx-auto max-w-3xl">
 			<div className="mb-5">
 				<h2 className="m-0 text-2xl font-semibold text-slate-900">Réglages</h2>
-				<p className="m-0 mt-1 text-sm text-slate-500">Connexion à l&apos;outil MAW et paramètres du site.</p>
+				<p className="m-0 mt-1 text-sm text-slate-500">Connexion à l&apos;outil MAW.</p>
 			</div>
 
 			<section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">

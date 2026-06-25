@@ -142,7 +142,108 @@ final class RgpdSettingsService
 
             /** Charger tarteaucitron depuis jsDelivr (@1 = dernière 1.x). */
             'tac_use_cdn' => true,
+
+            /** Couleurs bannière / panneau cookies (front). */
+            'theme_primary' => '#0052FF',
+            'theme_primary_light' => '#4D7CFF',
+
+            /** Signaux GCM v2 cochés (activés auto à l'ajout d'un GTM). */
+            'gcm_jobs_enabled' => [],
         ];
+    }
+
+    /** @return list<string> */
+    public static function defaultGcmJobsEnabled(): array
+    {
+        return [];
+    }
+
+    /** @return array{primary: string, primary_hover: string, primary_soft: string} */
+    public function resolvedTheme(): array
+    {
+        $settings = $this->get();
+        $primary = self::sanitizeHex($settings['theme_primary'] ?? '') ?? '#0052FF';
+        $primaryLight = self::sanitizeHex($settings['theme_primary_light'] ?? '') ?? self::mixHex($primary, '#FFFFFF', 0.35);
+        [$r, $g, $b] = self::hexToRgb($primary);
+
+        return [
+            'primary' => $primary,
+            'primary_hover' => self::darkenHex($primary, 0.08),
+            'primary_light' => $primaryLight,
+            'primary_soft' => sprintf('rgba(%d, %d, %d, 0.08)', $r, $g, $b),
+        ];
+    }
+
+    public function themeCssBlock(): string
+    {
+        $t = $this->resolvedTheme();
+
+        return sprintf(
+            ':root{--aky-rgpd-primary:%1$s;--aky-rgpd-primary-hover:%2$s;--aky-rgpd-primary-soft:%3$s;}',
+            $t['primary'],
+            $t['primary_hover'],
+            $t['primary_soft']
+        );
+    }
+
+    private static function sanitizeHex(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        if ($value[0] !== '#') {
+            $value = '#' . $value;
+        }
+
+        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $value)) {
+            return null;
+        }
+
+        return strtoupper($value);
+    }
+
+    /** @return array{0: int, 1: int, 2: int} */
+    private static function hexToRgb(string $hex): array
+    {
+        $hex = ltrim($hex, '#');
+
+        return [
+            hexdec(substr($hex, 0, 2)),
+            hexdec(substr($hex, 2, 2)),
+            hexdec(substr($hex, 4, 2)),
+        ];
+    }
+
+    private static function rgbToHex(int $r, int $g, int $b): string
+    {
+        return sprintf('#%02X%02X%02X', max(0, min(255, $r)), max(0, min(255, $g)), max(0, min(255, $b)));
+    }
+
+    private static function darkenHex(string $hex, float $amount): string
+    {
+        [$r, $g, $b] = self::hexToRgb($hex);
+        $factor = 1 - max(0, min(1, $amount));
+
+        return self::rgbToHex((int) round($r * $factor), (int) round($g * $factor), (int) round($b * $factor));
+    }
+
+    private static function mixHex(string $hexA, string $hexB, float $ratio): string
+    {
+        [$r1, $g1, $b1] = self::hexToRgb($hexA);
+        [$r2, $g2, $b2] = self::hexToRgb($hexB);
+        $ratio = max(0, min(1, $ratio));
+
+        return self::rgbToHex(
+            (int) round($r1 + ($r2 - $r1) * $ratio),
+            (int) round($g1 + ($g2 - $g1) * $ratio),
+            (int) round($b1 + ($b2 - $b1) * $ratio)
+        );
     }
 
     /** @return array<string, array{label: string, description: string, docUrl: string, tagMode: string}> */
@@ -334,6 +435,24 @@ final class RgpdSettingsService
         }
         $out['tac_tags'] = $tags;
 
+        $legacyAppearance = get_option('akyos_updates_appearance', []);
+        $legacyPrimary = is_array($legacyAppearance) ? self::sanitizeHex($legacyAppearance['primary'] ?? null) : null;
+        $legacyLight = is_array($legacyAppearance) ? self::sanitizeHex($legacyAppearance['primary_light'] ?? null) : null;
+
+        $out['theme_primary'] = self::sanitizeHex($input['theme_primary'] ?? null)
+            ?? $legacyPrimary
+            ?? self::sanitizeHex($defaults['theme_primary'])
+            ?? '#0052FF';
+        $out['theme_primary_light'] = self::sanitizeHex($input['theme_primary_light'] ?? null)
+            ?? $legacyLight
+            ?? self::sanitizeHex($defaults['theme_primary_light'])
+            ?? '#4D7CFF';
+
+        $out['gcm_jobs_enabled'] = self::normalizeGcmJobs(
+            $input['gcm_jobs_enabled'] ?? null,
+            self::tagsIncludeGtm($out['tac_tags'])
+        );
+
         foreach ($tagService->syncLegacyFields($tags) as $legacyKey => $legacyValue) {
             if ($legacyKey === 'youtube') {
                 $out['youtube'] = (bool) $legacyValue;
@@ -345,5 +464,36 @@ final class RgpdSettingsService
         }
 
         return $out;
+    }
+
+    /** @return list<string> */
+    private static function normalizeGcmJobs(mixed $raw, bool $hasGtm = false): array
+    {
+        $allowed = TarteaucitronCatalogService::GTM_GCM_JOBS;
+        if (! is_array($raw)) {
+            return $hasGtm ? $allowed : [];
+        }
+
+        $out = [];
+        foreach ($raw as $id) {
+            $id = sanitize_key((string) $id);
+            if ($id !== '' && in_array($id, $allowed, true) && ! in_array($id, $out, true)) {
+                $out[] = $id;
+            }
+        }
+
+        return $out;
+    }
+
+    /** @param list<array{id: string, params: array<string, string>}> $tags */
+    private static function tagsIncludeGtm(array $tags): bool
+    {
+        foreach ($tags as $tag) {
+            if (in_array((string) ($tag['id'] ?? ''), TarteaucitronCatalogService::GCM_TRIGGER_TAG_IDS, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
