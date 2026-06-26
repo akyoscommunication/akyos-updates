@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../services/api";
 import { notifyRestFailure } from "../../utils/restError";
 import { useClipboardCopy } from "../../hooks/useClipboardCopy";
+import { fieldInputClass } from "../rgpd/ui";
 
 function bootstrapLink() {
 	const link = window.AKYOS_UPDATES_BOOTSTRAP?.link;
@@ -10,16 +11,16 @@ function bootstrapLink() {
 
 function TextField({ label, value, onChange, hint, type = "text", readOnly = false }) {
 	return (
-		<label className="grid gap-1.5">
-			<span className="text-sm font-semibold text-slate-900">{label}</span>
+		<label className="au-field-shell">
+			<span className="au-field-label">{label}</span>
 			<input
 				type={type}
 				value={value}
 				readOnly={readOnly}
 				onChange={(e) => onChange(e.target.value)}
-				className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm read-only:bg-slate-50"
+				className={fieldInputClass}
 			/>
-			{hint ? <span className="text-xs text-slate-500">{hint}</span> : null}
+			{hint ? <p className="au-field-hint">{hint}</p> : null}
 		</label>
 	);
 }

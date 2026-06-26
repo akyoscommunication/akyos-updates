@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../services/api";
 import { notifyRestFailure } from "../../utils/restError";
+import { fieldInputClass, fieldSelectClass } from "./ui";
 
 const GTM_TAG_IDS = new Set(["googletagmanager", "multiplegoogletagmanager"]);
 
@@ -70,11 +71,11 @@ function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
 					<p className="m-0 text-xs text-slate-500">Aucun paramètre requis.</p>
 				) : (
 					fields.map((field) => (
-						<label key={field.key} className="grid gap-1">
-							<span className="text-xs font-medium text-slate-700">{field.label || field.key}</span>
+						<label key={field.key} className="grid gap-2">
+							<span className="text-[13px] font-semibold text-slate-800">{field.label || field.key}</span>
 							<input
 								type={field.type === "url" ? "url" : "text"}
-								className="min-h-9 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+								className={fieldInputClass}
 								value={tag.params?.[field.key] ?? ""}
 								onChange={(e) => setParam(field.key, e.target.value)}
 								placeholder={field.key === "multiplegoogletagmanagerId" ? "GTM-XXXX|GTM-YYYY" : ""}
@@ -351,13 +352,13 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 						<div className="flex flex-col gap-2 sm:flex-row">
 							<input
 								type="search"
-								className="min-h-10 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+								className={`${fieldInputClass} flex-1`}
 								placeholder="Rechercher un service (GTM, Matomo, Clarity…)"
 								value={query}
 								onChange={(e) => setQuery(e.target.value)}
 							/>
 							<select
-								className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm sm:w-56"
+								className={fieldSelectClass}
 								value={category}
 								onChange={(e) => setCategory(e.target.value)}
 							>
@@ -415,23 +416,40 @@ export function ServiceTypePicker({ value, onChange, meta = {} }) {
 						key={id}
 						type="button"
 						onClick={() => onChange(id)}
-						className={`rounded-xl border p-4 text-left transition ${
-							active ? "border-[var(--au-primary)] bg-[rgb(var(--au-primary-rgb)/0.031)] shadow-sm" : "border-slate-200 hover:border-[rgb(var(--au-primary-rgb)/0.2)]"
+						className={`rounded-2xl border p-4 text-left shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-all ${
+							active
+								? "border-[var(--au-primary)] bg-[rgb(var(--au-primary-rgb)/0.04)] ring-[3px] ring-[rgb(var(--au-primary-rgb)/0.12)]"
+								: "border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-sm"
 						}`}
 					>
-						<p className="m-0 text-sm font-semibold text-slate-900">{info.label || id}</p>
-						<p className="m-0 mt-1 text-xs text-slate-500">{info.description}</p>
-						{info.docUrl ? (
-							<a
-								href={info.docUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={(e) => e.stopPropagation()}
-								className="mt-2 inline-block text-xs font-semibold text-[var(--au-primary)] hover:underline"
+						<div className="flex items-start gap-3">
+							<span
+								className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+									active ? "border-[var(--au-primary)] bg-[var(--au-primary)]" : "border-slate-300 bg-white"
+								}`}
 							>
-								Documentation →
-							</a>
-						) : null}
+								{active ? (
+									<svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" aria-hidden>
+										<path d="M2.5 6l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								) : null}
+							</span>
+							<div className="min-w-0 flex-1">
+								<p className="m-0 text-sm font-semibold text-slate-900">{info.label || id}</p>
+								<p className="m-0 mt-1 text-xs leading-relaxed text-slate-500">{info.description}</p>
+								{info.docUrl ? (
+									<a
+										href={info.docUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										onClick={(e) => e.stopPropagation()}
+										className="mt-2 inline-block text-xs font-semibold text-[var(--au-primary)] hover:underline"
+									>
+										Documentation →
+									</a>
+								) : null}
+							</div>
+						</div>
 					</button>
 				);
 			})}

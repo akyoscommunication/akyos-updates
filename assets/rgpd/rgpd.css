@@ -104,7 +104,7 @@ html body #tarteaucitronRoot #tarteaucitronAlertBig[style*="display: block"] {
 }
 
 html body #tarteaucitronRoot #tarteaucitronAlertBig::before {
-	content: "Vos choix concernant les cookies";
+	content: var(--aky-rgpd-banner-title, "Vos choix concernant les cookies");
 	display: block;
 	margin: 0 0 0.625rem;
 	font-size: 1.0625rem;
@@ -699,6 +699,19 @@ html body #tarteaucitronRoot .tarteaucitronH2 {
 	bottom: 1.25rem;
 }
 
+#akyCookiesGestion.aky-position-right {
+	left: auto;
+	right: 1.25rem;
+}
+
+#akyCookiesGestion.aky-always-visible {
+	bottom: 1.25rem;
+}
+
+#akyCookiesGestion.aky-always-visible.active {
+	bottom: 1.25rem;
+}
+
 /* ─── Mobile ─── */
 @media screen and (max-width: 640px) {
 	html body #tarteaucitronRoot #tarteaucitronAlertBig,
@@ -793,6 +806,12 @@ html body #tarteaucitronRoot .tarteaucitronH2 {
 	#akyCookiesGestion.active {
 		bottom: 1rem;
 		left: 1rem;
+	}
+
+	#akyCookiesGestion.aky-position-right.active,
+	#akyCookiesGestion.aky-position-right.aky-always-visible {
+		left: auto;
+		right: 1rem;
 	}
 }
 

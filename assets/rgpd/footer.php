@@ -27,12 +27,16 @@ if ($serviceType === RgpdSettingsService::SERVICE_TARTEAUCITRON) {
 }
 
 $cookieLogo = AKYOS_UPDATES_PLUGIN_URL . 'assets/rgpd/cookie-icon.png';
+$buttonPosition = (string) ($settings['cookie_button_position'] ?? 'bottom-left');
+$positionClass = $buttonPosition === 'bottom-right' ? ' aky-position-right' : '';
+$alwaysVisible = ! empty($settings['cookie_button_always_visible']);
+$alwaysVisibleClass = $alwaysVisible ? ' aky-always-visible' : '';
 
 if (! $hideCookieButton) :
     $hasCustom = $buttonContent !== '';
     ?>
     <div id="akyCookiesGestion"
-         class="<?php echo $hasCustom ? 'aky-cookies-text' : 'aky-cookies-logo'; ?>"
+         class="<?php echo esc_attr(trim($hasCustom ? 'aky-cookies-text' : 'aky-cookies-logo') . $positionClass . $alwaysVisibleClass); ?>"
          onclick="<?php echo esc_attr($onclick); ?>">
         <?php
         if ($hasCustom) {

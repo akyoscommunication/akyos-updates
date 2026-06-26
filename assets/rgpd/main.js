@@ -3,10 +3,16 @@
  */
 (function () {
 	var scrollThreshold = 100;
+	var config = window.akyRgpdConfig || {};
+	var alwaysVisible = Boolean(config.cookieButtonAlwaysVisible);
 
 	function updateCookieButton() {
 		var el = document.getElementById("akyCookiesGestion");
 		if (!el) {
+			return;
+		}
+		if (alwaysVisible) {
+			el.classList.add("active");
 			return;
 		}
 		var nearBottom =

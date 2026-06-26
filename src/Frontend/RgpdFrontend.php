@@ -53,61 +53,74 @@ final class RgpdFrontend
         wp_add_inline_style(self::STYLE_HANDLE, $this->settings->themeCssBlock());
 
         $settings = $this->settings->get();
-        if (($settings['service_type'] ?? '') !== RgpdSettingsService::SERVICE_TARTEAUCITRON) {
-            return;
-        }
+        $mainDeps = [];
 
-        $useCdn = ! empty($settings['tac_use_cdn']);
-        $base = $useCdn ? TarteaucitronCatalogService::cdnBase() . '/' : self::VENDOR_BASE;
-        $version = $useCdn ? null : AKYOS_UPDATES_VERSION;
+        if (($settings['service_type'] ?? '') === RgpdSettingsService::SERVICE_TARTEAUCITRON) {
+            $useCdn = ! empty($settings['tac_use_cdn']);
+            $base = $useCdn ? TarteaucitronCatalogService::cdnBase() . '/' : self::VENDOR_BASE;
+            $version = $useCdn ? null : AKYOS_UPDATES_VERSION;
 
-        wp_enqueue_style(
-            self::TAC_STYLE_HANDLE,
-            $base . 'css/tarteaucitron.min.css',
-            [],
-            $version
-        );
+            wp_enqueue_style(
+                self::TAC_STYLE_HANDLE,
+                $base . 'css/tarteaucitron.min.css',
+                [],
+                $version
+            );
 
-        wp_enqueue_script(
-            self::TAC_HANDLE,
-            $base . 'tarteaucitron.js',
-            [],
-            $version,
-            false
-        );
+            wp_enqueue_script(
+                self::TAC_HANDLE,
+                $base . 'tarteaucitron.js',
+                [],
+                $version,
+                false
+            );
 
-        $forceLanguage = $this->resolveTarteaucitronLanguage();
-        wp_add_inline_script(
-            self::TAC_HANDLE,
-            'window.tarteaucitronForceLanguage = ' . wp_json_encode($forceLanguage) . ';',
-            'before'
-        );
-
-        $tags = $this->tagRenderer()->resolveTags($settings);
-        $gcmJobs = is_array($settings['gcm_jobs_enabled'] ?? null)
-            ? $settings['gcm_jobs_enabled']
-            : RgpdSettingsService::defaultGcmJobsEnabled();
-        $tagScripts = $this->tagRenderer()->renderFooterScripts(RgpdSettingsService::SERVICE_TARTEAUCITRON, $tags, $gcmJobs);
-        if ($tagScripts !== []) {
+            $forceLanguage = $this->resolveTarteaucitronLanguage();
             wp_add_inline_script(
                 self::TAC_HANDLE,
-                implode("\n", $tagScripts),
+                'window.tarteaucitronForceLanguage = ' . wp_json_encode($forceLanguage) . ';',
+                'before'
+            );
+
+            $tags = $this->tagRenderer()->resolveTags($settings);
+            $gcmJobs = is_array($settings['gcm_jobs_enabled'] ?? null)
+                ? $settings['gcm_jobs_enabled']
+                : RgpdSettingsService::defaultGcmJobsEnabled();
+            $tagScripts = $this->tagRenderer()->renderFooterScripts(RgpdSettingsService::SERVICE_TARTEAUCITRON, $tags, $gcmJobs);
+            if ($tagScripts !== []) {
+                wp_add_inline_script(
+                    self::TAC_HANDLE,
+                    implode("\n", $tagScripts),
+                    'after'
+                );
+            }
+
+            wp_add_inline_script(
+                self::TAC_HANDLE,
+                $this->tarteaucitronInitScript(
+                    $this->resolvePrivacyUrl($settings),
+                    $this->resolveCookiesUrl($settings)
+                ),
                 'after'
             );
-        }
 
-        wp_add_inline_script(
-            self::TAC_HANDLE,
-            $this->tarteaucitronInitScript($this->resolvePrivacyUrl($settings)),
-            'after'
-        );
+            $mainDeps = [self::TAC_HANDLE];
+        }
 
         wp_enqueue_script(
             self::SCRIPT_HANDLE,
             AKYOS_UPDATES_PLUGIN_URL . 'assets/rgpd/main.js',
-            [self::TAC_HANDLE],
+            $mainDeps,
             AKYOS_UPDATES_VERSION,
             false
+        );
+
+        wp_add_inline_script(
+            self::SCRIPT_HANDLE,
+            'window.akyRgpdConfig = ' . wp_json_encode([
+                'cookieButtonAlwaysVisible' => ! empty($settings['cookie_button_always_visible']),
+            ]) . ';',
+            'before'
         );
     }
 
@@ -145,36 +158,12 @@ final class RgpdFrontend
         return $this->tagRenderer;
     }
 
-    private function tarteaucitronInitScript(string $privacyUrl): string
+    private function tarteaucitronInitScript(string $privacyUrl, string $cookiesUrl): string
     {
-        $params = wp_json_encode([
-            'privacyUrl' => $privacyUrl,
-            'bodyPosition' => 'bottom',
-            'hashtag' => '#tarteaucitron',
-            'cookieName' => 'tarteaucitron',
-            'orientation' => 'bottom',
-            'groupServices' => false,
-            'showDetailsOnClick' => true,
-            'serviceDefaultState' => 'wait',
-            'showAlertSmall' => false,
-            'cookieslist' => false,
-            'showIcon' => false,
-            'iconPosition' => 'BottomRight',
-            'adblocker' => false,
-            'DenyAllCta' => true,
-            'AcceptAllCta' => true,
-            'highPrivacy' => true,
-            'handleBrowserDNTRequest' => false,
-            'removeCredit' => true,
-            'moreInfoLink' => true,
-            'useExternalCss' => true,
-            'useExternalJs' => false,
-            'readmoreLink' => '/utilisation-des-cookies',
-            'mandatory' => true,
-            'mandatoryCta' => true,
-            'googleConsentMode' => true,
-            'partnersList' => false,
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $params = wp_json_encode(
+            $this->settings->tarteaucitronInitParams($privacyUrl, $cookiesUrl),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
 
         return 'tarteaucitron.init(' . $params . ');';
     }
@@ -220,5 +209,28 @@ final class RgpdFrontend
         }
 
         return home_url('/politique-de-conservation-de-donnees');
+    }
+
+    /** @param array<string, mixed> $settings */
+    private function resolveCookiesUrl(array $settings): string
+    {
+        $cookiesId = (int) ($settings['page_cookies_id'] ?? 0);
+        if ($cookiesId > 0) {
+            if (function_exists('pll_get_post')) {
+                $translated = pll_get_post($cookiesId, get_locale());
+                if ($translated) {
+                    $permalink = get_permalink($translated);
+                    if (is_string($permalink) && $permalink !== '') {
+                        return $permalink;
+                    }
+                }
+            }
+            $permalink = get_permalink($cookiesId);
+            if (is_string($permalink) && $permalink !== '') {
+                return $permalink;
+            }
+        }
+
+        return home_url('/utilisation-des-cookies');
     }
 }

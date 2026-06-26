@@ -146,6 +146,29 @@ final class RgpdSettingsService
             /** Couleurs bannière / panneau cookies (front). */
             'theme_primary' => '#0052FF',
             'theme_primary_light' => '#4D7CFF',
+            'theme_text' => '#0F172A',
+            'theme_text_muted' => '#64748B',
+            'theme_border' => '#E2E8F0',
+            'theme_surface' => '#FFFFFF',
+            'theme_danger' => '#DC2626',
+            'theme_radius' => 16,
+            'theme_font' => '',
+
+            /** Textes bannière (vide = libellés tarteaucitron par défaut). */
+            'banner_title' => '',
+
+            /** Bouton flottant cookies : bottom-left | bottom-right. */
+            'cookie_button_position' => 'bottom-left',
+            /** true = toujours visible ; false = apparaît en bas de page au scroll. */
+            'cookie_button_always_visible' => false,
+
+            /** Comportement tarteaucitron (orientation, CTAs, GCM…). */
+            'tac_orientation' => 'bottom',
+            'tac_show_accept_all' => true,
+            'tac_show_deny_all' => true,
+            'tac_high_privacy' => true,
+            'tac_google_consent_mode' => true,
+            'tac_group_services' => false,
 
             /** Signaux GCM v2 cochés (activés auto à l'ajout d'un GTM). */
             'gcm_jobs_enabled' => [],
@@ -158,32 +181,126 @@ final class RgpdSettingsService
         return [];
     }
 
-    /** @return array{primary: string, primary_hover: string, primary_soft: string} */
+    /** @return array<string, string|int> */
     public function resolvedTheme(): array
     {
         $settings = $this->get();
+        $defaults = self::defaults();
         $primary = self::sanitizeHex($settings['theme_primary'] ?? '') ?? '#0052FF';
         $primaryLight = self::sanitizeHex($settings['theme_primary_light'] ?? '') ?? self::mixHex($primary, '#FFFFFF', 0.35);
         [$r, $g, $b] = self::hexToRgb($primary);
+        [$dr, $dg, $db] = self::hexToRgb(
+            self::sanitizeHex($settings['theme_danger'] ?? '') ?? (string) $defaults['theme_danger']
+        );
+
+        $radius = isset($settings['theme_radius']) ? (int) $settings['theme_radius'] : (int) $defaults['theme_radius'];
+        $radius = max(8, min(32, $radius));
+
+        $font = self::sanitizeFontStack($settings['theme_font'] ?? '');
+        if ($font === '') {
+            $font = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+        }
+
+        $bannerTitle = trim((string) ($settings['banner_title'] ?? ''));
 
         return [
             'primary' => $primary,
             'primary_hover' => self::darkenHex($primary, 0.08),
             'primary_light' => $primaryLight,
             'primary_soft' => sprintf('rgba(%d, %d, %d, 0.08)', $r, $g, $b),
+            'text' => self::sanitizeHex($settings['theme_text'] ?? '') ?? (string) $defaults['theme_text'],
+            'text_muted' => self::sanitizeHex($settings['theme_text_muted'] ?? '') ?? (string) $defaults['theme_text_muted'],
+            'border' => self::sanitizeHex($settings['theme_border'] ?? '') ?? (string) $defaults['theme_border'],
+            'surface' => self::sanitizeHex($settings['theme_surface'] ?? '') ?? (string) $defaults['theme_surface'],
+            'danger' => self::sanitizeHex($settings['theme_danger'] ?? '') ?? (string) $defaults['theme_danger'],
+            'danger_soft' => sprintf('rgba(%d, %d, %d, 0.08)', $dr, $dg, $db),
+            'radius' => $radius,
+            'radius_sm' => max(6, (int) round($radius * 0.625)),
+            'font' => $font,
+            'banner_title' => $bannerTitle,
         ];
     }
 
     public function themeCssBlock(): string
     {
         $t = $this->resolvedTheme();
+        $bannerTitle = (string) ($t['banner_title'] ?? '');
+        $bannerTitleCss = $bannerTitle !== ''
+            ? sprintf('--aky-rgpd-banner-title:%s;', wp_json_encode($bannerTitle, JSON_UNESCAPED_UNICODE))
+            : '';
 
         return sprintf(
-            ':root{--aky-rgpd-primary:%1$s;--aky-rgpd-primary-hover:%2$s;--aky-rgpd-primary-soft:%3$s;}',
+            ':root{--aky-rgpd-primary:%1$s;--aky-rgpd-primary-hover:%2$s;--aky-rgpd-primary-soft:%3$s;'
+            . '--aky-rgpd-text:%4$s;--aky-rgpd-text-muted:%5$s;--aky-rgpd-border:%6$s;'
+            . '--aky-rgpd-surface:%7$s;--aky-rgpd-danger:%8$s;--aky-rgpd-danger-soft:%9$s;'
+            . '--aky-rgpd-radius:%10$dpx;--aky-rgpd-radius-sm:%11$dpx;--aky-rgpd-font:%12$s;%13$s}',
             $t['primary'],
             $t['primary_hover'],
-            $t['primary_soft']
+            $t['primary_soft'],
+            $t['text'],
+            $t['text_muted'],
+            $t['border'],
+            $t['surface'],
+            $t['danger'],
+            $t['danger_soft'],
+            $t['radius'],
+            $t['radius_sm'],
+            wp_json_encode($t['font'], JSON_UNESCAPED_UNICODE),
+            $bannerTitleCss
         );
+    }
+
+    /** @return array<string, mixed> Paramètres tarteaucitron.init() depuis les réglages. */
+    public function tarteaucitronInitParams(string $privacyUrl, string $cookiesUrl): array
+    {
+        $settings = $this->get();
+        $orientation = (string) ($settings['tac_orientation'] ?? 'bottom');
+        if (! in_array($orientation, ['bottom', 'top', 'middle'], true)) {
+            $orientation = 'bottom';
+        }
+
+        return [
+            'privacyUrl' => $privacyUrl,
+            'bodyPosition' => 'bottom',
+            'hashtag' => '#tarteaucitron',
+            'cookieName' => 'tarteaucitron',
+            'orientation' => $orientation,
+            'groupServices' => ! empty($settings['tac_group_services']),
+            'showDetailsOnClick' => true,
+            'serviceDefaultState' => 'wait',
+            'showAlertSmall' => false,
+            'cookieslist' => false,
+            'showIcon' => false,
+            'iconPosition' => 'BottomRight',
+            'adblocker' => false,
+            'DenyAllCta' => ! empty($settings['tac_show_deny_all']),
+            'AcceptAllCta' => ! empty($settings['tac_show_accept_all']),
+            'highPrivacy' => ! array_key_exists('tac_high_privacy', $settings) || ! empty($settings['tac_high_privacy']),
+            'handleBrowserDNTRequest' => false,
+            'removeCredit' => true,
+            'moreInfoLink' => true,
+            'useExternalCss' => true,
+            'useExternalJs' => false,
+            'readmoreLink' => $cookiesUrl !== '' ? $cookiesUrl : '/utilisation-des-cookies',
+            'mandatory' => true,
+            'mandatoryCta' => true,
+            'googleConsentMode' => ! array_key_exists('tac_google_consent_mode', $settings) || ! empty($settings['tac_google_consent_mode']),
+            'partnersList' => false,
+        ];
+    }
+
+    private static function sanitizeFontStack(mixed $value): string
+    {
+        if (! is_string($value)) {
+            return '';
+        }
+
+        $value = trim(wp_strip_all_tags($value));
+        if ($value === '') {
+            return '';
+        }
+
+        return substr($value, 0, 200);
     }
 
     private static function sanitizeHex(mixed $value): ?string
@@ -447,6 +564,34 @@ final class RgpdSettingsService
             ?? $legacyLight
             ?? self::sanitizeHex($defaults['theme_primary_light'])
             ?? '#4D7CFF';
+
+        foreach (['theme_text', 'theme_text_muted', 'theme_border', 'theme_surface', 'theme_danger'] as $themeKey) {
+            $out[$themeKey] = self::sanitizeHex($input[$themeKey] ?? null)
+                ?? self::sanitizeHex($defaults[$themeKey])
+                ?? (string) $defaults[$themeKey];
+        }
+
+        $radius = isset($input['theme_radius']) ? (int) $input['theme_radius'] : (int) $defaults['theme_radius'];
+        $out['theme_radius'] = max(8, min(32, $radius));
+        $out['theme_font'] = self::sanitizeFontStack($input['theme_font'] ?? '');
+
+        $out['banner_title'] = isset($input['banner_title']) ? sanitize_text_field((string) $input['banner_title']) : '';
+
+        $position = (string) ($input['cookie_button_position'] ?? $defaults['cookie_button_position']);
+        $out['cookie_button_position'] = in_array($position, ['bottom-left', 'bottom-right'], true)
+            ? $position
+            : (string) $defaults['cookie_button_position'];
+        $out['cookie_button_always_visible'] = ! empty($input['cookie_button_always_visible']);
+
+        $orientation = (string) ($input['tac_orientation'] ?? $defaults['tac_orientation']);
+        $out['tac_orientation'] = in_array($orientation, ['bottom', 'top', 'middle'], true)
+            ? $orientation
+            : (string) $defaults['tac_orientation'];
+        $out['tac_show_accept_all'] = ! array_key_exists('tac_show_accept_all', $input) || ! empty($input['tac_show_accept_all']);
+        $out['tac_show_deny_all'] = ! array_key_exists('tac_show_deny_all', $input) || ! empty($input['tac_show_deny_all']);
+        $out['tac_high_privacy'] = ! array_key_exists('tac_high_privacy', $input) || ! empty($input['tac_high_privacy']);
+        $out['tac_google_consent_mode'] = ! array_key_exists('tac_google_consent_mode', $input) || ! empty($input['tac_google_consent_mode']);
+        $out['tac_group_services'] = ! empty($input['tac_group_services']);
 
         $out['gcm_jobs_enabled'] = self::normalizeGcmJobs(
             $input['gcm_jobs_enabled'] ?? null,
