@@ -31,6 +31,7 @@ use AkyosUpdates\Core\Actions\SmushApplyNextGenFormatAction;
 use AkyosUpdates\Core\Actions\SmushApplyRecommendedConfigAction;
 use AkyosUpdates\Core\Actions\SmushApplyResizeLargeAction;
 use AkyosUpdates\Core\Actions\SetFaviconAction;
+use AkyosUpdates\Core\Actions\UpdateTranslationsAction;
 use AkyosUpdates\Core\Checks\Plugins\AuthJsonRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerPluginsCheck;
@@ -64,6 +65,7 @@ use AkyosUpdates\Core\Checks\BackOffice\AdminLiteUserCheck;
 use AkyosUpdates\Core\Checks\BackOffice\BrandaDashboardWidgetsCheck;
 use AkyosUpdates\Core\Checks\BackOffice\BrandaSmtpCheck;
 use AkyosUpdates\Core\Checks\WordPress\ActiveThemeUpdateCheck;
+use AkyosUpdates\Core\Checks\WordPress\TranslationUpdatesCheck;
 use AkyosUpdates\Core\Checks\WordPress\WordPressVersionCheck;
 use AkyosUpdates\Core\Context\InstallationContextDetector;
 use AkyosUpdates\Service\BrandaService;
@@ -98,6 +100,7 @@ final class Plugin
         $checks = [
             new WordPressVersionCheck(),
             new ActiveThemeUpdateCheck(),
+            new TranslationUpdatesCheck(),
             new FaviconCheck(),
             new CommentsDisabledCheck(),
             new PostByEmailDisabledCheck(),
@@ -149,6 +152,7 @@ final class Plugin
 
         $actionsList = [
             new ChangeWordPressVersionAction(),
+            new UpdateTranslationsAction(),
             new SetFaviconAction(),
             new DisableCommentsAction(),
             new DisablePostByEmailAction(),
