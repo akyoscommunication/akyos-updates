@@ -63,14 +63,39 @@ final class GithubReleaseService
     public static function resolveRepo(): string
     {
         $repo = trim((string) apply_filters('akyos_updates_github_repo', self::DEFAULT_REPO));
-        if ($repo === '' || ! preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo)) {
+        if ($repo === '' || !preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo)) {
             return self::DEFAULT_REPO;
         }
 
         return $repo;
     }
 
-    /** @return array{version: string, detailsUrl: string}|null */
+    public static function getZipballUrl(): string
+    {
+        $release = self::getLatestRelease();
+        if ($release === null || ($release['zipballUrl'] ?? '') === '') {
+            return '';
+        }
+
+        $url = $release['zipballUrl'];
+        $token = self::resolveToken();
+        if ($token !== '') {
+            $url = add_query_arg('access_token', $token, $url);
+        }
+
+        return $url;
+    }
+
+    public static function isBedrockInstall(): bool
+    {
+        $abspath = untrailingslashit(ABSPATH);
+        $bedrockWpRoot = str_ends_with($abspath, '/web/wp') || str_ends_with($abspath, '\\web\\wp');
+        $bedrockConfigPresent = file_exists(dirname($abspath, 2) . '/config/application.php');
+
+        return $bedrockWpRoot || $bedrockConfigPresent;
+    }
+
+    /** @return array{version: string, detailsUrl: string, zipballUrl: string}|null */
     private static function getLatestRelease(): ?array
     {
         $cached = get_transient(self::CACHE_KEY);
@@ -79,7 +104,8 @@ final class GithubReleaseService
         }
 
         $repo = self::resolveRepo();
-        $url = 'https://api.github.com/repos/' . rawurlencode($repo) . '/releases/latest';
+        [$owner, $name] = explode('/', $repo, 2);
+        $url = 'https://api.github.com/repos/' . rawurlencode($owner) . '/' . rawurlencode($name) . '/releases/latest';
         $response = self::githubRequest($url);
         if (is_wp_error($response)) {
             set_transient(self::CACHE_KEY, [], self::CACHE_TTL_KO);
@@ -95,7 +121,7 @@ final class GithubReleaseService
         }
 
         $decoded = json_decode((string) wp_remote_retrieve_body($response), true);
-        if (! is_array($decoded)) {
+        if (!is_array($decoded)) {
             set_transient(self::CACHE_KEY, [], self::CACHE_TTL_KO);
 
             return null;
@@ -111,6 +137,7 @@ final class GithubReleaseService
         $release = [
             'version' => $version,
             'detailsUrl' => trim((string) ($decoded['html_url'] ?? '')),
+            'zipballUrl' => trim((string) ($decoded['zipball_url'] ?? '')),
         ];
         if ($release['detailsUrl'] === '') {
             $release['detailsUrl'] = 'https://github.com/' . $repo . '/releases/latest';
@@ -130,7 +157,7 @@ final class GithubReleaseService
         if ($tag[0] === 'v' || $tag[0] === 'V') {
             $tag = substr($tag, 1);
         }
-        if ($tag === '' || ! preg_match('/^\d+\.\d+\.\d+(?:[-.+][0-9A-Za-z.-]+)?$/', $tag)) {
+        if ($tag === '' || !preg_match('/^\d+\.\d+\.\d+(?:[-.+][0-9A-Za-z.-]+)?$/', $tag)) {
             return null;
         }
 
@@ -156,12 +183,4 @@ final class GithubReleaseService
         ]);
     }
 
-    private static function isBedrockInstall(): bool
-    {
-        $abspath = untrailingslashit(ABSPATH);
-        $bedrockWpRoot = str_ends_with($abspath, '/web/wp') || str_ends_with($abspath, '\\web\\wp');
-        $bedrockConfigPresent = file_exists(dirname($abspath, 2) . '/config/application.php');
-
-        return $bedrockWpRoot || $bedrockConfigPresent;
-    }
 }
