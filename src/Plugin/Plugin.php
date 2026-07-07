@@ -32,6 +32,7 @@ use AkyosUpdates\Core\Actions\SmushApplyRecommendedConfigAction;
 use AkyosUpdates\Core\Actions\SmushApplyResizeLargeAction;
 use AkyosUpdates\Core\Actions\SetFaviconAction;
 use AkyosUpdates\Core\Actions\UpdateTranslationsAction;
+use AkyosUpdates\Core\Checks\Plugins\AuthJsonGitignoreCheck;
 use AkyosUpdates\Core\Checks\Plugins\AuthJsonRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerPluginsCheck;
@@ -106,6 +107,7 @@ final class Plugin
             new PostByEmailDisabledCheck(),
             new ComposerRootCheck(),
             new AuthJsonRootCheck(),
+            new AuthJsonGitignoreCheck(),
             new ComposerPluginsCheck(),
             new PluginsInventoryCheck(),
             new SeoPluginCheck(),
