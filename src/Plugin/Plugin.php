@@ -206,6 +206,8 @@ final class Plugin
             $legalPages
         );
 
+        (new GithubUpdater())->register();
+
         add_action('admin_menu', [$adminPage, 'register']);
         add_action('admin_enqueue_scripts', [$adminPage, 'enqueue']);
         add_action('rest_api_init', [$routeController, 'register']);
