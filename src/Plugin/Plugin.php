@@ -16,6 +16,10 @@ use AkyosUpdates\Core\Actions\DefenderSaveMaskLoginAction;
 use AkyosUpdates\Core\Actions\DefenderSaveRecaptchaKeysAction;
 use AkyosUpdates\Core\Actions\DefenderApplyFirewallTranslationsAction;
 use AkyosUpdates\Core\Actions\DefenderEnableGlobalIpBlockerAction;
+use AkyosUpdates\Core\Actions\DefenderEnableLoginDurationAction;
+use AkyosUpdates\Core\Actions\DefenderEnableDisableTrackbacksAction;
+use AkyosUpdates\Core\Actions\DefenderEnablePreventInfoDisclosureAction;
+use AkyosUpdates\Core\Actions\DefenderEnablePreventUserEnumerationAction;
 use AkyosUpdates\Core\Actions\DefenderEnablePwnedPasswordsAction;
 use AkyosUpdates\Core\Actions\DefenderEnableSecurityHeadersAction;
 use AkyosUpdates\Core\Actions\GenerateComposerGuidanceAction;
@@ -46,10 +50,14 @@ use AkyosUpdates\Core\Checks\Images\SmushVersionUpgradeCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdAdvancedCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdGzipCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdPageCacheCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderDisableTrackbacksCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderFirewallTranslationsCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderGlobalIpBlockerCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderLoginDurationCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderMaskLoginCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderPluginCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderPreventInfoDisclosureCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderPreventUserEnumerationCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderPwnedPasswordsCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderRecaptchaCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderSecurityHeadersCheck;
@@ -132,6 +140,10 @@ final class Plugin
             $checks[] = new DefenderRecaptchaCheck();
             $checks[] = new DefenderGlobalIpBlockerCheck();
             $checks[] = new DefenderFirewallTranslationsCheck();
+            $checks[] = new DefenderLoginDurationCheck();
+            $checks[] = new DefenderDisableTrackbacksCheck();
+            $checks[] = new DefenderPreventUserEnumerationCheck();
+            $checks[] = new DefenderPreventInfoDisclosureCheck();
         }
 
         $checks[] = new SmushVersionUpgradeCheck();
@@ -169,6 +181,10 @@ final class Plugin
             new DefenderEnablePwnedPasswordsAction(),
             new DefenderEnableGlobalIpBlockerAction(),
             new DefenderApplyFirewallTranslationsAction(),
+            new DefenderEnableLoginDurationAction(),
+            new DefenderEnableDisableTrackbacksAction(),
+            new DefenderEnablePreventUserEnumerationAction(),
+            new DefenderEnablePreventInfoDisclosureAction(),
             new CreateAdminLiteUserAction(),
             new BrandaSaveSmtpAction(),
             new BrandaSendTestEmailAction(),

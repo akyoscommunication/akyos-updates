@@ -16,6 +16,19 @@ final class DefenderService
 {
     public const PLUGIN_FILE = 'wp-defender/wp-defender.php';
 
+    private const HARDENING_SLUG_LOGIN_DURATION = 'login-duration';
+
+    private const HARDENING_SLUG_DISABLE_TRACKBACK = 'disable-trackback';
+
+    private const HARDENING_SLUG_PREVENT_ENUM_USERS = 'prevent-enum-users';
+
+    private const HARDENING_SLUG_PROTECT_INFORMATION = 'protect-information';
+
+    /** @var list<string> */
+    private const USER_ENUM_OPTIONS = ['enum-rest', 'enum-oembed', 'enum-sitemap'];
+
+    public const TARGET_LOGIN_DURATION_DAYS = 7;
+
     public static function isInstalled(): bool
     {
         return PluginService::isPluginInstalled(self::PLUGIN_FILE);
@@ -32,6 +45,14 @@ final class DefenderService
             && class_exists('\WP_Defender\Model\Setting\Mask_Login')
             && class_exists('\WP_Defender\Model\Setting\Security_Headers')
             && class_exists('\WP_Defender\Model\Setting\Password_Protection');
+    }
+
+    public static function canUseHardeningApi(): bool
+    {
+        return self::isPluginActive()
+            && function_exists('wd_di')
+            && class_exists('\WP_Defender\Model\Setting\Security_Tweaks')
+            && class_exists('\WP_Defender\Component\Security_Tweaks\Disable_Trackback');
     }
 
     public static function getMaskLoginState(): array
@@ -594,5 +615,255 @@ final class DefenderService
             ],
             self::getFirewallMessagesState()
         );
+    }
+
+    public static function getLoginDurationState(): array
+    {
+        $targetDays = self::TARGET_LOGIN_DURATION_DAYS;
+
+        if (! self::canUseHardeningApi()) {
+            return [
+                'active' => false,
+                'duration' => null,
+                'targetDays' => $targetDays,
+            ];
+        }
+
+        $raw = get_site_option('defender_security_tweeks_login-duration');
+        $duration = is_numeric($raw) && (int) $raw > 0 ? (int) $raw : null;
+
+        return [
+            'active' => $duration === $targetDays,
+            'duration' => $duration,
+            'targetDays' => $targetDays,
+        ];
+    }
+
+    public static function enableLoginDuration(int $days = self::TARGET_LOGIN_DURATION_DAYS): array
+    {
+        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Login_Duration')) {
+            return [
+                'success' => false,
+                'message' => 'Hardening Defender (login duration) indisponible.',
+            ];
+        }
+
+        if ($days <= 0) {
+            return [
+                'success' => false,
+                'message' => 'La durée de login doit être supérieure à 0.',
+            ];
+        }
+
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Login_Duration();
+        $tweak->update_tweak_duration($days);
+
+        if (class_exists('\WP_Defender\Model\Setting\Session_Protection')) {
+            /** @var \WP_Defender\Model\Setting\Session_Protection $session */
+            $session = wd_di()->get(\WP_Defender\Model\Setting\Session_Protection::class);
+            $session->login_duration = $days;
+            $session->save();
+        }
+
+        self::markHardeningTweakFixed(self::HARDENING_SLUG_LOGIN_DURATION);
+
+        return array_merge(
+            [
+                'success' => true,
+                'message' => sprintf('Durée de login fixée à %d jours.', $days),
+            ],
+            self::getLoginDurationState()
+        );
+    }
+
+    public static function getDisableTrackbacksState(): array
+    {
+        $pingClosed = get_option('default_ping_status') === 'closed';
+        $pingbackOff = (int) get_option('default_pingback_flag') === 0;
+        $defenderFixed = self::canUseHardeningApi()
+            && self::isHardeningTweakFixed(self::HARDENING_SLUG_DISABLE_TRACKBACK);
+
+        return [
+            'active' => $pingClosed && $pingbackOff,
+            'pingStatusClosed' => $pingClosed,
+            'pingbackDisabled' => $pingbackOff,
+            'defenderMarkedFixed' => $defenderFixed,
+        ];
+    }
+
+    public static function enableDisableTrackbacks(): array
+    {
+        if (! self::canUseHardeningApi()) {
+            return [
+                'success' => false,
+                'message' => 'Hardening Defender (trackbacks) indisponible.',
+            ];
+        }
+
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Disable_Trackback();
+        $result = $tweak->process();
+        if ($result !== true) {
+            return [
+                'success' => false,
+                'message' => 'Impossible de désactiver les trackbacks et pingbacks.',
+            ];
+        }
+
+        self::markHardeningTweakFixed(self::HARDENING_SLUG_DISABLE_TRACKBACK);
+
+        return array_merge(
+            [
+                'success' => true,
+                'message' => 'Trackbacks et pingbacks désactivés.',
+            ],
+            self::getDisableTrackbacksState()
+        );
+    }
+
+    public static function getPreventUserEnumerationState(): array
+    {
+        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Prevent_Enum_Users')) {
+            return [
+                'active' => false,
+                'restApi' => false,
+                'oembed' => false,
+                'authorSitemap' => false,
+            ];
+        }
+
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Prevent_Enum_Users();
+        $enabled = $tweak->get_enabled_user_enums();
+
+        return [
+            'restApi' => in_array('enum-rest', $enabled, true),
+            'oembed' => in_array('enum-oembed', $enabled, true),
+            'authorSitemap' => in_array('enum-sitemap', $enabled, true),
+            'active' => count(array_intersect(self::USER_ENUM_OPTIONS, $enabled)) === count(self::USER_ENUM_OPTIONS)
+                && self::isHardeningTweakFixed(self::HARDENING_SLUG_PREVENT_ENUM_USERS),
+        ];
+    }
+
+    public static function enablePreventUserEnumeration(): array
+    {
+        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Prevent_Enum_Users')) {
+            return [
+                'success' => false,
+                'message' => 'Hardening Defender (énumération utilisateurs) indisponible.',
+            ];
+        }
+
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Prevent_Enum_Users();
+        $tweak->set_enabled_user_enums(self::USER_ENUM_OPTIONS);
+        $tweak->process();
+        self::markHardeningTweakFixed(self::HARDENING_SLUG_PREVENT_ENUM_USERS);
+
+        return array_merge(
+            [
+                'success' => true,
+                'message' => 'Protection contre l\'énumération utilisateurs activée.',
+            ],
+            self::getPreventUserEnumerationState()
+        );
+    }
+
+    public static function getPreventInfoDisclosureState(): array
+    {
+        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Protect_Information')) {
+            return [
+                'active' => false,
+                'server' => 'unknown',
+                'autoApplicable' => false,
+                'manualRequired' => false,
+            ];
+        }
+
+        $server = \WP_Defender\Component\Security_Tweaks\Servers\Server::get_current_server();
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Protect_Information();
+        $protected = (bool) $tweak->check();
+        $autoApplicable = in_array($server, ['apache', 'litespeed'], true);
+
+        return [
+            'active' => $protected,
+            'server' => $server,
+            'autoApplicable' => $autoApplicable,
+            'manualRequired' => ! $autoApplicable,
+        ];
+    }
+
+    public static function enablePreventInfoDisclosure(): array
+    {
+        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Protect_Information')) {
+            return [
+                'success' => false,
+                'message' => 'Hardening Defender (info disclosure) indisponible.',
+            ];
+        }
+
+        $server = \WP_Defender\Component\Security_Tweaks\Servers\Server::get_current_server();
+        if (! in_array($server, ['apache', 'litespeed'], true)) {
+            return array_merge(
+                [
+                    'success' => false,
+                    'message' => sprintf(
+                        'Configuration automatique indisponible pour le serveur « %s ». Applique les règles manuellement dans Defender > Hardening.',
+                        $server
+                    ),
+                    'code' => 'manual_required',
+                ],
+                self::getPreventInfoDisclosureState()
+            );
+        }
+
+        $tweak = new \WP_Defender\Component\Security_Tweaks\Protect_Information();
+        $result = $tweak->process($server);
+        if ($result instanceof \WP_Error) {
+            return [
+                'success' => false,
+                'message' => $result->get_error_message(),
+            ];
+        }
+        if ($result !== true) {
+            return [
+                'success' => false,
+                'message' => 'Impossible d\'appliquer les règles de protection (.htaccess).',
+            ];
+        }
+
+        self::markHardeningTweakFixed(self::HARDENING_SLUG_PROTECT_INFORMATION);
+
+        return array_merge(
+            [
+                'success' => true,
+                'message' => 'Protection contre la divulgation d\'informations activée.',
+            ],
+            self::getPreventInfoDisclosureState()
+        );
+    }
+
+    private static function isHardeningTweakFixed(string $slug): bool
+    {
+        if (! function_exists('wd_di') || ! class_exists('\WP_Defender\Model\Setting\Security_Tweaks')) {
+            return false;
+        }
+
+        /** @var \WP_Defender\Model\Setting\Security_Tweaks $model */
+        $model = wd_di()->get(\WP_Defender\Model\Setting\Security_Tweaks::class);
+
+        return in_array($slug, (array) $model->fixed, true);
+    }
+
+    private static function markHardeningTweakFixed(string $slug): void
+    {
+        if (! function_exists('wd_di') || ! class_exists('\WP_Defender\Model\Setting\Security_Tweaks')) {
+            return;
+        }
+
+        /** @var \WP_Defender\Model\Setting\Security_Tweaks $model */
+        $model = wd_di()->get(\WP_Defender\Model\Setting\Security_Tweaks::class);
+        $model->mark(\WP_Defender\Controller\Security_Tweaks::STATUS_RESOLVE, $slug);
+
+        if (class_exists('\WP_Defender\Component\Config\Config_Hub_Helper')) {
+            \WP_Defender\Component\Config\Config_Hub_Helper::set_clear_active_flag();
+        }
     }
 }

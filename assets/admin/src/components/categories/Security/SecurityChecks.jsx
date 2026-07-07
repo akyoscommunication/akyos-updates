@@ -9,6 +9,10 @@ const SECURITY_ACTION_LABELS = {
 	"security.defender_enable_pwned_passwords": "Activer Pwned Passwords",
 	"security.defender_enable_global_ip_blocker": "Activer Global IP Blocker",
 	"security.defender_apply_firewall_translations": "Appliquer les traductions firewall",
+	"security.defender_enable_login_duration": "Fixer à 7 jours",
+	"security.defender_enable_disable_trackbacks": "Désactiver trackbacks",
+	"security.defender_enable_prevent_user_enumeration": "Activer la protection",
+	"security.defender_enable_prevent_info_disclosure": "Protéger les fichiers",
 };
 
 function securityFixLabel(actionId) {
@@ -17,6 +21,9 @@ function securityFixLabel(actionId) {
 import { SecurityHeadersCheck } from "./checks/SecurityHeadersCheck";
 import { DefenderMaskLoginCheck } from "./checks/DefenderMaskLoginCheck";
 import { DefenderRecaptchaCheck } from "./checks/DefenderRecaptchaCheck";
+import { DefenderLoginDurationCheck } from "./checks/DefenderLoginDurationCheck";
+import { DefenderPreventUserEnumerationCheck } from "./checks/DefenderPreventUserEnumerationCheck";
+import { DefenderPreventInfoDisclosureCheck } from "./checks/DefenderPreventInfoDisclosureCheck";
 
 export function SecurityChecks({
 	categoryResults,
@@ -74,6 +81,15 @@ export function SecurityChecks({
 			{visibleResults.map((result) => {
 				if (result.id === "security.defender_security_headers") {
 					return <SecurityHeadersCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
+				}
+				if (result.id === "security.defender_login_duration") {
+					return <DefenderLoginDurationCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
+				}
+				if (result.id === "security.defender_prevent_user_enumeration") {
+					return <DefenderPreventUserEnumerationCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
+				}
+				if (result.id === "security.defender_prevent_info_disclosure") {
+					return <DefenderPreventInfoDisclosureCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
 				}
 				if (result.id === "security.defender_mask_login" && result.actionable) {
 					return <DefenderMaskLoginCheck key={result.id} result={result} maskLoginValue={maskLoginValue} setMaskLoginValue={setMaskLoginValue} isFixBusy={isFixBusy} onFix={onFix} />;
