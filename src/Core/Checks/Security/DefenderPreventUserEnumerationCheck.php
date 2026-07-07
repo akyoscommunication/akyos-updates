@@ -68,9 +68,11 @@ final class DefenderPreventUserEnumerationCheck implements CheckInterface
             ! $state['authorSitemap'] ? 'Sitemap auteurs' : null,
         ]));
 
-        $message = $missing === []
-            ? 'Protection anti-énumération incomplète dans Defender Hardening.'
-            : sprintf('%d protection(s) manquante(s): %s.', count($missing), implode(', ', $missing));
+        $message = sprintf(
+            '%d protection(s) manquante(s): %s.',
+            count($missing),
+            implode(', ', $missing)
+        );
 
         return new CheckResult(
             $this->getId(),

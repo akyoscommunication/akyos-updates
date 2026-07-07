@@ -22,8 +22,6 @@ final class DefenderService
 
     private const HARDENING_SLUG_PREVENT_ENUM_USERS = 'prevent-enum-users';
 
-    private const HARDENING_SLUG_PROTECT_INFORMATION = 'protect-information';
-
     /** @var list<string> */
     private const USER_ENUM_OPTIONS = ['enum-rest', 'enum-oembed', 'enum-sitemap'];
 
@@ -738,8 +736,7 @@ final class DefenderService
             'restApi' => in_array('enum-rest', $enabled, true),
             'oembed' => in_array('enum-oembed', $enabled, true),
             'authorSitemap' => in_array('enum-sitemap', $enabled, true),
-            'active' => count(array_intersect(self::USER_ENUM_OPTIONS, $enabled)) === count(self::USER_ENUM_OPTIONS)
-                && self::isHardeningTweakFixed(self::HARDENING_SLUG_PREVENT_ENUM_USERS),
+            'active' => count(array_intersect(self::USER_ENUM_OPTIONS, $enabled)) === count(self::USER_ENUM_OPTIONS),
         ];
     }
 
@@ -766,77 +763,164 @@ final class DefenderService
         );
     }
 
-    public static function getPreventInfoDisclosureState(): array
+    public static function getAntibotGlobalFirewallState(): array
     {
-        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Protect_Information')) {
+        if (! self::isPluginActive() || ! function_exists('wd_di')
+            || ! class_exists('\WP_Defender\Model\Setting\Antibot_Global_Firewall_Setting')) {
             return [
-                'active' => false,
-                'server' => 'unknown',
-                'autoApplicable' => false,
-                'manualRequired' => false,
+                'enabled' => false,
+                'managedBy' => '',
             ];
         }
 
-        $server = \WP_Defender\Component\Security_Tweaks\Servers\Server::get_current_server();
-        $tweak = new \WP_Defender\Component\Security_Tweaks\Protect_Information();
-        $protected = (bool) $tweak->check();
-        $autoApplicable = in_array($server, ['apache', 'litespeed'], true);
+        /** @var \WP_Defender\Component\IP\Antibot_Global_Firewall|null $service */
+        $service = class_exists('\WP_Defender\Component\IP\Antibot_Global_Firewall')
+            ? wd_di()->get(\WP_Defender\Component\IP\Antibot_Global_Firewall::class)
+            : null;
 
         return [
-            'active' => $protected,
-            'server' => $server,
-            'autoApplicable' => $autoApplicable,
-            'manualRequired' => ! $autoApplicable,
+            'enabled' => $service instanceof \WP_Defender\Component\IP\Antibot_Global_Firewall
+                ? $service->is_enabled()
+                : (bool) wd_di()->get(\WP_Defender\Model\Setting\Antibot_Global_Firewall_Setting::class)->enabled,
+            'managedBy' => $service instanceof \WP_Defender\Component\IP\Antibot_Global_Firewall
+                ? (string) $service->get_managed_by()
+                : '',
         ];
     }
 
-    public static function enablePreventInfoDisclosure(): array
+    public static function enableAntibotGlobalFirewall(): array
     {
-        if (! self::canUseHardeningApi() || ! class_exists('\WP_Defender\Component\Security_Tweaks\Protect_Information')) {
+        if (! self::isPluginActive() || ! function_exists('wd_di')
+            || ! class_exists('\WP_Defender\Model\Setting\Antibot_Global_Firewall_Setting')) {
             return [
                 'success' => false,
-                'message' => 'Hardening Defender (info disclosure) indisponible.',
+                'message' => 'Pare-feu AntiBot Defender indisponible.',
             ];
         }
 
-        $server = \WP_Defender\Component\Security_Tweaks\Servers\Server::get_current_server();
-        if (! in_array($server, ['apache', 'litespeed'], true)) {
-            return array_merge(
-                [
-                    'success' => false,
-                    'message' => sprintf(
-                        'Configuration automatique indisponible pour le serveur « %s ». Applique les règles manuellement dans Defender > Hardening.',
-                        $server
-                    ),
-                    'code' => 'manual_required',
-                ],
-                self::getPreventInfoDisclosureState()
-            );
+        /** @var \WP_Defender\Model\Setting\Antibot_Global_Firewall_Setting $model */
+        $model = wd_di()->get(\WP_Defender\Model\Setting\Antibot_Global_Firewall_Setting::class);
+        $model->enabled = true;
+        if ($model->managed_by === '') {
+            $model->managed_by = 'plugin';
         }
 
-        $tweak = new \WP_Defender\Component\Security_Tweaks\Protect_Information();
-        $result = $tweak->process($server);
-        if ($result instanceof \WP_Error) {
+        if (! $model->validate()) {
+            $message = method_exists($model, 'get_formatted_errors')
+                ? (string) $model->get_formatted_errors()
+                : 'Configuration AntiBot invalide.';
+
             return [
                 'success' => false,
-                'message' => $result->get_error_message(),
-            ];
-        }
-        if ($result !== true) {
-            return [
-                'success' => false,
-                'message' => 'Impossible d\'appliquer les règles de protection (.htaccess).',
+                'message' => $message,
             ];
         }
 
-        self::markHardeningTweakFixed(self::HARDENING_SLUG_PROTECT_INFORMATION);
+        $model->save();
+
+        if (class_exists('\WP_Defender\Component\IP\Antibot_Global_Firewall')) {
+            /** @var \WP_Defender\Component\IP\Antibot_Global_Firewall $service */
+            $service = wd_di()->get(\WP_Defender\Component\IP\Antibot_Global_Firewall::class);
+            if ('plugin' === $service->get_managed_by() && $service->maybe_download()) {
+                $service->download_and_store_blocklist();
+            }
+        }
+
+        if (class_exists('\WP_Defender\Component\Config\Config_Hub_Helper')) {
+            \WP_Defender\Component\Config\Config_Hub_Helper::set_clear_active_flag();
+        }
 
         return array_merge(
             [
                 'success' => true,
-                'message' => 'Protection contre la divulgation d\'informations activée.',
+                'message' => 'Pare-feu AntiBot global activé.',
             ],
-            self::getPreventInfoDisclosureState()
+            self::getAntibotGlobalFirewallState()
+        );
+    }
+
+    public static function getMaliciousBotDetectorState(): array
+    {
+        if (! self::isPluginActive() || ! function_exists('wd_di')
+            || ! class_exists('\WP_Defender\Model\Setting\User_Agent_Lockout')) {
+            return [
+                'moduleEnabled' => false,
+                'trapRobotsTxt' => false,
+                'catchFakeBots' => false,
+                'emptyHeaders' => false,
+                'active' => false,
+            ];
+        }
+
+        /** @var \WP_Defender\Model\Setting\User_Agent_Lockout $model */
+        $model = wd_di()->get(\WP_Defender\Model\Setting\User_Agent_Lockout::class);
+        $moduleEnabled = (bool) $model->enabled;
+        $trapRobotsTxt = $moduleEnabled && (bool) $model->malicious_bot_enabled;
+        $catchFakeBots = $moduleEnabled && (bool) $model->fake_bots_enabled;
+        $emptyHeaders = $moduleEnabled && (bool) $model->empty_headers;
+
+        return [
+            'moduleEnabled' => $moduleEnabled,
+            'trapRobotsTxt' => $trapRobotsTxt,
+            'catchFakeBots' => $catchFakeBots,
+            'emptyHeaders' => $emptyHeaders,
+            'active' => $trapRobotsTxt && $catchFakeBots && $emptyHeaders,
+        ];
+    }
+
+    public static function enableMaliciousBotDetector(): array
+    {
+        if (! self::isPluginActive() || ! function_exists('wd_di')
+            || ! class_exists('\WP_Defender\Model\Setting\User_Agent_Lockout')) {
+            return [
+                'success' => false,
+                'message' => 'Détection bots malveillants Defender indisponible.',
+            ];
+        }
+
+        /** @var \WP_Defender\Model\Setting\User_Agent_Lockout $model */
+        $model = wd_di()->get(\WP_Defender\Model\Setting\User_Agent_Lockout::class);
+        $oldEnabled = (bool) $model->enabled;
+        $oldMaliciousBot = (bool) $model->malicious_bot_enabled;
+
+        $model->enabled = true;
+        $model->malicious_bot_enabled = true;
+        $model->fake_bots_enabled = true;
+        $model->empty_headers = true;
+
+        if (! $model->validate()) {
+            $message = method_exists($model, 'get_formatted_errors')
+                ? (string) $model->get_formatted_errors()
+                : 'Configuration User Agent invalide.';
+
+            return [
+                'success' => false,
+                'message' => $message,
+            ];
+        }
+
+        $model->save();
+
+        if (class_exists('\WP_Defender\Component\Config\Config_Hub_Helper')) {
+            \WP_Defender\Component\Config\Config_Hub_Helper::set_clear_active_flag();
+        }
+
+        if (
+            class_exists('\WP_Defender\Component\Malicious_Bot')
+            && (
+                (! $oldEnabled && $model->malicious_bot_enabled)
+                || ($model->malicious_bot_enabled && ! $oldMaliciousBot)
+            )
+        ) {
+            wd_di()->get(\WP_Defender\Component\Malicious_Bot::class)->rotate_hash();
+        }
+
+        return array_merge(
+            [
+                'success' => true,
+                'message' => 'Détecteur de bots malveillants activé.',
+            ],
+            self::getMaliciousBotDetectorState()
         );
     }
 

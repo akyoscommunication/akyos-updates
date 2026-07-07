@@ -7,11 +7,11 @@ use AkyosUpdates\Core\Checks\CheckResult;
 use AkyosUpdates\Core\Context\SiteContext;
 use AkyosUpdates\Service\DefenderService;
 
-final class DefenderPreventInfoDisclosureCheck implements CheckInterface
+final class DefenderMaliciousBotDetectorCheck implements CheckInterface
 {
     public function getId(): string
     {
-        return 'security.defender_prevent_info_disclosure';
+        return 'security.defender_malicious_bot_detector';
     }
 
     public function getCategory(): string
@@ -21,18 +21,19 @@ final class DefenderPreventInfoDisclosureCheck implements CheckInterface
 
     public function getTitle(): string
     {
-        return 'Defender — Divulgation d\'informations';
+        return 'Defender — Détection bots malveillants';
     }
 
     public function getSuccessMessage(): string
     {
-        return 'Protection contre la divulgation d\'informations active.';
+        return 'Détection bots malveillants active.';
     }
 
     public function run(SiteContext $context): CheckResult
     {
-        $state = DefenderService::getPreventInfoDisclosureState();
-        $canUse = DefenderService::isPluginActive() && DefenderService::canUseHardeningApi();
+        $state = DefenderService::getMaliciousBotDetectorState();
+        $canUse = DefenderService::isPluginActive() && function_exists('wd_di')
+            && class_exists('\WP_Defender\Model\Setting\User_Agent_Lockout');
 
         if (! $canUse) {
             return new CheckResult(
@@ -41,7 +42,7 @@ final class DefenderPreventInfoDisclosureCheck implements CheckInterface
                 $this->getTitle(),
                 'warn',
                 'warning',
-                'Divulgation d\'informations non vérifiable tant que Defender n\'est pas actif.',
+                'Détection bots non vérifiable tant que Defender n\'est pas actif.',
                 false,
                 null,
                 $state
@@ -55,19 +56,18 @@ final class DefenderPreventInfoDisclosureCheck implements CheckInterface
                 $this->getTitle(),
                 'ok',
                 'success',
-                'Les fichiers sensibles sont protégés.',
+                'Toutes les protections anti-bots sont actives.',
                 false,
                 null,
                 $state
             );
         }
 
-        $message = $state['manualRequired']
-            ? sprintf(
-                'Fichiers sensibles potentiellement exposés (serveur %s — configuration manuelle requise).',
-                (string) $state['server']
-            )
-            : 'Fichiers sensibles potentiellement exposés.';
+        $missing = array_values(array_filter([
+            ! $state['trapRobotsTxt'] ? 'Piège robots.txt' : null,
+            ! $state['catchFakeBots'] ? 'Faux bots' : null,
+            ! $state['emptyHeaders'] ? 'Headers vides' : null,
+        ]));
 
         return new CheckResult(
             $this->getId(),
@@ -75,10 +75,10 @@ final class DefenderPreventInfoDisclosureCheck implements CheckInterface
             $this->getTitle(),
             'warn',
             'warning',
-            $message,
-            (bool) $state['autoApplicable'],
-            $state['autoApplicable'] ? 'security.defender_enable_prevent_info_disclosure' : null,
-            $state
+            sprintf('%d protection(s) manquante(s): %s.', count($missing), implode(', ', $missing)),
+            true,
+            'security.defender_enable_malicious_bot_detector',
+            array_merge($state, ['missing' => $missing])
         );
     }
 }
