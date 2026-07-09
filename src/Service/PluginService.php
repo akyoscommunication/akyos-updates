@@ -16,6 +16,7 @@ final class PluginService
     private const SMARTCRAWL_MAIN_FILE_CANDIDATES = [
         'smartcrawl-wordpress-seo/wpmu-dev-seo.php',
         'smartcrawl-seo/wpmu-dev-seo.php',
+        'wpmu-dev-seo/wpmu-dev-seo.php',
     ];
 
     private const SMUSH_MAIN_FILE_CANDIDATES = [
@@ -60,15 +61,15 @@ final class PluginService
         return [
             'defenderActive' => $defenderActive,
             'defenderInstalled' => $defenderInstalled,
-            'defenderActivateFile' => ($defenderInstalled && ! $defenderActive) ? $defenderFile : null,
+            'defenderActivateFile' => ($defenderInstalled && !$defenderActive) ? $defenderFile : null,
 
             'brandaActive' => $brandaActive,
             'brandaInstalled' => $brandaInstalled,
-            'brandaActivateFile' => ($brandaInstalled && ! $brandaActive) ? BrandaService::PLUGIN_FILE : null,
+            'brandaActivateFile' => ($brandaInstalled && !$brandaActive) ? BrandaService::PLUGIN_FILE : null,
 
             'hummingbirdActive' => $hbActive,
             'hummingbirdInstalled' => $hbInstalled,
-            'hummingbirdActivateFile' => ($hbInstalled && ! $hbActive) ? self::HUMMINGBIRD_MAIN_FILE : null,
+            'hummingbirdActivateFile' => ($hbInstalled && !$hbActive) ? self::HUMMINGBIRD_MAIN_FILE : null,
 
             'seoPluginActive' => $seoPluginActive,
             'seoYoastInstalled' => $yoastInstalled,
@@ -81,7 +82,7 @@ final class PluginService
 
             'smushActive' => $smushActive,
             'smushInstalled' => $smushInstalled,
-            'smushActivateFile' => ($smushInstalled && ! $smushActive && $smushFile !== null) ? $smushFile : null,
+            'smushActivateFile' => ($smushInstalled && !$smushActive && $smushFile !== null) ? $smushFile : null,
 
             'rgpdPluginActive' => RgpdPluginCheck::hasActiveRgpdRelatedPlugin(),
         ];
@@ -89,7 +90,7 @@ final class PluginService
 
     private static function ensurePluginApiLoaded(): void
     {
-        if (! function_exists('is_plugin_active')) {
+        if (!function_exists('is_plugin_active')) {
             require_once ABSPATH . 'wp-admin/includes/plugin.php';
         }
     }
@@ -134,7 +135,7 @@ final class PluginService
     public static function listActivePluginFiles(): array
     {
         self::ensurePluginApiLoaded();
-        if (! is_multisite()) {
+        if (!is_multisite()) {
             $active = (array) get_option('active_plugins', []);
             return array_values(array_filter(array_map('strval', $active)));
         }
@@ -181,11 +182,11 @@ final class PluginService
             return [null, null];
         }
 
-        if ($yoastInstalled && ! $yoastActive) {
+        if ($yoastInstalled && !$yoastActive) {
             return [self::YOAST_MAIN_FILE, 'Yoast SEO'];
         }
 
-        if ($smartcrawlInstalled && ! $smartcrawlActive && $smartcrawlFile !== null) {
+        if ($smartcrawlInstalled && !$smartcrawlActive && $smartcrawlFile !== null) {
             return [$smartcrawlFile, 'SmartCrawl'];
         }
 

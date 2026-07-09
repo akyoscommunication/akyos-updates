@@ -68,7 +68,7 @@ final class RgpdLegalPagesPresenceCheck implements CheckInterface
         ];
 
         foreach ($pages as $page) {
-            if (! $page instanceof WP_Post) {
+            if (!$page instanceof WP_Post) {
                 continue;
             }
 
@@ -113,7 +113,7 @@ final class RgpdLegalPagesPresenceCheck implements CheckInterface
         foreach ($definitions as $key => $meta) {
             $row = $found[$key];
             $present = $row !== null;
-            if (! $present) {
+            if (!$present) {
                 $missingKeys[] = $key;
             }
             $requirements[] = [
@@ -161,7 +161,7 @@ final class RgpdLegalPagesPresenceCheck implements CheckInterface
     {
         $hasPolitique = str_contains($haystack, 'politique');
         $hasConservation = str_contains($haystack, 'conservation');
-        $hasDonnees = str_contains($haystack, 'données') || str_contains($haystack, 'donnees');
+        $hasDonnees = str_contains($haystack, 'données') || str_contains($haystack, 'donnees') || str_contains($haystack, 'confidentialité') || str_contains($haystack, 'conservation');
 
         if ($hasPolitique && ($hasConservation || $hasDonnees)) {
             return true;
