@@ -7,6 +7,7 @@ const DEFAULT_SEO_FIX_LABEL = "Corriger";
 import { SeoSitemapSection } from "./checks/SeoSitemapSection";
 import { SeoLegalPagesCheck } from "./checks/SeoLegalPagesCheck";
 import { SeoIndexabilityCheck } from "./checks/SeoIndexabilityCheck";
+import { SeoSiteIndexingCheck } from "./checks/SeoSiteIndexingCheck";
 
 export function SEOChecks({
 	results,
@@ -42,6 +43,9 @@ export function SEOChecks({
 				}
 				if (result.id === "seo.legal_pages_noindex") {
 					return <SeoLegalPagesCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
+				}
+				if (result.id === "seo.site_indexing") {
+					return <SeoSiteIndexingCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;
 				}
 				if (result.id === "seo.indexability") {
 					return <SeoIndexabilityCheck key={result.id} result={result} isFixBusy={isFixBusy} onFix={onFix} />;

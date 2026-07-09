@@ -1,0 +1,426 @@
+/* Akyos Updates — admin bar: maintenance */
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status {
+	margin-left: 4px;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status > .ab-item {
+	display: inline-flex !important;
+	align-items: center;
+	height: 28px !important;
+	margin-top: 4px;
+	padding: 0 2px !important;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status > .ab-item:hover,
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status.hover > .ab-item,
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status > .ab-item:focus {
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+#wpadminbar .au-ab-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 28px;
+	padding: 0 10px 0 8px;
+	border-radius: 999px;
+	background: #fff;
+	color: #0f172a;
+	line-height: 1;
+}
+
+#wpadminbar .au-ab-chip__dot {
+	flex-shrink: 0;
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+}
+
+#wpadminbar .au-ab-chip__dot--idle {
+	background: #94a3b8;
+}
+
+#wpadminbar .au-ab-chip__dot--warning {
+	background: #f59e0b;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+#wpadminbar .au-ab-chip__dot--critical {
+	background: #ef4444;
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22);
+	animation: au-ab-dot-pulse 2.4s ease-in-out infinite;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status > .ab-item:hover .au-ab-chip__dot--critical,
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status.hover > .ab-item .au-ab-chip__dot--critical {
+	animation: none;
+}
+
+#wpadminbar .au-ab-chip__label {
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	color: #0f172a;
+	white-space: nowrap;
+}
+
+#wpadminbar .au-ab-chip__hint {
+	font-size: 10px;
+	font-weight: 600;
+	line-height: 1;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+#wpadminbar .au-ab-chip__counts {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: 2px;
+}
+
+#wpadminbar .au-ab-chip__pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 7px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+#wpadminbar .au-ab-chip__pill--critical {
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
+#wpadminbar .au-ab-chip__pill--warning {
+	background: #fffbeb;
+	color: #b45309;
+}
+
+/* Dropdown */
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-sub-wrapper {
+	background: #fff !important;
+	box-shadow: none !important;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-submenu {
+	background: #fff !important;
+	box-shadow: none !important;
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	min-width: 320px;
+	max-width: 380px;
+	max-height: min(70vh, 520px);
+	margin-top: 2px !important;
+	padding: 0 !important;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-submenu > li:not(.au-ab-panel-head):not(.au-ab-panel-cta):not(.au-ab-panel-more) {
+	flex-shrink: 0;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-submenu .au-ab-panel-cta,
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-submenu #wp-admin-bar-akyos-updates-maintenance-cta {
+	position: sticky;
+	bottom: 0;
+	z-index: 2;
+	margin-top: auto;
+}
+
+#wpadminbar #wp-admin-bar-akyos-updates-maintenance-status .ab-submenu .ab-item {
+	height: auto !important;
+	padding: 0 !important;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+#wpadminbar .au-ab-panel-head > .ab-item {
+	padding: 0 !important;
+	cursor: default;
+	pointer-events: none;
+}
+
+#wpadminbar .au-ab-panel-head__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	padding: 12px 14px 10px;
+	border-bottom: 1px solid #f1f5f9;
+	background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+	position: sticky;
+	top: 0;
+	z-index: 3;
+}
+
+#wpadminbar .au-ab-panel-head__row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+#wpadminbar .au-ab-panel-head__title {
+	font-size: 13px;
+	font-weight: 700;
+	color: #0f172a;
+	letter-spacing: -0.01em;
+}
+
+#wpadminbar .au-ab-panel-head__subtitle {
+	font-size: 11px;
+	font-weight: 500;
+	color: #64748b;
+}
+
+#wpadminbar .au-ab-panel-head__env {
+	flex-shrink: 0;
+	padding: 2px 7px;
+	border-radius: 4px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+}
+
+#wpadminbar .au-ab-panel-head__env--production {
+	background: #ecfdf5;
+	color: #047857;
+}
+
+#wpadminbar .au-ab-panel-head__env--development {
+	background: #ede9fe;
+	color: #6d28d9;
+}
+
+#wpadminbar .au-ab-panel-head__env--staging {
+	background: #fef3c7;
+	color: #b45309;
+}
+
+#wpadminbar .au-ab-panel-head__env--other {
+	background: #f1f5f9;
+	color: #475569;
+}
+
+#wpadminbar .au-ab-panel-head__stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+#wpadminbar .au-ab-panel-head__stat {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+#wpadminbar .au-ab-panel-head__stat--critical {
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
+#wpadminbar .au-ab-panel-head__stat--warning {
+	background: #fffbeb;
+	color: #b45309;
+}
+
+#wpadminbar .au-ab-panel-section > .ab-item {
+	padding: 7px 14px 4px !important;
+	font-size: 10px !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	cursor: default;
+	pointer-events: none;
+}
+
+#wpadminbar .au-ab-panel-section--critical > .ab-item {
+	color: #b91c1c !important;
+	background: #fef2f2 !important;
+}
+
+#wpadminbar .au-ab-panel-section--warning > .ab-item {
+	color: #b45309 !important;
+	background: #fffbeb !important;
+}
+
+#wpadminbar .au-ab-panel-item > .ab-item {
+	display: block;
+	padding: 0 !important;
+	border-left: 3px solid transparent;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease;
+}
+
+#wpadminbar .au-ab-panel-item--critical > .ab-item {
+	border-left-color: #fecaca;
+}
+
+#wpadminbar .au-ab-panel-item--warning > .ab-item {
+	border-left-color: #fde68a;
+}
+
+#wpadminbar .au-ab-panel-item > .ab-item:hover,
+#wpadminbar .au-ab-panel-item.hover > .ab-item {
+	background: #f8fafc !important;
+}
+
+#wpadminbar .au-ab-panel-item--critical > .ab-item:hover,
+#wpadminbar .au-ab-panel-item--critical.hover > .ab-item {
+	border-left-color: #ef4444;
+}
+
+#wpadminbar .au-ab-panel-item--warning > .ab-item:hover,
+#wpadminbar .au-ab-panel-item--warning.hover > .ab-item {
+	border-left-color: #f59e0b;
+}
+
+#wpadminbar .au-ab-panel-item__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	padding: 9px 14px 9px 12px;
+}
+
+#wpadminbar .au-ab-panel-item--featured > .ab-item {
+	background: #faf5ff !important;
+	border-left-color: #8b5cf6 !important;
+}
+
+#wpadminbar .au-ab-panel-item--featured > .ab-item:hover,
+#wpadminbar .au-ab-panel-item--featured.hover > .ab-item {
+	background: #f3e8ff !important;
+	border-left-color: #7c3aed !important;
+}
+
+#wpadminbar .au-ab-panel-item__flag {
+	display: inline-flex;
+	align-self: flex-start;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background: #ede9fe;
+	color: #6d28d9;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+#wpadminbar .au-ab-panel-item__top {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+#wpadminbar .au-ab-panel-item__badge {
+	display: inline-flex;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 9px;
+	font-weight: 700;
+	line-height: 1.2;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+#wpadminbar .au-ab-panel-item__badge--critical {
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
+#wpadminbar .au-ab-panel-item__badge--warning {
+	background: #fffbeb;
+	color: #b45309;
+}
+
+#wpadminbar .au-ab-panel-item__cat {
+	order: -1;
+	font-size: 10px;
+	font-weight: 700;
+	color: #94a3b8;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+#wpadminbar .au-ab-panel-item__title {
+	font-size: 12px;
+	font-weight: 650;
+	line-height: 1.35;
+	color: #0f172a;
+}
+
+#wpadminbar .au-ab-panel-item__msg {
+	font-size: 11px;
+	line-height: 1.45;
+	color: #64748b;
+}
+
+#wpadminbar .au-ab-panel-more > .ab-item {
+	padding: 8px 14px !important;
+	font-size: 11px !important;
+	font-weight: 600 !important;
+	color: #64748b !important;
+	border-top: 1px dashed #e2e8f0;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+#wpadminbar .au-ab-panel-more > .ab-item:hover,
+#wpadminbar .au-ab-panel-more.hover > .ab-item {
+	background: #f8fafc !important;
+	color: #0f172a !important;
+}
+
+#wpadminbar .au-ab-panel-cta > .ab-item {
+	padding: 12px 14px !important;
+	font-size: 12px !important;
+	font-weight: 700 !important;
+	text-align: center;
+	color: #fff !important;
+	background: #0052ff !important;
+	border-top: 1px solid #0047db;
+	box-shadow: none;
+	transition: background 0.15s ease;
+}
+
+#wpadminbar .au-ab-panel-cta > .ab-item:hover,
+#wpadminbar .au-ab-panel-cta.hover > .ab-item,
+#wpadminbar .au-ab-panel-cta > .ab-item:focus {
+	background: #0047db !important;
+	color: #fff !important;
+}
+
+@keyframes au-ab-dot-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+	}
+	50% {
+		box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.32);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#wpadminbar .au-ab-panel-item > .ab-item,
+	#wpadminbar .au-ab-chip__dot--critical {
+		animation: none;
+		transition: none;
+	}
+}

@@ -4,7 +4,9 @@ namespace AkyosUpdates\Core;
 
 use AkyosUpdates\Core\Checks\CheckInterface;
 use AkyosUpdates\Core\Checks\Seo\SeoIndexabilityCheck;
+use AkyosUpdates\Core\Checks\Seo\SeoSiteIndexingCheck;
 use AkyosUpdates\Core\Context\InstallationContextDetector;
+use AkyosUpdates\Service\EnvironmentService;
 use AkyosUpdates\Service\ToolAvailabilityService;
 use AkyosUpdates\Service\JsonService;
 use AkyosUpdates\Service\PluginService;
@@ -37,6 +39,10 @@ final class Maintenance
 
         return array_merge(
             $context->toArray(),
+            [
+                'wpEnv' => EnvironmentService::getWpEnv($context->getProjectRootPath()),
+                'isProduction' => EnvironmentService::isProduction($context->getProjectRootPath()),
+            ],
             ToolAvailabilityService::probe(
                 $context->getProjectRootPath(),
                 $context->getWordpressRootPath()
@@ -107,6 +113,76 @@ final class Maintenance
         }
 
         return $this->getReport('');
+    }
+
+    /**
+     * Résumé des points critiques / alertes du dernier rapport pour la barre d’admin.
+     *
+     * @return array{
+     *     hasReport: bool,
+     *     critical: list<array<string, mixed>>,
+     *     warnings: list<array<string, mixed>>,
+     *     criticalCount: int,
+     *     warningCount: int
+     * }
+     */
+    public function getStoredAlertSummary(): array
+    {
+        $last = get_option('akyos_updates_last_report', []);
+        if (! is_array($last)) {
+            return self::emptyAlertSummary();
+        }
+
+        $results = is_array($last['results'] ?? null) ? $last['results'] : [];
+        if ($results === [] || $this->isReportOutdatedForCurrentChecks($results)) {
+            return self::emptyAlertSummary();
+        }
+
+        $critical = [];
+        $warnings = [];
+        foreach ($this->normalizeResultsForDisplay($results) as $result) {
+            if (! is_array($result)) {
+                continue;
+            }
+            if (($result['status'] ?? '') === 'skipped') {
+                continue;
+            }
+            if (($result['countsTowardCategoryStats'] ?? true) === false) {
+                continue;
+            }
+            if (($result['id'] ?? '') === 'seo.indexability') {
+                continue;
+            }
+
+            $status = (string) ($result['status'] ?? '');
+            if ($status === 'fail') {
+                $critical[] = $result;
+                continue;
+            }
+            if ($status === 'warn') {
+                $warnings[] = $result;
+            }
+        }
+
+        return [
+            'hasReport' => true,
+            'critical' => $critical,
+            'warnings' => $warnings,
+            'criticalCount' => count($critical),
+            'warningCount' => count($warnings),
+        ];
+    }
+
+    /** @return array{hasReport: bool, critical: list<array>, warnings: list<array>, criticalCount: int, warningCount: int} */
+    private static function emptyAlertSummary(): array
+    {
+        return [
+            'hasReport' => false,
+            'critical' => [],
+            'warnings' => [],
+            'criticalCount' => 0,
+            'warningCount' => 0,
+        ];
     }
 
     /**
@@ -445,7 +521,11 @@ final class Maintenance
     private function normalizeResultsForDisplay(array $results): array
     {
         return array_map(
-            static fn(array $row): array => SeoIndexabilityCheck::normalizeStoredResult($row),
+            static function (array $row): array {
+                $row = SeoSiteIndexingCheck::normalizeStoredResult($row);
+
+                return SeoIndexabilityCheck::normalizeStoredResult($row);
+            },
             $results
         );
     }

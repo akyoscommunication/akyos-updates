@@ -26,6 +26,7 @@ use AkyosUpdates\Core\Actions\HummingbirdApplyPageCacheConfigAction;
 use AkyosUpdates\Core\Actions\HummingbirdEnableGzipAction;
 use AkyosUpdates\Core\Actions\CreateRgpdLegalPageAction;
 use AkyosUpdates\Core\Actions\SeoToggleIndexingAction;
+use AkyosUpdates\Core\Actions\SeoToggleSiteIndexingAction;
 use AkyosUpdates\Core\Actions\SmushApplyImageSizingAction;
 use AkyosUpdates\Core\Actions\SmushApplyNextGenFormatAction;
 use AkyosUpdates\Core\Actions\SmushApplyRecommendedConfigAction;
@@ -56,6 +57,7 @@ use AkyosUpdates\Core\Checks\Rgpd\RgpdAnalyticsTrackingCheck;
 use AkyosUpdates\Core\Checks\Rgpd\RgpdLegalPagesPresenceCheck;
 use AkyosUpdates\Core\Checks\Rgpd\RgpdPluginCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoIndexabilityCheck;
+use AkyosUpdates\Core\Checks\Seo\SeoSiteIndexingCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoLegalPagesNoindexCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoPluginCheck;
 use AkyosUpdates\Core\Checks\WordPress\CommentsDisabledCheck;
@@ -110,6 +112,7 @@ final class Plugin
             new PluginsInventoryCheck(),
             new SeoPluginCheck(),
             new SeoLegalPagesNoindexCheck(),
+            new SeoSiteIndexingCheck(),
             new SeoIndexabilityCheck(),
             new DefenderPluginCheck(),
             new AdminLiteUserCheck(),
@@ -160,6 +163,7 @@ final class Plugin
             new GenerateComposerGuidanceAction(),
             new GenerateGitignorePluginExceptionsAction(),
             new SeoToggleIndexingAction(),
+            new SeoToggleSiteIndexingAction(),
             new CreateRgpdLegalPageAction(),
             new DefenderSaveMaskLoginAction(),
             new DefenderSaveRecaptchaKeysAction(),
@@ -222,6 +226,7 @@ final class Plugin
         (new RgpdFrontend($rgpdSettings))->register();
         (new RgpdWooTracking($rgpdSettings))->register();
         (new RgpdDashboardWidget($linkSettings))->register();
+        (new MaintenanceAdminBar($analyzer))->register();
 
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
             (new TarteaucitronCatalogService())->syncFromCdn(true);
