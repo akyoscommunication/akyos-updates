@@ -3,6 +3,7 @@
 namespace AkyosUpdates\Plugin;
 
 use AkyosUpdates\Core\Maintenance;
+use AkyosUpdates\Service\DisplaySettingsService;
 use AkyosUpdates\Service\EnvironmentService;
 
 final class MaintenanceAdminBar
@@ -13,8 +14,10 @@ final class MaintenanceAdminBar
     /** @var list<string> */
     private const PRIORITY_IDS = ['seo.site_indexing'];
 
-    public function __construct(private Maintenance $analyzer)
-    {
+    public function __construct(
+        private Maintenance $analyzer,
+        private DisplaySettingsService $display
+    ) {
     }
 
     public function register(): void
@@ -26,7 +29,7 @@ final class MaintenanceAdminBar
 
     public function enqueueStyles(): void
     {
-        if (! is_admin_bar_showing() || ! current_user_can('manage_options')) {
+        if (! $this->display->showMaintenanceAdminBar() || ! is_admin_bar_showing() || ! current_user_can('manage_options')) {
             return;
         }
 
@@ -44,7 +47,7 @@ final class MaintenanceAdminBar
     /** @param \WP_Admin_Bar $wp_admin_bar */
     public function renderMenu($wp_admin_bar): void
     {
-        if (! current_user_can('manage_options')) {
+        if (! $this->display->showMaintenanceAdminBar() || ! current_user_can('manage_options')) {
             return;
         }
 

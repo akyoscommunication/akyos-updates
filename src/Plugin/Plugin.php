@@ -88,6 +88,7 @@ use AkyosUpdates\Service\SmushService;
 use AkyosUpdates\Service\RgpdSettingsService;
 use AkyosUpdates\Service\CmpCatalogService;
 use AkyosUpdates\Service\FixRunnerService;
+use AkyosUpdates\Service\DisplaySettingsService;
 use AkyosUpdates\Service\LinkSettingsService;
 use AkyosUpdates\Service\LoginTokenService;
 use AkyosUpdates\Service\MawRegistrationService;
@@ -103,6 +104,7 @@ use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
 use AkyosUpdates\Controller\RgpdController;
 use AkyosUpdates\Controller\LinkController;
+use AkyosUpdates\Controller\SettingsController;
 
 final class Plugin
 {
@@ -215,14 +217,16 @@ final class Plugin
         $rgpdSettings = new RgpdSettingsService();
         $legalPages = new RgpdLegalPagesService($rgpdSettings);
         $linkSettings = new LinkSettingsService();
+        $displaySettings = new DisplaySettingsService();
         $loginToken = new LoginTokenService();
 
-        $adminPage = new AdminPage($analyzer, $rgpdSettings, $linkSettings);
+        $adminPage = new AdminPage($analyzer, $rgpdSettings, $linkSettings, $displaySettings);
         $routeController = new RouteController($analyzer);
         $apiController = new ApiController($analyzer, $fixRunner, $linkSettings, $loginToken);
         $fixController = new FixRestController($fixRunner);
         $pluginController = new PluginController();
         $linkController = new LinkController($linkSettings, new MawRegistrationService($linkSettings));
+        $settingsController = new SettingsController($displaySettings);
         $rgpdController = new RgpdController(
             $rgpdSettings,
             new CompanyLookupService(),
@@ -243,6 +247,7 @@ final class Plugin
         add_action('rest_api_init', [$rgpdController, 'register']);
 
         add_action('rest_api_init', [$linkController, 'register']);
+        add_action('rest_api_init', [$settingsController, 'register']);
 
         $loginToken->register();
 
@@ -250,7 +255,7 @@ final class Plugin
         (new RgpdFrontend($rgpdSettings))->register();
         (new RgpdWooTracking($rgpdSettings))->register();
         (new RgpdDashboardWidget($linkSettings))->register();
-        (new MaintenanceAdminBar($analyzer))->register();
+        (new MaintenanceAdminBar($analyzer, $displaySettings))->register();
 
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
             (new TarteaucitronCatalogService())->syncFromCdn(true);

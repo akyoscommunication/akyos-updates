@@ -3,6 +3,7 @@
 namespace AkyosUpdates\Plugin;
 
 use AkyosUpdates\Core\Maintenance;
+use AkyosUpdates\Service\DisplaySettingsService;
 use AkyosUpdates\Service\RgpdSettingsService;
 use AkyosUpdates\Service\LinkSettingsService;
 
@@ -22,7 +23,8 @@ final class AdminPage
     public function __construct(
         private Maintenance $analyzer,
         private ?RgpdSettingsService $rgpdSettings = null,
-        private ?LinkSettingsService $linkSettings = null
+        private ?LinkSettingsService $linkSettings = null,
+        private ?DisplaySettingsService $displaySettings = null
     ) {
     }
 
@@ -124,6 +126,9 @@ final class AdminPage
             'link' => $this->linkSettings
                 ? $this->linkSettings->publicView()
                 : (new LinkSettingsService())->publicView(),
+            'display' => $this->displaySettings
+                ? $this->displaySettings->publicView()
+                : (new DisplaySettingsService())->publicView(),
             'pages' => [
                 'maintenance' => admin_url('admin.php?page=' . self::PAGE_MAINTENANCE),
                 'rgpd' => admin_url('admin.php?page=' . self::PAGE_RGPD),
