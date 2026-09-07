@@ -257,6 +257,10 @@ final class Plugin
         (new RgpdDashboardWidget($linkSettings))->register();
         (new MaintenanceAdminBar($analyzer, $displaySettings))->register();
 
+        if (defined('WP_CLI') && WP_CLI) {
+            \WP_CLI::add_command('akyos-updates', new \AkyosUpdates\Cli\Command($analyzer, $fixRunner));
+        }
+
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
             (new TarteaucitronCatalogService())->syncFromCdn(true);
         });
