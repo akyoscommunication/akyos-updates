@@ -5,7 +5,7 @@ const BRANDA_BACKOFFICE_CHECK_IDS = new Set([
 ]);
 
 const HUMMINGBIRD_CHECK_PREFIX = "performance.hummingbird_";
-const SEO_FALLBACK_CHECK_IDS = new Set(["seo.legal_pages_noindex"]);
+const SEO_FALLBACK_CHECK_IDS = new Set(["seo.legal_pages_noindex", "seo.site_indexing"]);
 
 export function filterDisplayedCheckResults(selectedResults, safeStep, presence) {
 	if (!presence) {

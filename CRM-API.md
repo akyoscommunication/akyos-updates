@@ -94,7 +94,7 @@ Réponse :
 
 Le lien utilise l’URL de connexion réelle (Defender Mask Login si actif). Connexion en tant que premier administrateur du site.
 
-### Diagnostic en lecture seule (1.1.0)
+### Diagnostic en lecture seule (1.3.0)
 
 Utilisés par le diagnostic de la fiche projet MAW (et son MCP). Jamais d’écriture.
 

@@ -6,7 +6,15 @@ export function buildOverviewItems(overview = {}) {
 		["PHP", overview.phpVersion || "n/a"],
 		["Theme", overview.activeTheme || "n/a"],
 		["Installation", overview.installationType || "n/a"],
+		["WP_ENV", overview.wpEnv || "n/a"],
 	];
+}
+
+function overviewValueClass(label, value, overview) {
+	if (label === "WP_ENV" && overview.isProduction === false) {
+		return "min-w-0 truncate font-semibold text-amber-700";
+	}
+	return "min-w-0 truncate font-semibold text-slate-900";
 }
 
 export function DashboardInfos({
@@ -38,7 +46,7 @@ export function DashboardInfos({
 								className={`inline-flex min-w-0 max-w-full items-center gap-1 ${i > 0 ? "border-l border-slate-200 pl-2.5 ml-2 sm:pl-3 sm:ml-3" : ""}`}
 							>
 								<span className="shrink-0 font-mono uppercase tracking-[0.06em] text-slate-500">{row[0]}</span>
-								<span className="min-w-0 truncate font-semibold text-slate-900">{row[1]}</span>
+								<span className={overviewValueClass(row[0], row[1], overview)}>{row[1]}</span>
 							</span>
 						))}
 					</div>
@@ -85,9 +93,25 @@ export function DashboardInfos({
 			</h2>
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
 				{items.map((row) => (
-					<div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" key={row[0]}>
+					<div
+						className={`rounded-xl border bg-white p-4 shadow-sm ${
+							row[0] === "WP_ENV" && overview.isProduction === false
+								? "border-amber-300 bg-amber-50"
+								: "border-slate-200"
+						}`}
+						key={row[0]}
+					>
 						<div className="font-mono text-xs uppercase tracking-[0.12em] text-slate-500">{row[0]}</div>
-						<div className="mt-1.5 text-2xl font-bold text-slate-900">{row[1]}</div>
+						<div
+							className={`mt-1.5 text-2xl font-bold ${
+								row[0] === "WP_ENV" && overview.isProduction === false ? "text-amber-800" : "text-slate-900"
+							}`}
+						>
+							{row[1]}
+						</div>
+						{row[0] === "WP_ENV" && overview.isProduction === false ? (
+							<p className="mt-2 text-xs font-medium text-amber-900">Environnement non production</p>
+						) : null}
 					</div>
 				))}
 			</div>

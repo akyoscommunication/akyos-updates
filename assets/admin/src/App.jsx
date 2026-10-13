@@ -519,6 +519,39 @@ export function App() {
 		})
 			.then((res) => {
 				addToast(res.message || "Action exécutée.", res.success ? "success" : "error");
+				if (res.success && result.actionId === "seo.toggle_site_indexing" && payloadOverride && typeof payloadOverride.indexed === "boolean") {
+					setReport((previousReport) => {
+						if (!previousReport?.results) {
+							return previousReport;
+						}
+						const nextResults = previousReport.results.map((item) => {
+							if (item.id !== "seo.site_indexing") {
+								return item;
+							}
+							const nextIndexed = Boolean(payloadOverride.indexed);
+							const payload = { ...(item.payload || {}), indexed: nextIndexed };
+							const isProd = Boolean(payload.isProduction);
+							const wpEnvLabel = payload.wpEnv || "dev";
+							return {
+								...item,
+								payload: {
+									...payload,
+									envRisk: isProd ? (nextIndexed ? "live_ok" : "live_not_indexed") : nextIndexed ? "dev_indexed" : "dev_environment",
+								},
+								status: isProd && nextIndexed ? "ok" : "fail",
+								severity: isProd && nextIndexed ? "success" : "high",
+								message: nextIndexed
+									? isProd
+										? "Site en ligne (production) : indexation active pour les moteurs de recherche."
+										: `Critique : le site est indexable en « ${wpEnvLabel} ». Coupez l’indexation — ce n’est pas l’environnement de production.`
+									: isProd
+										? "Critique : site en ligne (production) mais non indexé — les moteurs de recherche sont dissuadés d’indexer le site."
+										: `Environnement « ${wpEnvLabel} » : vous n’êtes pas sur le site en ligne. L’indexation doit rester désactivée.`,
+							};
+						});
+						return { ...previousReport, results: nextResults };
+					});
+				}
 				if (res.success && result.actionId === "seo.toggle_indexing" && payloadOverride) {
 					setReport((previousReport) => {
 						if (!previousReport?.results) {

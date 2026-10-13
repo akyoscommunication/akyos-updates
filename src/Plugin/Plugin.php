@@ -15,7 +15,12 @@ use AkyosUpdates\Core\Actions\ChangeWordPressVersionAction;
 use AkyosUpdates\Core\Actions\DefenderSaveMaskLoginAction;
 use AkyosUpdates\Core\Actions\DefenderSaveRecaptchaKeysAction;
 use AkyosUpdates\Core\Actions\DefenderApplyFirewallTranslationsAction;
+use AkyosUpdates\Core\Actions\DefenderEnableAntibotGlobalFirewallAction;
 use AkyosUpdates\Core\Actions\DefenderEnableGlobalIpBlockerAction;
+use AkyosUpdates\Core\Actions\DefenderEnableMaliciousBotDetectorAction;
+use AkyosUpdates\Core\Actions\DefenderEnableLoginDurationAction;
+use AkyosUpdates\Core\Actions\DefenderEnableDisableTrackbacksAction;
+use AkyosUpdates\Core\Actions\DefenderEnablePreventUserEnumerationAction;
 use AkyosUpdates\Core\Actions\DefenderEnablePwnedPasswordsAction;
 use AkyosUpdates\Core\Actions\DefenderEnableSecurityHeadersAction;
 use AkyosUpdates\Core\Actions\GenerateComposerGuidanceAction;
@@ -26,11 +31,14 @@ use AkyosUpdates\Core\Actions\HummingbirdApplyPageCacheConfigAction;
 use AkyosUpdates\Core\Actions\HummingbirdEnableGzipAction;
 use AkyosUpdates\Core\Actions\CreateRgpdLegalPageAction;
 use AkyosUpdates\Core\Actions\SeoToggleIndexingAction;
+use AkyosUpdates\Core\Actions\SeoToggleSiteIndexingAction;
 use AkyosUpdates\Core\Actions\SmushApplyImageSizingAction;
 use AkyosUpdates\Core\Actions\SmushApplyNextGenFormatAction;
 use AkyosUpdates\Core\Actions\SmushApplyRecommendedConfigAction;
 use AkyosUpdates\Core\Actions\SmushApplyResizeLargeAction;
 use AkyosUpdates\Core\Actions\SetFaviconAction;
+use AkyosUpdates\Core\Actions\UpdateTranslationsAction;
+use AkyosUpdates\Core\Checks\Plugins\AuthJsonGitignoreCheck;
 use AkyosUpdates\Core\Checks\Plugins\AuthJsonRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerRootCheck;
 use AkyosUpdates\Core\Checks\Plugins\ComposerPluginsCheck;
@@ -44,10 +52,15 @@ use AkyosUpdates\Core\Checks\Images\SmushVersionUpgradeCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdAdvancedCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdGzipCheck;
 use AkyosUpdates\Core\Checks\Performance\HummingbirdPageCacheCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderAntibotGlobalFirewallCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderDisableTrackbacksCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderFirewallTranslationsCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderGlobalIpBlockerCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderLoginDurationCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderMaliciousBotDetectorCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderMaskLoginCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderPluginCheck;
+use AkyosUpdates\Core\Checks\Security\DefenderPreventUserEnumerationCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderPwnedPasswordsCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderRecaptchaCheck;
 use AkyosUpdates\Core\Checks\Security\DefenderSecurityHeadersCheck;
@@ -55,6 +68,7 @@ use AkyosUpdates\Core\Checks\Rgpd\RgpdAnalyticsTrackingCheck;
 use AkyosUpdates\Core\Checks\Rgpd\RgpdLegalPagesPresenceCheck;
 use AkyosUpdates\Core\Checks\Rgpd\RgpdPluginCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoIndexabilityCheck;
+use AkyosUpdates\Core\Checks\Seo\SeoSiteIndexingCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoLegalPagesNoindexCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoPluginCheck;
 use AkyosUpdates\Core\Checks\WordPress\CommentsDisabledCheck;
@@ -64,6 +78,7 @@ use AkyosUpdates\Core\Checks\BackOffice\AdminLiteUserCheck;
 use AkyosUpdates\Core\Checks\BackOffice\BrandaDashboardWidgetsCheck;
 use AkyosUpdates\Core\Checks\BackOffice\BrandaSmtpCheck;
 use AkyosUpdates\Core\Checks\WordPress\ActiveThemeUpdateCheck;
+use AkyosUpdates\Core\Checks\WordPress\TranslationUpdatesCheck;
 use AkyosUpdates\Core\Checks\WordPress\WordPressVersionCheck;
 use AkyosUpdates\Core\Context\InstallationContextDetector;
 use AkyosUpdates\Service\BrandaService;
@@ -73,6 +88,7 @@ use AkyosUpdates\Service\SmushService;
 use AkyosUpdates\Service\RgpdSettingsService;
 use AkyosUpdates\Service\CmpCatalogService;
 use AkyosUpdates\Service\FixRunnerService;
+use AkyosUpdates\Service\DisplaySettingsService;
 use AkyosUpdates\Service\LinkSettingsService;
 use AkyosUpdates\Service\LoginTokenService;
 use AkyosUpdates\Service\MawRegistrationService;
@@ -90,6 +106,7 @@ use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
 use AkyosUpdates\Controller\RgpdController;
 use AkyosUpdates\Controller\LinkController;
+use AkyosUpdates\Controller\SettingsController;
 
 final class Plugin
 {
@@ -100,15 +117,18 @@ final class Plugin
         $checks = [
             new WordPressVersionCheck(),
             new ActiveThemeUpdateCheck(),
+            new TranslationUpdatesCheck(),
             new FaviconCheck(),
             new CommentsDisabledCheck(),
             new PostByEmailDisabledCheck(),
             new ComposerRootCheck(),
             new AuthJsonRootCheck(),
+            new AuthJsonGitignoreCheck(),
             new ComposerPluginsCheck(),
             new PluginsInventoryCheck(),
             new SeoPluginCheck(),
             new SeoLegalPagesNoindexCheck(),
+            new SeoSiteIndexingCheck(),
             new SeoIndexabilityCheck(),
             new DefenderPluginCheck(),
             new AdminLiteUserCheck(),
@@ -128,7 +148,12 @@ final class Plugin
             $checks[] = new DefenderPwnedPasswordsCheck();
             $checks[] = new DefenderRecaptchaCheck();
             $checks[] = new DefenderGlobalIpBlockerCheck();
+            $checks[] = new DefenderAntibotGlobalFirewallCheck();
+            $checks[] = new DefenderMaliciousBotDetectorCheck();
             $checks[] = new DefenderFirewallTranslationsCheck();
+            $checks[] = new DefenderLoginDurationCheck();
+            $checks[] = new DefenderDisableTrackbacksCheck();
+            $checks[] = new DefenderPreventUserEnumerationCheck();
         }
 
         $checks[] = new SmushVersionUpgradeCheck();
@@ -151,6 +176,7 @@ final class Plugin
 
         $actionsList = [
             new ChangeWordPressVersionAction(),
+            new UpdateTranslationsAction(),
             new SetFaviconAction(),
             new DisableCommentsAction(),
             new DisablePostByEmailAction(),
@@ -158,13 +184,19 @@ final class Plugin
             new GenerateComposerGuidanceAction(),
             new GenerateGitignorePluginExceptionsAction(),
             new SeoToggleIndexingAction(),
+            new SeoToggleSiteIndexingAction(),
             new CreateRgpdLegalPageAction(),
             new DefenderSaveMaskLoginAction(),
             new DefenderSaveRecaptchaKeysAction(),
             new DefenderEnableSecurityHeadersAction(),
             new DefenderEnablePwnedPasswordsAction(),
             new DefenderEnableGlobalIpBlockerAction(),
+            new DefenderEnableAntibotGlobalFirewallAction(),
+            new DefenderEnableMaliciousBotDetectorAction(),
             new DefenderApplyFirewallTranslationsAction(),
+            new DefenderEnableLoginDurationAction(),
+            new DefenderEnableDisableTrackbacksAction(),
+            new DefenderEnablePreventUserEnumerationAction(),
             new CreateAdminLiteUserAction(),
             new BrandaSaveSmtpAction(),
             new BrandaSendTestEmailAction(),
@@ -187,17 +219,16 @@ final class Plugin
         $rgpdSettings = new RgpdSettingsService();
         $legalPages = new RgpdLegalPagesService($rgpdSettings);
         $linkSettings = new LinkSettingsService();
+        $displaySettings = new DisplaySettingsService();
         $loginToken = new LoginTokenService();
 
-        $adminPage = new AdminPage($analyzer, $rgpdSettings, $linkSettings);
+        $adminPage = new AdminPage($analyzer, $rgpdSettings, $linkSettings, $displaySettings);
         $routeController = new RouteController($analyzer);
         $apiController = new ApiController($analyzer, $fixRunner, $linkSettings, $loginToken);
         $fixController = new FixRestController($fixRunner);
         $pluginController = new PluginController();
         $linkController = new LinkController($linkSettings, new MawRegistrationService($linkSettings));
-        if (defined('WP_CLI') && WP_CLI) {
-            \WP_CLI::add_command('akyos-updates link', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
-        }
+        $settingsController = new SettingsController($displaySettings);
         $rgpdController = new RgpdController(
             $rgpdSettings,
             new CompanyLookupService(),
@@ -206,6 +237,8 @@ final class Plugin
             new CmpCatalogService(new TarteaucitronCatalogService()),
             $legalPages
         );
+
+        (new GithubUpdater())->register();
 
         add_action('admin_menu', [$adminPage, 'register']);
         add_action('admin_enqueue_scripts', [$adminPage, 'enqueue']);
@@ -217,6 +250,7 @@ final class Plugin
         add_action('rest_api_init', [$rgpdController, 'register']);
 
         add_action('rest_api_init', [$linkController, 'register']);
+        add_action('rest_api_init', [$settingsController, 'register']);
 
         $loginToken->register();
 
@@ -224,6 +258,12 @@ final class Plugin
         (new RgpdFrontend($rgpdSettings))->register();
         (new RgpdWooTracking($rgpdSettings))->register();
         (new RgpdDashboardWidget($linkSettings))->register();
+        (new MaintenanceAdminBar($analyzer, $displaySettings))->register();
+
+        if (defined('WP_CLI') && WP_CLI) {
+            \WP_CLI::add_command('akyos-updates', new \AkyosUpdates\Cli\Command($analyzer, $fixRunner));
+            \WP_CLI::add_command('akyos-updates link', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
+        }
 
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
             (new TarteaucitronCatalogService())->syncFromCdn(true);
