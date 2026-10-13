@@ -82,7 +82,9 @@ use AkyosUpdates\Service\TarteaucitronCatalogService;
 use AkyosUpdates\Service\RgpdLegalPagesService;
 use AkyosUpdates\Frontend\RgpdFrontend;
 use AkyosUpdates\Frontend\RgpdWooTracking;
+use AkyosUpdates\Cli\LinkCommand;
 use AkyosUpdates\Controller\ApiController;
+use AkyosUpdates\Controller\DiagnosticController;
 use AkyosUpdates\Controller\PluginController;
 use AkyosUpdates\Controller\RouteController;
 use AkyosUpdates\Controller\FixRestController;
@@ -193,6 +195,9 @@ final class Plugin
         $fixController = new FixRestController($fixRunner);
         $pluginController = new PluginController();
         $linkController = new LinkController($linkSettings, new MawRegistrationService($linkSettings));
+        if (defined('WP_CLI') && WP_CLI) {
+            \WP_CLI::add_command('akyos-updates', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
+        }
         $rgpdController = new RgpdController(
             $rgpdSettings,
             new CompanyLookupService(),
@@ -206,6 +211,7 @@ final class Plugin
         add_action('admin_enqueue_scripts', [$adminPage, 'enqueue']);
         add_action('rest_api_init', [$routeController, 'register']);
         add_action('rest_api_init', [$apiController, 'register']);
+        add_action('rest_api_init', [new DiagnosticController(), 'register']);
         add_action('rest_api_init', [$fixController, 'register']);
         add_action('rest_api_init', [$pluginController, 'register']);
         add_action('rest_api_init', [$rgpdController, 'register']);

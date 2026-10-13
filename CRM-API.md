@@ -94,6 +94,14 @@ Réponse :
 
 Le lien utilise l’URL de connexion réelle (Defender Mask Login si actif). Connexion en tant que premier administrateur du site.
 
+### Diagnostic en lecture seule (1.1.0)
+
+Utilisés par le diagnostic de la fiche projet MAW (et son MCP). Jamais d’écriture.
+
+- `GET /crm/logs?lines=100` — fin de `debug.log` / `error_log` (500 lignes max).
+- `GET /crm/file?path=web/app/themes/…` — fichier relatif à la racine du site (Bedrock ou WordPress), 64 Ko max ; `wp-config.php`, `.env`, clés et dumps SQL refusés (403).
+- `POST /crm/query` `{"sql":"SELECT …"}` — une seule instruction SELECT / SHOW / DESCRIBE / EXPLAIN, `LIMIT 200` ajouté ; colonnes et options sensibles (pass, token, secret, licence…) masquées.
+
 ## Réponse site-status (extrait)
 
 ```json
@@ -142,6 +150,12 @@ Filtres WordPress :
 - `akyos_updates_maw_maintenance_url` — URL du widget forfait maintenance
 
 Corps envoyé : `pairingKey`, `apiKey`, `homeUrl`, `loginUrl`, `adminUrl`, `siteName`, versions.
+
+En ligne de commande (même liaison, sans passer par l’admin) — commande affichée sur le tableau de bord du site dans MAW :
+
+```bash
+wp akyos-updates link <clé-de-liaison> --maw-url=https://maw.akyos.com
+```
 
 ## Stratégie client MAW
 
