@@ -196,7 +196,7 @@ final class Plugin
         $pluginController = new PluginController();
         $linkController = new LinkController($linkSettings, new MawRegistrationService($linkSettings));
         if (defined('WP_CLI') && WP_CLI) {
-            \WP_CLI::add_command('akyos-updates', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
+            \WP_CLI::add_command('akyos-updates link', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
         }
         $rgpdController = new RgpdController(
             $rgpdSettings,

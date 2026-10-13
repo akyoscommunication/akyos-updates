@@ -35,7 +35,7 @@ final class LinkCommand
      * @param list<string>          $args
      * @param array<string, string> $assoc
      */
-    public function link(array $args, array $assoc): void
+    public function __invoke(array $args, array $assoc): void
     {
         if (isset($assoc['maw-url']) && '' !== $assoc['maw-url']) {
             $mawUrl = rtrim($assoc['maw-url'], '/');
