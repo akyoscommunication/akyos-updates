@@ -31,6 +31,7 @@ final class MawRegistrationService
                 'pairingKey' => $pairingKey,
                 'apiKey' => $apiKey,
                 'pluginVersion' => defined('AKYOS_UPDATES_VERSION') ? (string) constant('AKYOS_UPDATES_VERSION') : '',
+                'company' => $this->company(),
             ]
         );
 
@@ -77,6 +78,23 @@ final class MawRegistrationService
             'success' => true,
             'message' => $remoteMessage !== '' ? $remoteMessage : 'Site lié à MAW.',
         ];
+    }
+
+    /**
+     * Mentions légales du panneau RGPD : MAW s'en sert pour créer le client quand le site lui est inconnu.
+     *
+     * @return array<string, string>
+     */
+    private function company(): array
+    {
+        $legal = (new RgpdSettingsService())->get();
+
+        return array_filter([
+            'name' => trim((string) ($legal['legal_company_name'] ?? '')),
+            'siret' => trim((string) ($legal['legal_siret'] ?? '')),
+            'vat' => trim((string) ($legal['legal_tva'] ?? '')),
+            'email' => trim((string) ($legal['mail'] ?? '')),
+        ], static fn (string $value): bool => $value !== '');
     }
 
     /**
