@@ -9,6 +9,7 @@ use AkyosUpdates\Core\Context\InstallationContextDetector;
 use AkyosUpdates\Service\EnvironmentService;
 use AkyosUpdates\Service\ToolAvailabilityService;
 use AkyosUpdates\Service\JsonService;
+use AkyosUpdates\Service\ManualValidationService;
 use AkyosUpdates\Service\PluginService;
 
 final class Maintenance
@@ -148,9 +149,6 @@ final class Maintenance
                 continue;
             }
             if (($result['countsTowardCategoryStats'] ?? true) === false) {
-                continue;
-            }
-            if (($result['id'] ?? '') === 'seo.indexability') {
                 continue;
             }
 
@@ -325,7 +323,7 @@ final class Maintenance
 
             $context = $this->detector->detect();
             $check = $checksToRun[$cursor];
-            $lastResult = JsonService::mixed($check->run($context)->toArray());
+            $lastResult = JsonService::mixed(ManualValidationService::apply($check->run($context)->toArray()));
             $state['results'][] = $lastResult;
             $cursor++;
 
@@ -524,7 +522,7 @@ final class Maintenance
             static function (array $row): array {
                 $row = SeoSiteIndexingCheck::normalizeStoredResult($row);
 
-                return SeoIndexabilityCheck::normalizeStoredResult($row);
+                return ManualValidationService::apply(SeoIndexabilityCheck::normalizeStoredResult($row));
             },
             $results
         );
@@ -544,7 +542,7 @@ final class Maintenance
         ];
 
         foreach ($results as $result) {
-            if (($result['countsTowardCategoryStats'] ?? true) === false || ($result['id'] ?? '') === 'seo.indexability') {
+            if (($result['countsTowardCategoryStats'] ?? true) === false) {
                 continue;
             }
             $category = $result['category'] ?? 'Back-office';
@@ -640,7 +638,7 @@ final class Maintenance
             if ($id === '') {
                 continue;
             }
-            if ($status === 'skipped' || $status === 'ok' || (($result['countsTowardCategoryStats'] ?? true) === false) || $id === 'seo.indexability') {
+            if ($status === 'skipped' || $status === 'ok' || (($result['countsTowardCategoryStats'] ?? true) === false)) {
                 continue;
             }
             $idsToRecheck[] = $id;

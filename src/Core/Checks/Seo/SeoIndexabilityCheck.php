@@ -18,10 +18,7 @@ final class SeoIndexabilityCheck implements CheckInterface
     {
         $detail = sprintf('%d indexable(s), %d noindex.', $indexableCount, $totalRows - $indexableCount);
 
-        return sprintf(
-            'Aperçu des réglages d’indexation des archives. Les choix dépendent du projet.',
-            $detail
-        );
+        return 'Aperçu des réglages d’indexation des archives : ' . $detail;
     }
 
     public static function normalizeStoredResult(array $result): array
@@ -34,11 +31,14 @@ final class SeoIndexabilityCheck implements CheckInterface
         $rows = is_array($payload['rows'] ?? null) ? $payload['rows'] : [];
         $indexableCount = count(array_filter($rows, static fn(array $row): bool => (bool) ($row['indexable'] ?? false)));
 
+        if (is_array($result['validation'] ?? null)) {
+            return $result;
+        }
+
         return array_merge($result, [
             'title' => self::titleLabel(),
             'status' => 'info',
             'severity' => 'neutral',
-            'countsTowardCategoryStats' => false,
             'message' => self::formatMessage($indexableCount, count($rows)),
             'payload' => array_merge($payload, [
                 'indexableCount' => $indexableCount,

@@ -2,6 +2,7 @@ import { getVisibleReportCategoryNames } from "../../utils/reportCategories";
 import { filterDisplayedCheckResults, findSeoPluginProviderLabel } from "../../utils/reportDisplayFilters";
 import { useReportPluginActivation } from "../../hooks/useReportPluginActivation";
 import { ReportCategoryTabs } from "./ReportCategoryTabs";
+import { ReportActionsContext } from "./ReportCard";
 import { WordpressChecks } from "../categories/Wordpress/WordpressChecks";
 import { ImagesChecks } from "../categories/Images/ImagesChecks";
 import { SEOChecks } from "../categories/SEO/SEOChecks";
@@ -60,6 +61,7 @@ export function ReportSection({
 	};
 
 	return (
+		<ReportActionsContext.Provider value={{ onFix, isFixBusy }}>
 		<section className="relative z-10 my-5 grid grid-cols-1 gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:grid-cols-[320px_minmax(0,1fr)]">
 			<ReportCategoryTabs
 				orderedCategories={orderedCategories}
@@ -140,5 +142,6 @@ export function ReportSection({
 				</div>
 			</div>
 		</section>
+		</ReportActionsContext.Provider>
 	);
 }

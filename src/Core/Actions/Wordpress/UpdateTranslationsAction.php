@@ -16,14 +16,8 @@ final class UpdateTranslationsAction implements ActionInterface
 
     public function run(array $payload = []): ActionResult
     {
-        if (! current_user_can('update_languages')) {
-            return ActionResult::failure(
-                'Droits insuffisants pour mettre à jour les traductions.',
-                [],
-                'akyos_updates_forbidden'
-            );
-        }
-
+        // Pas de current_user_can('update_languages') : WordPress la refuse dès que DISALLOW_FILE_MODS est actif
+        // (défaut Bedrock hors dev) et l’API CRM n’a pas d’utilisateur. L’accès est contrôlé par les routes appelantes.
         $updates = WordpressService::getPendingTranslationUpdates();
         if ($updates === []) {
             return ActionResult::success('Aucune traduction en attente.', [
@@ -32,6 +26,8 @@ final class UpdateTranslationsAction implements ActionInterface
             ]);
         }
 
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/misc.php';
         if (! class_exists(Language_Pack_Upgrader::class)) {
             require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
             require_once ABSPATH . 'wp-admin/includes/class-language-pack-upgrader.php';

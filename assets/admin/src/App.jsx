@@ -592,12 +592,23 @@ export function App() {
 							);
 							const indexableCount = nextRows.filter((row) => row.indexable).length;
 							const noindexCount = nextRows.length - indexableCount;
+							const autoMessage = `Aperçu des réglages d’indexation des archives : ${indexableCount} indexable(s), ${noindexCount} noindex.`;
+							const previousValidation = item.validation || null;
 							return {
 								...item,
-								status: "info",
-								severity: "neutral",
-								countsTowardCategoryStats: false,
-								message: `Aperçu des réglages d’indexation des archives (plugin SEO). Les choix dépendent du projet ; il n’existe pas de référence unique. ${indexableCount} indexable(s), ${noindexCount} noindex.`,
+								status: previousValidation ? "warn" : item.status,
+								severity: previousValidation ? "warning" : item.severity,
+								message: autoMessage,
+								validation: previousValidation
+									? {
+										...previousValidation,
+										validated: false,
+										stale: previousValidation.validated || previousValidation.stale,
+										validatedAt: null,
+										validatedBy: null,
+										autoMessage,
+									}
+									: previousValidation,
 								payload: {
 									...payload,
 									rows: nextRows,

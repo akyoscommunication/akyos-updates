@@ -36,6 +36,10 @@ final class FixRunnerService
             ];
         }
 
+        if ($actionId === ManualValidationService::ACTION_ID) {
+            return $this->toggleValidation($checkId !== '' ? $checkId : (string) ($payload['checkId'] ?? ''), $payload);
+        }
+
         $response = $this->actions->run($actionId, $payload);
 
         if ($checkId !== '') {
@@ -43,13 +47,52 @@ final class FixRunnerService
             if ($updatedReport !== []) {
                 $response['updatedReport'] = $updatedReport;
             }
+        } elseif ($actionId === 'seo.toggle_indexing' && ($response['success'] ?? false)) {
+            // L’admin patche son affichage localement ; le rapport stocké (lu par le CRM) doit refléter la validation devenue caduque.
+            $this->refreshReportFromCheck('seo.indexability');
         }
 
         return $response;
     }
 
-    /** @return array<string, mixed> */
-    private function refreshReportFromCheck(string $checkId): array
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    private function toggleValidation(string $checkId, array $payload): array
+    {
+        $check = $this->checksById[$checkId] ?? null;
+        if (! $check instanceof CheckInterface || ! ManualValidationService::requiresValidation($checkId)) {
+            return [
+                'success' => false,
+                'message' => 'Ce contrôle ne nécessite pas de validation manuelle.',
+                'code' => 'akyos_updates_not_validatable',
+            ];
+        }
+
+        $validated = ! array_key_exists('validated', $payload) || filter_var($payload['validated'], FILTER_VALIDATE_BOOLEAN);
+        $freshResult = $check->run($this->detector->detect())->toArray();
+        ManualValidationService::set($checkId, $freshResult, $validated);
+
+        $response = [
+            'success' => true,
+            'message' => $validated ? 'Configuration validée.' : 'Validation retirée.',
+            'checkId' => $checkId,
+            'validated' => $validated,
+        ];
+        $updatedReport = $this->refreshReportFromCheck($checkId, $freshResult);
+        if ($updatedReport !== []) {
+            $response['updatedReport'] = $updatedReport;
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param array<string, mixed>|null $freshResult Résultat brut déjà calculé (évite de relancer le check).
+     * @return array<string, mixed>
+     */
+    private function refreshReportFromCheck(string $checkId, ?array $freshResult = null): array
     {
         $last = get_option('akyos_updates_last_report', []);
         if (! is_array($last)) {
@@ -63,7 +106,7 @@ final class FixRunnerService
         }
 
         $context = $this->detector->detect();
-        $freshResult = $check->run($context)->toArray();
+        $freshResult = ManualValidationService::apply($freshResult ?? $check->run($context)->toArray());
         $updated = false;
 
         foreach ($results as &$result) {
@@ -79,6 +122,7 @@ final class FixRunnerService
         if (! $updated) {
             $results[] = $freshResult;
         }
+        $results = array_map([ManualValidationService::class, 'apply'], $results);
 
         $report = $this->buildReportFromResults($results, $last);
         $stored = [
@@ -112,7 +156,7 @@ final class FixRunnerService
         ];
 
         foreach ($results as $result) {
-            if (($result['countsTowardCategoryStats'] ?? true) === false || ($result['id'] ?? '') === 'seo.indexability') {
+            if (($result['countsTowardCategoryStats'] ?? true) === false) {
                 continue;
             }
             $category = $result['category'] ?? 'Back-office';

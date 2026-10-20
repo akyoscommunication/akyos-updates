@@ -8,6 +8,7 @@ use AkyosUpdates\Service\FixRunnerService;
 use AkyosUpdates\Service\JsonService;
 use AkyosUpdates\Service\LinkSettingsService;
 use AkyosUpdates\Service\LoginTokenService;
+use AkyosUpdates\Service\ManualValidationService;
 use AkyosUpdates\Service\SiteIdentityService;
 use WP_Error;
 use WP_REST_Request;
@@ -166,19 +167,22 @@ final class ApiController
 
     public function runFix(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
-        $rateCheck = $this->checkRateLimit('fix', self::FIX_RATE_LIMIT_SECONDS, false);
+        $actionId = (string) $request->get_param('actionId');
+        $isValidation = $actionId === ManualValidationService::ACTION_ID;
+        $rateCheck = $this->checkRateLimit('fix', self::FIX_RATE_LIMIT_SECONDS, $isValidation);
         if ($rateCheck instanceof WP_Error) {
             return $rateCheck;
         }
 
-        return JsonService::wrap(function () use ($request): array {
-            $actionId = (string) $request->get_param('actionId');
+        return JsonService::wrap(function () use ($request, $actionId, $isValidation): array {
             $checkId = (string) $request->get_param('checkId');
             $payload = $request->get_param('payload');
             $payload = is_array($payload) ? $payload : [];
 
             $result = $this->fixRunner->run($actionId, $payload, $checkId);
-            $this->markRateLimited('fix', self::FIX_RATE_LIMIT_SECONDS);
+            if (! $isValidation) {
+                $this->markRateLimited('fix', self::FIX_RATE_LIMIT_SECONDS);
+            }
 
             return $result;
         });
@@ -211,6 +215,7 @@ final class ApiController
             'summary' => $summary,
             'health' => $this->computeHealth($summary),
             'categories' => is_array($payload['categories'] ?? null) ? $payload['categories'] : [],
+            'validations' => ManualValidationService::summarize(is_array($payload['checks'] ?? null) ? $payload['checks'] : []),
             'updatedAt' => is_string($payload['updatedAt'] ?? null) ? $payload['updatedAt'] : gmdate('c'),
             'reportUrl' => (string) ($identity['reportUrl'] ?? admin_url('admin.php?page=akyos-updates')),
         ];

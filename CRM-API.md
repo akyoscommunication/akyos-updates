@@ -69,7 +69,20 @@ curl -sS -X POST 'https://example.com/wp-json/akyos-updates/v1/crm/fix' \
   -d '{"actionId":"security.defender_enable_security_headers","checkId":"security.defender_security_headers"}'
 ```
 
-Rate-limit : 1 action / 60 s par clé.
+Rate-limit : 1 action / 60 s par clé (sauf `report.validate_check`).
+
+#### Validation manuelle (`report.validate_check`)
+
+Certains checks dépendent du projet et n’ont pas de verdict automatique : `seo.indexability`, `backoffice.branda_smtp`, `plugins.composer_audit`, `rgpd.analytics_tracking`. Leur statut vaut `warn` tant que la configuration n’est pas validée, `ok` une fois validée. La validation porte sur une empreinte de la configuration : si elle change, le check repasse en `warn` avec `stale: true`.
+
+```bash
+curl -sS -X POST 'https://example.com/wp-json/akyos-updates/v1/crm/fix' \
+  -H 'X-Akyos-Api-Key: VOTRE_CLE' \
+  -H 'Content-Type: application/json' \
+  -d '{"actionId":"report.validate_check","checkId":"seo.indexability","payload":{"validated":true}}'
+```
+
+`validated: false` retire la validation. Erreur `akyos_updates_not_validatable` si le check n’est pas concerné (ou absent du site, ex. SMTP sans Branda).
 
 ### POST `/crm/login-link`
 
@@ -127,9 +140,24 @@ Utilisés par le diagnostic de la fiche projet MAW (et son MCP). Jamais d’écr
     "api_key_preview": "abcd••••wxyz"
   },
   "summary": { "total": 32, "ok": 24, "warn": 6, "fail": 2 },
-  "health": { "status": "critical", "score": 75 }
+  "health": { "status": "critical", "score": 75 },
+  "validations": [
+    {
+      "checkId": "seo.indexability",
+      "title": "Paramétrage indexation — post types et taxonomies",
+      "status": "ok",
+      "validated": true,
+      "stale": false,
+      "validatedAt": "2026-10-20T09:00:00+00:00",
+      "validatedBy": "MAW",
+      "autoStatus": "info",
+      "autoMessage": "Aperçu des réglages d’indexation des archives : …"
+    }
+  ]
 }
 ```
+
+Chaque check validable porte aussi un objet `validation` dans `checks[]` (détail complet).
 
 ## Liaison site → MAW (côté plugin)
 
