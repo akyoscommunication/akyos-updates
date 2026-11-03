@@ -98,6 +98,14 @@ final class ActiveThemeUpdateCheck implements CheckInterface
                 'latestAvailableVersion' => $latestAvailableVersion,
                 'isSageTheme' => $isSage,
                 'updateNoticeUrl' => isset($response['url']) ? (string) $response['url'] : null,
+                'author' => (string) $theme->get('Author'),
+                // Thème parent (souvent premium ThemeForest, hors dépôt WordPress.org) : MAW le rapproche des achats Envato.
+                'parent' => $theme->parent() instanceof WP_Theme ? [
+                    'name' => (string) $theme->parent()->get('Name'),
+                    'stylesheet' => $theme->parent()->get_stylesheet(),
+                    'author' => (string) $theme->parent()->get('Author'),
+                    'version' => trim((string) $theme->parent()->get('Version')),
+                ] : null,
             ]
         );
     }
