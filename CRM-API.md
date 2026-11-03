@@ -115,6 +115,26 @@ Utilisés par le diagnostic de la fiche projet MAW (et son MCP). Jamais d’écr
 - `GET /crm/file?path=web/app/themes/…` — fichier relatif à la racine du site (Bedrock ou WordPress), 64 Ko max ; `wp-config.php`, `.env`, clés et dumps SQL refusés (403).
 - `POST /crm/query` `{"sql":"SELECT …"}` — une seule instruction SELECT / SHOW / DESCRIBE / EXPLAIN, `LIMIT 200` ajouté ; colonnes et options sensibles (pass, token, secret, licence…) masquées.
 
+### Mise à jour pilotée (1.4.1)
+
+`POST /crm/maintenance` `{"command": "…", "args": {…}}` — utilisé par l'agent de maintenance de MAW (via `POST /api/tickets/{id}/wp`), sans shell. Liste fermée :
+
+| Commande | args | Effet |
+|----------|------|-------|
+| `updates` | — | cœur, extensions, thèmes (version → disponible), traductions en attente |
+| `backup` | — | export SQL gzip de la base dans `wp-content/akyos-backups/` (fermé au web, 3 gardés) |
+| `update-core` | — | dernière version, puis base par `upgrade.php?step=1` (requête neuve) ; pas de retour arrière |
+| `update-plugin` / `update-theme` | `slug` | un élément, **retour arrière automatique** si l'accueil casse (500 / erreur PHP) |
+| `install-theme-package` | `slug`, `url` (https) | zip (thème premium Envato) par-dessus le thème installé, même garde-fou |
+| `update-translations` | — | traductions en attente |
+| `activate` / `deactivate` | `slug` | jamais akyos-updates |
+| `delete-redundant` | `slug` | doublons de la stack WPMU seulement (skill wp-maj) |
+| `cache-clear` | — | cache objet + Page Cache Hummingbird |
+| `login-pages` | — | pages de connexion / compte (contrôle du cache) |
+| `health` | — | accueil appelé en interne |
+
+Garde-fou : copie du dossier de l'élément, mise à jour, appel interne de l'accueil (hors cache) ; si le site répondait avant et casse après, l'ancien dossier est remis (opcache invalidé) et la réponse porte `rolledBack: true`. Loopback impossible → `ok: null`, aucun retour arrière décidé. Réponse : `success`, `message`, `from` / `to`, `healthAfter`. akyos-updates ne se met pas à jour par cette route (mise à jour GitHub).
+
 ## Réponse site-status (extrait)
 
 ```json

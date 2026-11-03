@@ -8,6 +8,7 @@ use AkyosUpdates\Service\FixRunnerService;
 use AkyosUpdates\Service\JsonService;
 use AkyosUpdates\Service\LinkSettingsService;
 use AkyosUpdates\Service\LoginTokenService;
+use AkyosUpdates\Service\MaintenanceCommandService;
 use AkyosUpdates\Service\ManualValidationService;
 use AkyosUpdates\Service\SiteIdentityService;
 use WP_Error;
@@ -81,6 +82,17 @@ final class ApiController
             ],
         ]);
 
+        // Mise à jour pilotée par MAW (agent de maintenance), un élément à la fois avec retour arrière automatique.
+        register_rest_route('akyos-updates/v1', '/crm/maintenance', [
+            'methods' => 'POST',
+            'callback' => [$this, 'runMaintenance'],
+            'permission_callback' => [CrmApiAuthService::class, 'permissionCallback'],
+            'args' => [
+                'command' => ['required' => true, 'type' => 'string', 'enum' => MaintenanceCommandService::COMMANDS],
+                'args' => ['required' => false, 'type' => 'object'],
+            ],
+        ]);
+
         register_rest_route('akyos-updates/v1', '/crm/login-link', [
             'methods' => 'POST',
             'callback' => [$this, 'createLoginLink'],
@@ -89,6 +101,15 @@ final class ApiController
                 'redirect' => ['required' => false, 'type' => 'string'],
             ],
         ]);
+    }
+
+    public function runMaintenance(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
+        return JsonService::wrap(static function () use ($request): array {
+            $args = $request->get_param('args');
+
+            return (new MaintenanceCommandService())->run((string) $request->get_param('command'), is_array($args) ? $args : []);
+        });
     }
 
     public function runAnalysis(WP_REST_Request $request): WP_REST_Response|WP_Error

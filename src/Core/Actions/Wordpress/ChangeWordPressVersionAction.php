@@ -62,7 +62,7 @@ final class ChangeWordPressVersionAction implements ActionInterface
         $cliResult = $this->runWpCliUpdate($targetVersion);
         if (($cliResult['ran'] ?? false) === true && ($cliResult['success'] ?? false) === true) {
             wp_version_check();
-            $newCurrentVersion = trim((string) get_bloginfo('version'));
+            $newCurrentVersion = self::installedVersion();
 
             return ActionResult::success(sprintf('WordPress est maintenant en version %s.', $newCurrentVersion), [
                 'currentVersion' => $newCurrentVersion,
@@ -95,7 +95,7 @@ final class ChangeWordPressVersionAction implements ActionInterface
         }
 
         wp_version_check();
-        $newCurrentVersion = trim((string) get_bloginfo('version'));
+        $newCurrentVersion = self::installedVersion();
 
         return ActionResult::success(sprintf('WordPress est maintenant en version %s.', $newCurrentVersion), [
             'currentVersion' => $newCurrentVersion,
@@ -104,6 +104,21 @@ final class ChangeWordPressVersionAction implements ActionInterface
             'availableVersions' => $this->extractLatestVersions($offers, $newCurrentVersion),
             'isBedrock' => false,
         ]);
+    }
+
+    /**
+     * Version sur le disque : get_bloginfo() rend celle chargée au début de la requête, donc l'ancienne après la mise à jour.
+     */
+    public static function installedVersion(): string
+    {
+        $file = ABSPATH . WPINC . '/version.php';
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($file, true);
+        }
+        $wp_version = '';
+        include $file;
+
+        return trim((string) $wp_version);
     }
 
     private function runWpCliUpdate(string $targetVersion): array
