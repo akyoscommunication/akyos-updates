@@ -5,6 +5,7 @@ namespace AkyosUpdates\Core;
 use AkyosUpdates\Core\Checks\CheckInterface;
 use AkyosUpdates\Core\Checks\Seo\SeoIndexabilityCheck;
 use AkyosUpdates\Core\Checks\Seo\SeoSiteIndexingCheck;
+use AkyosUpdates\Core\Checks\CheckResult;
 use AkyosUpdates\Core\Context\InstallationContextDetector;
 use AkyosUpdates\Service\EnvironmentService;
 use AkyosUpdates\Service\ToolAvailabilityService;
@@ -323,7 +324,14 @@ final class Maintenance
 
             $context = $this->detector->detect();
             $check = $checksToRun[$cursor];
-            $lastResult = JsonService::mixed(ManualValidationService::apply($check->run($context)->toArray()));
+            try {
+                $result = $check->run($context)->toArray();
+            } catch (\Throwable $e) {
+                // Un contrôle qui plante (ex. extension tierce dans une version inattendue) ne doit pas faire échouer toute l'analyse.
+                error_log(sprintf('akyos-updates : contrôle %s : %s dans %s:%d', $check->getId(), $e->getMessage(), $e->getFile(), $e->getLine()));
+                $result = (new CheckResult($check->getId(), $check->getCategory(), $check->getTitle(), 'warn', 'warning', 'Contrôle impossible : ' . $e->getMessage(), countsTowardCategoryStats: false))->toArray();
+            }
+            $lastResult = JsonService::mixed(ManualValidationService::apply($result));
             $state['results'][] = $lastResult;
             $cursor++;
 

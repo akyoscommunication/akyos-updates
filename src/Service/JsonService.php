@@ -15,6 +15,8 @@ final class JsonService
         try {
             $data = $callback();
         } catch (Throwable $e) {
+            // Sans WP_DEBUG la réponse ne dit rien : la cause reste lisible dans le log PHP de l'hébergement.
+            error_log(sprintf('akyos-updates : %s: %s dans %s:%d', get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()));
             while (ob_get_level() > $baseLevel) {
                 ob_end_clean();
             }

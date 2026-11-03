@@ -8,7 +8,8 @@ final class InstallationContextDetector
     {
         $abspath = untrailingslashit(ABSPATH);
         $bedrockWpRoot = str_ends_with($abspath, '/web/wp') || str_ends_with($abspath, '\\web\\wp');
-        $bedrockConfigPresent = file_exists(dirname($abspath, 2) . '/config/application.php');
+        // « @ » : hors Bedrock, ce dossier est souvent hors open_basedir (Plesk) et file_exists() avertit à chaque appel.
+        $bedrockConfigPresent = @file_exists(dirname($abspath, 2) . '/config/application.php');
 
         if ($bedrockWpRoot || $bedrockConfigPresent) {
             $installationType = 'bedrock';

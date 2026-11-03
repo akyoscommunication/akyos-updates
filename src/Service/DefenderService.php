@@ -176,7 +176,11 @@ final class DefenderService
         $model = wd_di()->get(Captcha::class);
         $provider = (string) ($model->provider ?? 'recaptcha');
         $activeType = (string) ($model->active_type ?? 'v2_checkbox');
-        $activeData = $model->get_active_captcha_data($provider, $activeType);
+        // get_active_captcha_data() n'existe que dans les Defender récents ; avant, les clés sont dans data_<type>.
+        $dataProperty = 'data_' . $activeType;
+        $activeData = method_exists($model, 'get_active_captcha_data')
+            ? $model->get_active_captcha_data($provider, $activeType)
+            : (property_exists($model, $dataProperty) ? $model->{$dataProperty} : []);
         $siteKey = trim((string) ($activeData['key'] ?? ''));
         $secretKey = trim((string) ($activeData['secret'] ?? ''));
         $hasKeys = $siteKey !== '' && $secretKey !== '';
