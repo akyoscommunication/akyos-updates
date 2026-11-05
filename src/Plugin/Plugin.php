@@ -263,6 +263,7 @@ final class Plugin
         if (defined('WP_CLI') && WP_CLI) {
             \WP_CLI::add_command('akyos-updates', new \AkyosUpdates\Cli\Command($analyzer, $fixRunner));
             \WP_CLI::add_command('akyos-updates link', new LinkCommand($linkSettings, new MawRegistrationService($linkSettings)));
+            \WP_CLI::add_command('akyos-updates rgpd', new \AkyosUpdates\Cli\RgpdCommand($rgpdSettings, new \AkyosUpdates\Service\RgpdThemeStyleDetector()));
         }
 
         add_action('akyos_updates_tac_catalog_sync', static function (): void {
