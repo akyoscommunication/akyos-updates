@@ -4,7 +4,8 @@ namespace AkyosUpdates\Service;
 
 /**
  * Couleurs et police du thème pour le bandeau tarteaucitron (« Personnaliser le bandeau ») : palette ACF des thèmes
- * Akyos (color_palettes / color_palette), theme mods, theme.json, puis variables CSS du thème. Renvoie seulement les
+ * Akyos (color_palettes / color_palette), options du thème Salient (salient_redux), theme mods, theme.json, puis
+ * variables CSS du thème. Renvoie seulement les
  * champs trouvés, prêts pour RgpdSettingsService::save().
  */
 final class RgpdThemeStyleDetector
@@ -23,6 +24,16 @@ final class RgpdThemeStyleDetector
                 }
             }
         }
+        $css = [];
+        // Salient (ThemeForest) : couleur d'accent et couleur n° 1 des options du thème, police du texte.
+        $salient = get_option('salient_redux');
+        if (is_array($salient)) {
+            $palettes[] = ['primary' => (string) ($salient['accent-color'] ?? ''), 'secondary' => (string) ($salient['extra-color-1'] ?? '')];
+            $font = is_array($salient['body_font_family'] ?? null) ? (string) ($salient['body_font_family']['font-family'] ?? '') : '';
+            if ('' !== trim($font) && '-' !== trim($font)) {
+                $css[] = 'font-family: ' . $font . ';';
+            }
+        }
         $mods = [];
         foreach (['primary_color', 'accent_color', 'theme_color'] as $mod) {
             $mods[] = (string) get_theme_mod($mod, '');
@@ -33,7 +44,6 @@ final class RgpdThemeStyleDetector
             $decoded = json_decode((string) file_get_contents($jsonFile), true);
             $themeJson = is_array($decoded) ? $decoded : null;
         }
-        $css = [];
         $files = glob(get_stylesheet_directory() . '/{style.css,public/css/*.css,dist/*.css,assets/css/*.css}', GLOB_BRACE) ?: [];
         foreach (array_slice($files, 0, 8) as $file) {
             $css[] = (string) file_get_contents($file);

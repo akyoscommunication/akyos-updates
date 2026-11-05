@@ -94,7 +94,7 @@ final class RgpdCommand
                     \WP_CLI::log(true === $deleted ? 'aky-gdpr : supprimé.' : 'aky-gdpr : suppression impossible (Bedrock : le retirer de Composer ou du dépôt).');
                 }
             } else {
-                \WP_CLI::warning('Bandeau akyos-updates inactif : aky-gdpr laissé actif.');
+                \WP_CLI::log('ATTENTION : bandeau akyos-updates inactif, aky-gdpr laissé actif.');
             }
         }
 
@@ -116,7 +116,8 @@ final class RgpdCommand
         }
         $patch = $this->styleDetector->detect();
         if (!isset($patch['theme_primary'])) {
-            \WP_CLI::warning('Style : aucune couleur trouvée dans le thème, le bandeau garde le bleu Akyos (#0052FF). À personnaliser dans l\'onglet RGPD.');
+            // log et pas warning : WP Toolkit (Plesk) ne renvoie pas la sortie d'erreur de WP-CLI.
+            \WP_CLI::log('Style : ATTENTION, aucune couleur trouvée dans le thème, le bandeau garde le bleu Akyos (#0052FF). À personnaliser dans l\'onglet RGPD.');
 
             return;
         }
