@@ -58,7 +58,10 @@ final class CreateAdminLiteUserAction implements ActionInterface
             return ActionResult::failure($userId->get_error_message());
         }
 
-        wp_new_user_notification($userId, null, 'both');
+        // notify: false quand MAW crée le compte (aucun e-mail au client ; il passera par « mot de passe oublié »).
+        if (($payload['notify'] ?? true) !== false) {
+            wp_new_user_notification($userId, null, 'both');
+        }
 
         $users = BrandaService::getUsersWithAdminLiteRole();
 
