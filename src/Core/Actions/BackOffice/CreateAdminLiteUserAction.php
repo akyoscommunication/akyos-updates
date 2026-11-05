@@ -65,7 +65,10 @@ final class CreateAdminLiteUserAction implements ActionInterface
 
         $users = BrandaService::getUsersWithAdminLiteRole();
 
-        return ActionResult::success(sprintf('Utilisateur %s créé (rôle admin lite). Identifiant : %s', $email, $login), [
+        // returnCredentials : MAW range l'accès dans les identifiants du projet (chiffré) ; jamais pour l'admin.
+        $credentials = ($payload['returnCredentials'] ?? false) === true ? ['login' => $login, 'password' => $password] : [];
+
+        return ActionResult::success(sprintf('Utilisateur %s créé (rôle admin lite). Identifiant : %s', $email, $login), $credentials + [
             'hasAdminLiteUser' => true,
             'hasRoleDefinition' => get_role(BrandaService::ROLE_ADMIN_LITE) !== null,
             'userCount' => count($users),
