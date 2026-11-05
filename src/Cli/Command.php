@@ -133,7 +133,7 @@ final class Command
     public function smushBulk(array $args, array $assocArgs): void
     {
         $this->prepareRuntime();
-        if (!class_exists('\Smush\Core\Stats\Global_Stats') || !class_exists('\Smush\Core\Modules\Bulk\Background_Bulk_Smush_Controller')) {
+        if (!class_exists('\Smush\Core\Stats\Global_Stats') || !class_exists('\Smush\Core\Bulk\Background_Bulk_Smush_Controller')) {
             \WP_CLI::error('Smush Pro (compression en tâche de fond) absent ou inactif.');
         }
         $stats = \Smush\Core\Stats\Global_Stats::get();
@@ -144,7 +144,7 @@ final class Command
 
             return;
         }
-        $status = \Smush\Core\Modules\Bulk\Background_Bulk_Smush_Controller::get_instance()->start_bulk_smush_direct();
+        $status = \Smush\Core\Bulk\Background_Bulk_Smush_Controller::get_instance()->start_bulk_smush_direct();
         if (false === $status) {
             \WP_CLI::error(sprintf('%d image(s) en attente, compression en tâche de fond non lancée (mode arrière-plan désactivé, bouclage HTTP refusé ou Dashboard WPMU DEV non connecté).', $remaining));
         }
