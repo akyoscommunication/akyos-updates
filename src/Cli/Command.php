@@ -120,6 +120,38 @@ final class Command
     }
 
     /**
+     * Lance la compression Smush de toutes les images en tâche de fond (Smush Pro, traitement par requêtes de bouclage)
+     * et rend la main tout de suite : `wp smush compress` est synchrone et dépasse la limite de 60 s de WP Toolkit.
+     *
+     * ## EXAMPLES
+     *
+     *     wp akyos-updates smush-bulk
+     *
+     * @subcommand smush-bulk
+     * @when after_wp_load
+     */
+    public function smushBulk(array $args, array $assocArgs): void
+    {
+        $this->prepareRuntime();
+        if (!class_exists('\Smush\Core\Stats\Global_Stats') || !class_exists('\Smush\Core\Modules\Bulk\Background_Bulk_Smush_Controller')) {
+            \WP_CLI::error('Smush Pro (compression en tâche de fond) absent ou inactif.');
+        }
+        $stats = \Smush\Core\Stats\Global_Stats::get();
+        $remaining = (int) $stats->get_remaining_count();
+        $total = (int) $stats->get_total_optimizable_items_count();
+        if ($remaining <= 0) {
+            \WP_CLI::success(sprintf('Rien à compresser : %d image(s) déjà optimisée(s).', $total));
+
+            return;
+        }
+        $status = \Smush\Core\Modules\Bulk\Background_Bulk_Smush_Controller::get_instance()->start_bulk_smush_direct();
+        if (false === $status) {
+            \WP_CLI::error(sprintf('%d image(s) en attente, compression en tâche de fond non lancée (mode arrière-plan désactivé, bouclage HTTP refusé ou Dashboard WPMU DEV non connecté).', $remaining));
+        }
+        \WP_CLI::success(sprintf('Compression lancée en tâche de fond : %d image(s) sur %d à optimiser. Suivi : wp akyos-updates analyze --categories=Images.', $remaining, $total));
+    }
+
+    /**
      * Affiche le dernier rapport persisté.
      *
      * ## OPTIONS
