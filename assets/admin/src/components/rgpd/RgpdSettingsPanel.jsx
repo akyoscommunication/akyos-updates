@@ -199,6 +199,8 @@ export function RgpdSettingsPanel({ addToast }) {
 	const [lookupQuery, setLookupQuery] = useState("");
 	const [busy, setBusy] = useState("");
 	const [serviceTypeMeta, setServiceTypeMeta] = useState(() => initial.serviceTypeMeta || {});
+	const [themeFonts, setThemeFonts] = useState([]);
+	const [siteLanguage, setSiteLanguage] = useState("fr");
 	const [activeSection, setActiveSection] = useState(() => {
 		if (typeof window === "undefined") {
 			return "setup";
@@ -226,6 +228,12 @@ export function RgpdSettingsPanel({ addToast }) {
 				}
 				if (data?.meta?.serviceTypeMeta) {
 					setServiceTypeMeta(data.meta.serviceTypeMeta);
+				}
+				if (Array.isArray(data?.meta?.themeFonts)) {
+					setThemeFonts(data.meta.themeFonts);
+				}
+				if (data?.meta?.siteLanguage) {
+					setSiteLanguage(String(data.meta.siteLanguage));
 				}
 			})
 			.catch((error) => notifyRestFailure("RGPD / chargement", error, addToast));
@@ -493,7 +501,7 @@ export function RgpdSettingsPanel({ addToast }) {
 							title="Apparence de la bannière"
 							description="Couleurs, typographie, textes et comportement — aperçu en direct à droite."
 						>
-							<RgpdThemeFields form={form} set={set} showTacOptions={isTac} />
+							<RgpdThemeFields form={form} set={set} showTacOptions={isTac} themeFonts={themeFonts} />
 						</SectionBody>
 					</div>
 
@@ -626,7 +634,25 @@ export function RgpdSettingsPanel({ addToast }) {
 					<div className={hidden("tracking")}>
 						<SectionBody title="Mesure & e-commerce" description="Tags après consentement (TarteAuCitron) ou direct (Matomo sans cookie).">
 							<FieldGroup title="Analytics & tags" description="Un GTM active automatiquement le Consent Mode v2.">
+								<SelectField
+									label="Langue des noms de services"
+									value={form.tac_service_names_lang || "auto"}
+									onChange={(v) => set("tac_service_names_lang", v)}
+									options={[
+										{ value: "auto", label: `Automatique (langue du site : ${siteLanguage})` },
+										{ value: "fr", label: "Français" },
+										{ value: "en", label: "Anglais (noms d'origine tarteaucitron)" },
+									]}
+									hint="Ici et dans le panneau cookies du visiteur. Les noms de marque (Google Analytics, Hotjar…) ne changent pas."
+								/>
 								<CmpTagsEditor
+									namesLang={
+										(form.tac_service_names_lang || "auto") === "auto"
+											? siteLanguage.toLowerCase().startsWith("fr")
+												? "fr"
+												: "en"
+											: form.tac_service_names_lang
+									}
 									tags={tacTags}
 									onChange={setTags}
 									addToast={addToast}

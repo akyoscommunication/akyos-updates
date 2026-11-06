@@ -9,6 +9,7 @@ use AkyosUpdates\Service\HostLookupService;
 use AkyosUpdates\Service\JsonService;
 use AkyosUpdates\Service\RgpdLegalPagesService;
 use AkyosUpdates\Service\RgpdSettingsService;
+use AkyosUpdates\Service\RgpdThemeStyleDetector;
 use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -282,13 +283,17 @@ final class RgpdController
         });
     }
 
-    /** @return array{pages: list<array{id: int, title: string}>, serviceTypes: list<string>, serviceTypeMeta: array<string, array<string, string>>} */
+    /** @return array{pages: list<array{id: int, title: string}>, serviceTypes: list<string>, serviceTypeMeta: array<string, array<string, string>>, siteLanguage: string, themeFonts: list<array{value: string, label: string}>} */
     private function meta(): array
     {
         return [
             'pages' => $this->pageOptions(),
             'serviceTypes' => RgpdSettingsService::serviceTypes(),
             'serviceTypeMeta' => RgpdSettingsService::serviceTypeMeta(),
+            'siteLanguage' => function_exists('pll_current_language') && (string) pll_current_language() !== ''
+                ? (string) pll_current_language()
+                : substr((string) get_locale(), 0, 2),
+            'themeFonts' => (new RgpdThemeStyleDetector())->fontFamilies(),
         ];
     }
 

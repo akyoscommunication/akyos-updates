@@ -53,6 +53,130 @@ final class RgpdThemeStyleDetector
     }
 
     /**
+     * Polices du site (body d'abord) proposées dans le sélecteur « Police » du bandeau, en plus des préréglages :
+     * Salient, Astra, kit Elementor, theme.json / styles globaux, puis règles html/body et variables --font-* du CSS.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public function fontFamilies(): array
+    {
+        $stacks = [];
+        $salient = get_option('salient_redux');
+        if (is_array($salient) && is_array($salient['body_font_family'] ?? null)) {
+            $stacks[] = (string) ($salient['body_font_family']['font-family'] ?? '');
+        }
+        $astra = get_option('astra-settings');
+        if (is_array($astra)) {
+            $stacks[] = (string) ($astra['body-font-family'] ?? '');
+        }
+        $kit = (int) get_option('elementor_active_kit');
+        $kitSettings = $kit > 0 ? get_post_meta($kit, '_elementor_page_settings', true) : null;
+        if (is_array($kitSettings)) {
+            $typos = (array) ($kitSettings['system_typography'] ?? []);
+            // « text » = police du corps dans Elementor : en premier.
+            usort($typos, static fn ($a, $b): int => (int) (($b['_id'] ?? '') === 'text') <=> (int) (($a['_id'] ?? '') === 'text'));
+            foreach ($typos as $typo) {
+                if (is_array($typo)) {
+                    $stacks[] = (string) ($typo['typography_font_family'] ?? '');
+                }
+            }
+        }
+
+        $presets = [];
+        if (function_exists('wp_get_global_settings')) {
+            foreach ((array) wp_get_global_settings(['typography', 'fontFamilies']) as $list) {
+                foreach ((array) $list as $preset) {
+                    if (is_array($preset) && ! empty($preset['slug']) && ! empty($preset['fontFamily'])) {
+                        $presets[(string) $preset['slug']] = (string) $preset['fontFamily'];
+                    }
+                }
+            }
+            $body = function_exists('wp_get_global_styles') ? wp_get_global_styles(['typography', 'fontFamily']) : '';
+            array_unshift($presets, is_string($body) ? $body : '');
+        }
+
+        $css = [];
+        $files = glob(get_stylesheet_directory() . '/{style.css,public/css/*.css,dist/*.css,dist/css/*.css,assets/css/*.css,build/*.css}', GLOB_BRACE) ?: [];
+        foreach (array_slice($files, 0, 12) as $file) {
+            $css[] = (string) file_get_contents($file);
+        }
+
+        return self::fontsFromSources($stacks, $presets, $css);
+    }
+
+    /**
+     * @param list<string>              $stacks  piles venant des options de thème / builder, par priorité
+     * @param array<int|string, string> $presets presets theme.json (slug => pile) ; clés numériques = piles directes
+     * @param list<string>              $css     contenus des feuilles du thème
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public static function fontsFromSources(array $stacks, array $presets, array $css): array
+    {
+        $vars = [];
+        $bodyStacks = [];
+        $fontVars = [];
+        foreach ($css as $sheet) {
+            $sheet = (string) preg_replace('#/\*.*?\*/#s', '', $sheet);
+            if (preg_match_all('/(--[\w-]+)\s*:\s*([^;{}]+)/', $sheet, $m, PREG_SET_ORDER)) {
+                foreach ($m as [, $name, $value]) {
+                    $vars[$name] ??= trim($value);
+                    if (preg_match('/^--(?:[\w-]*-)?font(?:-family)?(?:-[\w-]+)?$/', $name) && ! preg_match('/weight|size|style|feature|variation|settings|mono|icon|line|letter|smoothing/', $name)) {
+                        $fontVars[] = trim($value);
+                    }
+                }
+            }
+            if (preg_match_all('/(?:^|[{};])\s*([^{};@]*\b(?:html|body)\b[^{};]*)\{([^{}]*)\}/i', $sheet, $m, PREG_SET_ORDER)) {
+                foreach ($m as [, , $declarations]) {
+                    if (preg_match('/(?:^|;|\s)font-family\s*:\s*([^;}]+)/i', $declarations, $font)) {
+                        $bodyStacks[] = trim($font[1]);
+                    }
+                }
+            }
+        }
+
+        $resolve = static function (string $stack) use (&$resolve, $vars, $presets): string {
+            $stack = trim((string) preg_replace('/\s*!important\s*$/i', '', $stack));
+            if (preg_match('/^var:preset\|font-family\|([\w-]+)$/', $stack, $m)) {
+                return (string) ($presets[$m[1]] ?? '');
+            }
+            if (preg_match('/^var\(\s*(--[\w-]+)\s*(?:,\s*(.+))?\)$/', $stack, $m)) {
+                if (preg_match('/^--wp--preset--font-family--([\w-]+)$/', $m[1], $preset) && isset($presets[$preset[1]])) {
+                    return $resolve($presets[$preset[1]]);
+                }
+                if (isset($vars[$m[1]]) && $vars[$m[1]] !== $stack) {
+                    return $resolve($vars[$m[1]]);
+                }
+
+                return isset($m[2]) ? $resolve($m[2]) : '';
+            }
+
+            return $stack;
+        };
+
+        $out = [];
+        foreach ([...$stacks, ...array_values($presets), ...$bodyStacks, ...$fontVars] as $raw) {
+            $stack = $resolve((string) $raw);
+            $first = trim(explode(',', $stack)[0] ?? '', " \t\"'");
+            if ($first === '' || $first === '-' || str_contains($stack, 'var(') || preg_match('/[;{}<>]/', $stack)
+                || preg_match('/^(inherit|initial|unset|revert|serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-[\w-]+|-apple-system|BlinkMacSystemFont)$/i', $first)
+                || preg_match('/icon|awesome|dashicons|eicons|^fa[-\s]|^fa$/i', $first)) {
+                continue;
+            }
+            // Nom seul (options Salient / Astra / Elementor) : on complète la pile.
+            if (! str_contains($stack, ',')) {
+                $stack = (str_contains($first, ' ') ? '"' . $first . '"' : $first) . ', sans-serif';
+            }
+            $key = strtolower($first);
+            if (! isset($out[$key]) && strlen($stack) <= 200) {
+                $out[$key] = ['value' => $stack, 'label' => $first . ' (thème)'];
+            }
+        }
+
+        return array_values($out);
+    }
+
+    /**
      * @param list<array<string, mixed>> $palettes groupes ACF de couleurs
      * @param list<string>               $mods     theme mods de couleur, dans l'ordre de priorité
      * @param array<string, mixed>|null  $themeJson

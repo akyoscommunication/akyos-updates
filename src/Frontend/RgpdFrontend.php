@@ -82,6 +82,17 @@ final class RgpdFrontend
                 'before'
             );
 
+            $namesLang = TarteaucitronCatalogService::resolveNamesLang((string) ($settings['tac_service_names_lang'] ?? 'auto'), $forceLanguage);
+            if ($namesLang === TarteaucitronCatalogService::NAMES_LANG_FR) {
+                // tac.root_available part juste avant que tarteaucitron affiche les services : on renomme à ce moment-là.
+                wp_add_inline_script(
+                    self::TAC_HANDLE,
+                    'window.addEventListener("tac.root_available",function(){var n=' . wp_json_encode(TarteaucitronCatalogService::FR_NAMES, JSON_UNESCAPED_UNICODE)
+                    . ';for(var k in n){if(window.tarteaucitron&&tarteaucitron.services[k]){tarteaucitron.services[k].name=n[k];}}});',
+                    'after'
+                );
+            }
+
             $tags = $this->tagRenderer()->resolveTags($settings);
             $gcmJobs = is_array($settings['gcm_jobs_enabled'] ?? null)
                 ? $settings['gcm_jobs_enabled']

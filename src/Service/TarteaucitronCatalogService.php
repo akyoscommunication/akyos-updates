@@ -41,6 +41,70 @@ final class TarteaucitronCatalogService
         ];
     }
 
+    /**
+     * Noms français des services dont le nom tarteaucitron est générique et en anglais (les noms de marque restent tels
+     * quels). Affichés dans l'admin et dans le panneau cookies du visiteur selon « Langue des noms de services ».
+     *
+     * @var array<string, string>
+     */
+    public const FR_NAMES = [
+        'gcmadstorage' => 'Publicité',
+        'gcmadsuserdata' => 'Publicité personnalisée',
+        'gcmanalyticsstorage' => 'Mesure d\'audience',
+        'gcmpersonalization' => 'Personnalisation',
+        'gcmfunctionality' => 'Fonctionnalités',
+        'gcmsecurity' => 'Sécurité',
+        'aduptech_ads' => 'Ad Up Technology (publicités)',
+        'aduptech_retargeting' => 'Ad Up Technology (reciblage)',
+        'addtoanyfeed' => 'AddToAny (flux)',
+        'addtoanyshare' => 'AddToAny (partage)',
+        'adsensesearchform' => 'Google Adsense Search (formulaire)',
+        'adsensesearchresult' => 'Google Adsense Search (résultats)',
+        'googleadwordsremarketing' => 'Google Adwords (reciblage)',
+        'adsenseauto' => 'Google Adsense automatique',
+        'googlemapssearch' => 'Google Maps (recherche)',
+        'maps_noapi' => 'Google Maps (sans API)',
+        'googlesignin' => 'Google Sign-In (connexion)',
+        'googlepartners' => 'Badge Google Partners',
+        'datingaffiliationpopup' => 'Dating Affiliation (pop-up)',
+        'discord' => 'Discord (widget serveur)',
+        'eulerian' => 'Eulerian (non supporté officiellement)',
+        'facebookcustomerchat' => 'Facebook (chat client)',
+        'facebooklikebox' => 'Facebook (boîte J\'aime)',
+        'facebookpost' => 'Facebook (publication)',
+        'geoportail' => 'Géoportail (carte intégrée)',
+        'matomoheatmap' => 'Matomo Cloud (carte de chaleur)',
+        'multiplegoogletagmanager' => 'Google Tag Manager (plusieurs conteneurs)',
+        'openstreetmap' => 'OpenStreetMap (carte intégrée)',
+        'archive' => 'Internet Archive',
+        'twitter' => 'X (anciennement Twitter)',
+        'twitterembed' => 'X (anciennement Twitter) cartes',
+        'twittertimeline' => 'X (anciennement Twitter) fils',
+        'twitteruwt' => 'X (anciennement Twitter) Universal Website Tag',
+        'twitterwidgetsapi' => 'X (anciennement Twitter) API widgets',
+        'youtubeapi' => 'Youtube (API JS)',
+    ];
+
+    public const NAMES_LANG_AUTO = 'auto';
+    public const NAMES_LANG_FR = 'fr';
+    public const NAMES_LANG_EN = 'en';
+
+    /** Nom affiché d'un service dans la langue voulue (fr = traduction si connue, sinon nom d'origine). */
+    public static function localizedName(string $id, string $name, string $lang): string
+    {
+        return $lang === self::NAMES_LANG_FR ? (self::FR_NAMES[$id] ?? $name) : $name;
+    }
+
+    /** « auto » suit la langue du site (fr → noms français, sinon noms d'origine). */
+    public static function resolveNamesLang(string $setting, string $siteLang): string
+    {
+        if (in_array($setting, [self::NAMES_LANG_FR, self::NAMES_LANG_EN], true)) {
+            return $setting;
+        }
+
+        return str_starts_with(strtolower($siteLang), 'fr') ? self::NAMES_LANG_FR : self::NAMES_LANG_EN;
+    }
+
     /** @var array<string, string> */
     private const TYPE_LABELS = [
         'analytic' => 'Mesure d\'audience',

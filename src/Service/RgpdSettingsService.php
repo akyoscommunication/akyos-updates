@@ -169,6 +169,8 @@ final class RgpdSettingsService
             'tac_high_privacy' => true,
             'tac_google_consent_mode' => true,
             'tac_group_services' => false,
+            /** Langue des noms de services (panneau cookies + admin) : auto (langue du site) | fr | en. */
+            'tac_service_names_lang' => 'auto',
 
             /** Signaux GCM v2 cochés (activés auto à l'ajout d'un GTM). */
             'gcm_jobs_enabled' => [],
@@ -245,7 +247,8 @@ final class RgpdSettingsService
             $t['danger_soft'],
             $t['radius'],
             $t['radius_sm'],
-            wp_json_encode($t['font'], JSON_UNESCAPED_UNICODE),
+            // Pile brute (pas de JSON : une chaîne entre guillemets = un seul nom de police introuvable).
+            preg_replace('/[;{}<>\\\\]/', '', (string) $t['font']),
             $bannerTitleCss
         );
     }
@@ -592,6 +595,8 @@ final class RgpdSettingsService
         $out['tac_high_privacy'] = ! array_key_exists('tac_high_privacy', $input) || ! empty($input['tac_high_privacy']);
         $out['tac_google_consent_mode'] = ! array_key_exists('tac_google_consent_mode', $input) || ! empty($input['tac_google_consent_mode']);
         $out['tac_group_services'] = ! empty($input['tac_group_services']);
+        $namesLang = (string) ($input['tac_service_names_lang'] ?? 'auto');
+        $out['tac_service_names_lang'] = in_array($namesLang, ['auto', 'fr', 'en'], true) ? $namesLang : 'auto';
 
         $out['gcm_jobs_enabled'] = self::normalizeGcmJobs(
             $input['gcm_jobs_enabled'] ?? null,

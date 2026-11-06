@@ -11,6 +11,12 @@ function allGcmJobIds(catalog) {
 		: ["gcmadsuserdata", "gcmadstorage", "gcmanalyticsstorage", "gcmpersonalization", "gcmfunctionality", "gcmsecurity"];
 }
 
+/** Nom affiché selon la langue choisie (nameFr = traduction côté PHP, sinon nom tarteaucitron). */
+function serviceName(def, lang, fallback = "") {
+	if (!def) return fallback;
+	return (lang === "fr" && def.nameFr) || def.name || fallback;
+}
+
 function isGtmTag(id) {
 	return GTM_TAG_IDS.has(id);
 }
@@ -30,7 +36,7 @@ function CodeBlock({ label, code, onCopy }) {
 	);
 }
 
-function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
+function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode, lang }) {
 	const [open, setOpen] = useState(false);
 	const fields = Array.isArray(def?.fields) ? def.fields : [];
 	const mode = def?.renderMode || tagMode || "tarteaucitron_job";
@@ -50,7 +56,7 @@ function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
 		<div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
 			<div className="flex flex-wrap items-start justify-between gap-2">
 				<div>
-					<p className="m-0 text-sm font-semibold text-slate-900">{def?.name || tag.id}</p>
+					<p className="m-0 text-sm font-semibold text-slate-900">{serviceName(def, lang, tag.id)}</p>
 					<p className="m-0 mt-0.5 text-xs text-slate-500">
 						{def?.category || "—"} · {modeLabel}
 						{Array.isArray(def?.jobs) && def.jobs.length ? ` · ${def.jobs.join(", ")}` : ""}
@@ -99,12 +105,12 @@ function TagCard({ tag, def, onChange, onRemove, onCopy, tagMode }) {
 	);
 }
 
-function GcmSignalCard({ id, def, onRemove, onCopy }) {
+function GcmSignalCard({ id, def, onRemove, onCopy, lang }) {
 	return (
 		<div className="ml-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm sm:ml-6">
 			<div className="flex flex-wrap items-start justify-between gap-2">
 				<div>
-					<p className="m-0 text-sm font-semibold text-slate-900">{def?.name || id}</p>
+					<p className="m-0 text-sm font-semibold text-slate-900">{serviceName(def, lang, id)}</p>
 					<p className="m-0 mt-0.5 text-xs text-slate-500">
 						Google Consent Mode v2 · tarteaucitron.job · {id}
 					</p>
@@ -125,7 +131,7 @@ function GcmSignalCard({ id, def, onRemove, onCopy }) {
 	);
 }
 
-export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteaucitron", gcmJobsEnabled, onGcmJobsChange }) {
+export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteaucitron", gcmJobsEnabled, onGcmJobsChange, namesLang = "fr" }) {
 	const [catalog, setCatalog] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [syncing, setSyncing] = useState(false);
@@ -204,7 +210,12 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 			if (category && s.category !== category) return false;
 			if (configuredIds.has(s.id)) return false;
 			if (!q) return true;
-			return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q) || s.category.toLowerCase().includes(q);
+			return (
+				s.name.toLowerCase().includes(q) ||
+				(s.nameFr || "").toLowerCase().includes(q) ||
+				s.id.toLowerCase().includes(q) ||
+				s.category.toLowerCase().includes(q)
+			);
 		});
 	}, [services, query, category, configuredIds, gcmJobs]);
 
@@ -225,7 +236,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 		setPickerOpen(false);
 		setQuery("");
 		const gcmHint = isGtmTag(service.id) ? " Consent Mode v2 activé (modifiable ci-dessus)." : "";
-		addToast(`Service « ${service.name} » ajouté.${gcmHint}`, "success");
+		addToast(`Service « ${serviceName(service, namesLang)} » ajouté.${gcmHint}`, "success");
 	};
 
 	const updateTag = (index, next) => {
@@ -308,6 +319,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 								tag={tag}
 								def={byId.get(tag.id)}
 								tagMode={tagMode}
+								lang={namesLang}
 								onChange={(next) => updateTag(index, next)}
 								onRemove={() => removeTag(index)}
 								onCopy={copy}
@@ -318,6 +330,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 											key={`gcm-${gcmId}`}
 											id={gcmId}
 											def={byId.get(gcmId)}
+											lang={namesLang}
 											onRemove={() => removeGcmJob(gcmId)}
 											onCopy={copy}
 										/>
@@ -378,7 +391,7 @@ export function CmpTagsEditor({ tags, onChange, addToast, serviceType = "tarteau
 										onClick={() => addTag(s)}
 										className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-50"
 									>
-										<span className="font-medium text-slate-900">{s.name}</span>
+										<span className="font-medium text-slate-900">{serviceName(s, namesLang)}</span>
 										<span className="shrink-0 text-xs text-slate-400">{s.category}</span>
 									</button>
 								</li>

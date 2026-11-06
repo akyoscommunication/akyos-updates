@@ -38,4 +38,25 @@ assert_same(
 assert_same(['theme_primary' => '#ABCDEF'], RgpdThemeStyleDetector::fromSources([['primary' => 'rouge']], ['nope'], null, ['--color-primary: #abcdef;']), 'CSS');
 assert_same([], RgpdThemeStyleDetector::fromSources([], [], null, []), 'rien trouvé');
 
+// Polices du sélecteur : options de thème, presets theme.json, body CSS (var() résolu), variables --font-*.
+assert_same(
+    [
+        ['value' => '"Open Sans", sans-serif', 'label' => 'Open Sans (thème)'],
+        ['value' => '"Manrope", sans-serif', 'label' => 'Manrope (thème)'],
+        ['value' => 'Lato, Arial, sans-serif', 'label' => 'Lato (thème)'],
+        ['value' => '"Playfair Display", serif', 'label' => 'Playfair Display (thème)'],
+    ],
+    RgpdThemeStyleDetector::fontsFromSources(
+        ['Open Sans', 'inherit', ''],
+        ['var:preset|font-family|body', 'body' => '"Manrope", sans-serif'],
+        [
+            ':root{--font-body: Lato, Arial, sans-serif;--font-heading:"Playfair Display", serif;--font-size-base:16px;--font-mono: Menlo, monospace}',
+            'html,body{font-family:var(--font-body) !important}.x{font-family:"Font Awesome 6"}',
+            'body{font-family: system-ui, sans-serif}',
+        ]
+    ),
+    'polices détectées'
+);
+assert_same([], RgpdThemeStyleDetector::fontsFromSources([], [], ['body{font-family:var(--inconnue)}']), 'var non résolue ignorée');
+
 echo "OK\n";

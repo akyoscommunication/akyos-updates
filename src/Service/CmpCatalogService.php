@@ -71,6 +71,11 @@ final class CmpCatalogService
             return [
                 'id' => (string) ($service['id'] ?? ''),
                 'name' => (string) ($service['name'] ?? ''),
+                'nameFr' => TarteaucitronCatalogService::localizedName(
+                    (string) ($service['id'] ?? ''),
+                    (string) ($service['name'] ?? ''),
+                    TarteaucitronCatalogService::NAMES_LANG_FR
+                ),
                 'category' => (string) ($service['category'] ?? ''),
                 'jobs' => is_array($service['jobs'] ?? null) ? $service['jobs'] : [],
                 'fields' => is_array($service['fields'] ?? null) ? $service['fields'] : [],

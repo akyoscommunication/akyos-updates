@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ColorField, FieldGrid, FormSectionLabel, RangeField, SelectField, SubTabs, SwitchField, TextField } from "./ui";
 
 const FONT_PRESETS = [
@@ -130,8 +130,21 @@ function BannerPreview({ theme }) {
 	);
 }
 
-export function RgpdThemeFields({ form, set, showTacOptions = false }) {
+export function RgpdThemeFields({ form, set, showTacOptions = false, themeFonts = [] }) {
 	const [tab, setTab] = useState("colors");
+	const fontOptions = useMemo(() => {
+		const options = [...FONT_PRESETS];
+		for (const font of Array.isArray(themeFonts) ? themeFonts : []) {
+			if (font?.value && !options.some((o) => o.value === font.value)) {
+				options.push({ value: font.value, label: font.label || font.value });
+			}
+		}
+		const current = form.theme_font || "";
+		if (current && !options.some((o) => o.value === current)) {
+			options.push({ value: current, label: `Actuelle : ${current.split(",")[0].replace(/["']/g, "").trim()}` });
+		}
+		return options;
+	}, [themeFonts, form.theme_font]);
 	const theme = resolveRgpdTheme(form);
 	const radius = Math.max(8, Math.min(32, Number(form.theme_radius) || 16));
 
@@ -180,8 +193,8 @@ export function RgpdThemeFields({ form, set, showTacOptions = false }) {
 									label="Police"
 									value={form.theme_font || ""}
 									onChange={(v) => set("theme_font", v)}
-									options={FONT_PRESETS}
-									hint="Appliquée à toute la bannière cookies."
+									options={fontOptions}
+									hint="Appliquée à toute la bannière cookies. « (thème) » = polices détectées sur le site."
 								/>
 								<RangeField
 									label="Arrondi des coins"
