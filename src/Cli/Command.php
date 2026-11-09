@@ -166,6 +166,42 @@ final class Command
      *
      * @when after_wp_load
      */
+    /**
+     * Changements à faire dans le dépôt Git du site d'après le dernier rapport (.gitignore, auth.json, Composer).
+     * Le plugin ne commite rien : la maintenance applique ce plan dans le dépôt, déploie, puis relance l'analyse.
+     *
+     * ## OPTIONS
+     *
+     * [--format=<format>]
+     * : table (défaut) ou json.
+     *
+     * ## EXAMPLES
+     *
+     *     wp akyos-updates repo-plan --format=json
+     *
+     * @subcommand repo-plan
+     * @when after_wp_load
+     */
+    public function repoPlan(array $args, array $assocArgs): void
+    {
+        $plan = RepoPlan::fromResults($this->reportResults(), RepoPlan::installedVersions());
+        if (($assocArgs['format'] ?? 'table') === 'json') {
+            \WP_CLI::print_value($plan, ['format' => 'json']);
+
+            return;
+        }
+        foreach ($plan['gitignore'] as $line) {
+            \WP_CLI::log('.gitignore + ' . $line);
+        }
+        foreach ($plan['composerRequire'] as $package) {
+            \WP_CLI::log(sprintf('composer require %s (installé : %s)', $package['slug'], $package['version']));
+        }
+        \WP_CLI::log('git rm --cached --ignore-unmatch ' . implode(' ', $plan['untrack']));
+        if ($plan['serverAuthJson']) {
+            \WP_CLI::log('Serveur : auth.json absent à la racine projet.');
+        }
+    }
+
     public function report(array $args, array $assocArgs): void
     {
         $asJson = ($assocArgs['format'] ?? 'table') === 'json';

@@ -78,7 +78,7 @@ final class GenerateGitignorePluginExceptionsAction implements ActionInterface
         ]);
     }
 
-    private static function lineForSlug(string $slug, string $installationType): string
+    public static function lineForSlug(string $slug, string $installationType): string
     {
         $slug = trim($slug);
         if ($slug === '') {

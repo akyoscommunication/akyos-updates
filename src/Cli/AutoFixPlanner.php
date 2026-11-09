@@ -16,9 +16,9 @@ final class AutoFixPlanner
         'backoffice.branda_save_smtp' => 'Nécessite les identifiants SMTP.',
         'backoffice.branda_send_test_email' => 'Nécessite un destinataire.',
         'seo.toggle_indexing' => 'Choix d’indexation par type / page — à faire dans l’admin.',
-        'plugins.generate_composer_json' => 'Génère un template, ne l’applique pas.',
-        'plugins.generate_composer_guidance' => 'Génère un guide, ne l’applique pas.',
-        'plugins.generate_gitignore_exceptions' => 'Propose des lignes .gitignore, ne les écrit pas.',
+        'plugins.generate_composer_json' => 'Dans le dépôt : wp akyos-updates repo-plan.',
+        'plugins.generate_composer_guidance' => 'Dans le dépôt : wp akyos-updates repo-plan.',
+        'plugins.generate_gitignore_exceptions' => 'Dans le dépôt : wp akyos-updates repo-plan.',
     ];
 
     /**

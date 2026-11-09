@@ -2,6 +2,7 @@
 
 namespace AkyosUpdates\Controller;
 
+use AkyosUpdates\Cli\RepoPlan;
 use AkyosUpdates\Core\Maintenance;
 use AkyosUpdates\Service\CrmApiAuthService;
 use AkyosUpdates\Service\FixRunnerService;
@@ -239,6 +240,8 @@ final class ApiController
             'validations' => ManualValidationService::summarize(is_array($payload['checks'] ?? null) ? $payload['checks'] : []),
             'updatedAt' => is_string($payload['updatedAt'] ?? null) ? $payload['updatedAt'] : gmdate('c'),
             'reportUrl' => (string) ($identity['reportUrl'] ?? admin_url('admin.php?page=akyos-updates')),
+            // Aussi dans le résumé : c'est ce que lit MAW (project_diagnostic status) pour préparer la maintenance du dépôt.
+            'repository' => RepoPlan::fromResults(array_values(is_array($payload['checks'] ?? null) ? $payload['checks'] : []), RepoPlan::installedVersions()),
         ];
 
         if (!$summaryOnly) {
